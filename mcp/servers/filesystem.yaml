@@ -9,7 +9,7 @@ config:
   args:
     - -y
     - "@modelcontextprotocol/server-filesystem"
-    - "{{ allowed_paths | default(['/home/user']) }}"
+    - "{{ HOME }}"
 
 install: |
   echo "Filesystem MCP server is built-in to npx"

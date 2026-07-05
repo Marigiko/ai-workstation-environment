@@ -10,7 +10,7 @@ config:
     - -y
     - "@codebase-memory/mcp-server"
   env:
-    MEMORY_DIR: "{{ memory_dir | default('~/.codebase-memory') }}"
+    MEMORY_DIR: "~/.codebase-memory"
 
 install: |
   npm install -g @codebase-memory/mcp-server

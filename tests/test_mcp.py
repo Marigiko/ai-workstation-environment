@@ -1,5 +1,6 @@
 """Tests for core.mcp module."""
 
+import json
 from pathlib import Path
 
 import yaml
@@ -72,6 +73,13 @@ def test_generate_config_opencode(tmp_path):
     assert mcp.generate_config("opencode")
     config_file = tmp_path / ".config" / "opencode" / "config.json"
     assert config_file.exists()
+    with open(config_file) as f:
+        data = json.load(f)
+    assert "mcp" in data
+    server = data["mcp"]["test-server"]
+    assert server["enabled"] is True
+    assert server["type"] == "local"
+    assert server["command"] == "npx"
 
 
 def test_generate_config_claude(tmp_path):

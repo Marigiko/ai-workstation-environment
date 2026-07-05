@@ -10,7 +10,7 @@ config:
     - -y
     - "@modelcontextprotocol/server-github"
   env:
-    GITHUB_TOKEN: "{{ github_token }}"
+    GITHUB_TOKEN: "YOUR_GITHUB_TOKEN_HERE"
 
 install: |
   echo "GitHub MCP server is built-in to npx"

@@ -10,7 +10,7 @@ config:
     - -y
     - "@modelcontextprotocol/server-memory"
   env:
-    MEMORY_FILE: "{{ memory_file | default('~/.mcp-memory/memory.json') }}"
+    MEMORY_FILE: "~/.mcp-memory/memory.json"
 
 install: |
   echo "Memory MCP server is built-in to npx"

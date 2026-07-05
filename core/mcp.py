@@ -98,13 +98,16 @@ class MCPManager:
                 continue
             config = server_def.get("config", {})
             if config:
-                mcp_servers[name] = {
+                server_entry: dict[str, Any] = {
+                    "enabled": True,
+                    "type": "local",
                     "command": config.get("command", ""),
                     "args": config.get("args", []),
                 }
                 env = config.get("env", {})
                 if env:
-                    mcp_servers[name]["env"] = env
+                    server_entry["env"] = env
+                mcp_servers[name] = server_entry
 
         generators = {
             "opencode": self._gen_opencode,
@@ -122,7 +125,7 @@ class MCPManager:
     def _gen_opencode(self, servers: dict) -> bool:
         config_file = self.config_dir / "opencode" / "config.json"
         config_file.parent.mkdir(parents=True, exist_ok=True)
-        data = {"mcpServers": servers}
+        data = {"mcp": servers}
         with open(config_file, "w") as f:
             json.dump(data, f, indent=2)
         log.info("Generated: %s", config_file)

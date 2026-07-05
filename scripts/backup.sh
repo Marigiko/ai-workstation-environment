@@ -62,10 +62,14 @@ log "Backup created: $BACKUP_FILE"
 log "Size: $(du -h "$BACKUP_FILE" | cut -f1)"
 
 # Cleanup old backups (keep last 5)
-BACKUP_COUNT=$(ls -1 "$BACKUP_DIR"/awe-backup-*.tar.gz 2>/dev/null | wc -l)
+BACKUP_COUNT=$(find "$BACKUP_DIR" -maxdepth 1 -name "awe-backup-*.tar.gz" -type f | wc -l)
 if [ "$BACKUP_COUNT" -gt 5 ]; then
     log "Cleaning old backups (keeping last 5)..."
-    ls -1t "$BACKUP_DIR"/awe-backup-*.tar.gz | tail -n +6 | xargs rm -f
+    find "$BACKUP_DIR" -maxdepth 1 -name "awe-backup-*.tar.gz" -type f -printf '%T@ %p\n' \
+        | sort -rn \
+        | tail -n +6 \
+        | cut -d' ' -f2- \
+        | xargs rm -f
 fi
 
 log "Done"
