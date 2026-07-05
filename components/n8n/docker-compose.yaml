@@ -1,0 +1,36 @@
+services:
+  n8n:
+    container_name: awe-n8n
+    image: n8nio/n8n:latest
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=awe-postgresql
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=awe
+      - DB_POSTGRESDB_USER=awe
+      - DB_POSTGRESDB_PASSWORD=awe-password
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - WEBHOOK_URL=http://localhost:5678/
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      - postgresql
+
+  postgresql:
+    container_name: awe-postgresql
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: awe
+      POSTGRES_PASSWORD: awe-password
+      POSTGRES_DB: awe
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  n8n_data:
+  postgres_data:

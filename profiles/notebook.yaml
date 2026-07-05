@@ -1,0 +1,19 @@
+name: notebook
+description: "Lightweight AI dev environment for laptops"
+
+components:
+  - git
+  - ssh
+  - node
+  - python
+  - zed
+  - opencode
+  - claude-code
+  - tailscale
+  - docker
+
+config_overrides:
+  environment:
+    editor: zed
+  docker:
+    resource_limits: true

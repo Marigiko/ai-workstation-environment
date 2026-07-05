@@ -1,0 +1,17 @@
+name: headroom
+description: "Context compression for AI tools"
+version: "latest"
+enabled: true
+priority: immediate
+
+config:
+  command: npx
+  args:
+    - -y
+    - "@headroom/mcp-server"
+
+install: |
+  npm install -g @headroom/mcp-server
+
+update: |
+  npm update -g @headroom/mcp-server

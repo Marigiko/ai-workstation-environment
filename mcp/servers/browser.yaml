@@ -1,0 +1,17 @@
+name: browser
+description: "Web browsing and research"
+version: "latest"
+enabled: false
+priority: nice-to-have
+
+config:
+  command: npx
+  args:
+    - -y
+    - "@modelcontextprotocol/server-browser"
+
+install: |
+  echo "Browser MCP server is built-in to npx"
+
+update: |
+  npx -y @modelcontextprotocol/server-browser --version

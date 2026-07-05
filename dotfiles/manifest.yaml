@@ -1,0 +1,13 @@
+links:
+  - src: zsh/.zshrc
+    dst: .zshrc
+  - src: zsh/.zsh_aliases
+    dst: .zsh_aliases
+  - src: zsh/.zshenv
+    dst: .zshenv
+  - src: git/.gitconfig
+    dst: .gitconfig
+  - src: git/.gitignore_global
+    dst: .gitignore_global
+  - src: starship/starship.toml
+    dst: .config/starship.toml

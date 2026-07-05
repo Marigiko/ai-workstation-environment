@@ -1,0 +1,60 @@
+name: create-fastapi-project
+description: "Scaffold a production-ready FastAPI project"
+version: "1.0"
+
+context:
+  - "Python 3.12+ project"
+  - "REST API with async endpoints"
+  - "Docker-ready"
+
+prompt: "@prompts/coding/clean-implementation.md"
+
+tools:
+  - filesystem
+  - git
+
+mcp_required:
+  - filesystem
+  - git
+
+model_recommended: "claude-sonnet-4-20250514"
+
+steps:
+  - name: "Project Structure"
+    action: "Create directory structure: src/, tests/, docs/, docker/"
+    
+  - name: "Core Application"
+    action: "Create FastAPI app with: main.py, config.py, dependencies.py"
+    
+  - name: "Models & Schemas"
+    action: "Create Pydantic models and SQLAlchemy models"
+    
+  - name: "API Routes"
+    action: "Create example CRUD endpoints with proper error handling"
+    
+  - name: "Database Setup"
+    action: "Configure database connection, migrations with Alembic"
+    
+  - name: "Authentication"
+    action: "Add JWT authentication with OAuth2"
+    
+  - name: "Testing"
+    action: "Create pytest setup with unit and integration tests"
+    
+  - name: "Docker"
+    action: "Create Dockerfile and docker-compose.yml"
+    
+  - name: "Documentation"
+    action: "Generate README.md and API docs"
+    
+  - name: "CI/CD"
+    action: "Create GitHub Actions workflow"
+
+deliverables:
+  - "FastAPI application with async endpoints"
+  - "SQLAlchemy models with Alembic migrations"
+  - "JWT authentication system"
+  - "Pytest test suite"
+  - "Docker configuration"
+  - "GitHub Actions CI/CD"
+  - "Complete documentation"

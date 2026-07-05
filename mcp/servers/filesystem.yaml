@@ -1,0 +1,18 @@
+name: filesystem
+description: "File system operations"
+version: "latest"
+enabled: true
+priority: immediate
+
+config:
+  command: npx
+  args:
+    - -y
+    - "@modelcontextprotocol/server-filesystem"
+    - "{{ allowed_paths | default(['/home/user']) }}"
+
+install: |
+  echo "Filesystem MCP server is built-in to npx"
+
+update: |
+  npx -y @modelcontextprotocol/server-filesystem --version

@@ -1,0 +1,58 @@
+name: debug-python
+description: "Systematic Python debugging workflow"
+version: "1.0"
+
+context:
+  - "Python application with error"
+  - "Systematic debugging approach"
+  - "Root cause analysis"
+  - "Fix and prevent recurrence"
+
+prompt: "@prompts/debug/systematic-debugging.md"
+
+tools:
+  - filesystem
+  - git
+
+mcp_required:
+  - filesystem
+  - git
+
+model_recommended: "claude-sonnet-4-20250514"
+
+steps:
+  - name: "Reproduce"
+    action: "Create minimal reproduction case"
+    
+  - name: "Gather Info"
+    action: "Collect error messages, stack traces, logs"
+    
+  - name: "Isolate"
+    action: "Identify which component is failing"
+    
+  - name: "Hypothesize"
+    action: "List top 3 hypotheses for root cause"
+    
+  - name: "Test Hypotheses"
+    action: "Verify each hypothesis with targeted tests"
+    
+  - name: "Root Cause"
+    action: "Confirm actual root cause"
+    
+  - name: "Fix"
+    action: "Implement minimal fix"
+    
+  - name: "Verify"
+    action: "Test that fix resolves the issue"
+    
+  - name: "Prevent"
+    action: "Add tests to prevent regression"
+    
+  - name: "Document"
+    action: "Document the issue and fix"
+
+deliverables:
+  - "Root cause analysis"
+  - "Minimal fix"
+  - "Regression tests"
+  - "Prevention recommendations"

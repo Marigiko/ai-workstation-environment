@@ -1,0 +1,17 @@
+name: git
+description: "Git operations (diff, blame, log)"
+version: "latest"
+enabled: true
+priority: immediate
+
+config:
+  command: npx
+  args:
+    - -y
+    - "@modelcontextprotocol/server-git"
+
+install: |
+  echo "Git MCP server is built-in to npx"
+
+update: |
+  npx -y @modelcontextprotocol/server-git --version

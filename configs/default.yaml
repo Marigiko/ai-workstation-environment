@@ -1,0 +1,18 @@
+environment:
+  editor: zed
+  shell: zsh
+
+git:
+  default_branch: main
+
+docker:
+  compose_version: v2
+
+mcp:
+  default_enabled:
+    - filesystem
+    - git
+    - github
+    - headroom
+    - codebase-memory
+    - ponytail

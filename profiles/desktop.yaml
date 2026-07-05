@@ -1,0 +1,19 @@
+name: desktop
+description: "Full AI dev environment for desktop workstations"
+
+components:
+  - git
+  - ssh
+  - node
+  - python
+  - rust
+  - zed
+  - vscode
+  - opencode
+  - claude-code
+  - tailscale
+  - docker
+
+config_overrides:
+  environment:
+    editor: zed

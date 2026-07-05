@@ -1,0 +1,19 @@
+name: host
+description: "Full infrastructure host for AI services"
+
+components:
+  - git
+  - ssh
+  - docker
+  - tailscale
+  - node
+  - python
+  - ollama
+  - litellm
+  - qdrant
+  - postgresql
+  - n8n
+
+config_overrides:
+  docker:
+    resource_limits: false

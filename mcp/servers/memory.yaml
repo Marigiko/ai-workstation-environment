@@ -1,0 +1,19 @@
+name: memory
+description: "General-purpose persistent memory"
+version: "latest"
+enabled: false
+priority: nice-to-have
+
+config:
+  command: npx
+  args:
+    - -y
+    - "@modelcontextprotocol/server-memory"
+  env:
+    MEMORY_FILE: "{{ memory_file | default('~/.mcp-memory/memory.json') }}"
+
+install: |
+  echo "Memory MCP server is built-in to npx"
+
+update: |
+  npx -y @modelcontextprotocol/server-memory --version

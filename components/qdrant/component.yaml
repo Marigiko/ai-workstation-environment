@@ -1,0 +1,7 @@
+name: qdrant
+version: "latest"
+description: "Qdrant - Vector database (Docker)"
+platforms: [linux]
+profiles: [host]
+depends_on: [docker]
+optional: false

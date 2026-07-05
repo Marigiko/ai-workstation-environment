@@ -1,0 +1,7 @@
+name: node
+version: "20"
+description: "Node.js via nvm (Node Version Manager)"
+platforms: [linux, darwin]
+profiles: [notebook, desktop, host]
+depends_on: []
+optional: false

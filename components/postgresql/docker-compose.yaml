@@ -1,0 +1,16 @@
+services:
+  postgresql:
+    container_name: awe-postgresql
+    image: postgres:16-alpine
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: awe
+      POSTGRES_PASSWORD: awe-password
+      POSTGRES_DB: awe
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

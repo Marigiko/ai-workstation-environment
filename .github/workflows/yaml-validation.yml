@@ -1,0 +1,56 @@
+name: YAML Validation
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '**/*.yaml'
+      - '**/*.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '**/*.yaml'
+      - '**/*.yml'
+
+jobs:
+  validate-yaml:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Install PyYAML
+      run: |
+        pip install pyyaml
+
+    - name: Validate YAML files
+      run: |
+        python -c "
+        import yaml
+        import sys
+        from pathlib import Path
+
+        errors = []
+        for pattern in ['**/*.yaml', '**/*.yml']:
+            for file in Path('.').glob(pattern):
+                if '.git' in str(file) or '.venv' in str(file):
+                    continue
+                try:
+                    with open(file) as f:
+                        yaml.safe_load(f)
+                except Exception as e:
+                    errors.append(f'{file}: {e}')
+
+        if errors:
+            print('YAML validation errors:')
+            for error in errors:
+                print(f'  {error}')
+            sys.exit(1)
+        else:
+            print('All YAML files are valid')
+        "

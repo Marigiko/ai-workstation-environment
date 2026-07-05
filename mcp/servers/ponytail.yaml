@@ -1,0 +1,17 @@
+name: ponytail
+description: "Code quality and lazy development enforcement"
+version: "latest"
+enabled: true
+priority: immediate
+
+config:
+  command: npx
+  args:
+    - -y
+    - "@ponytail/mcp-server"
+
+install: |
+  npm install -g @ponytail/mcp-server
+
+update: |
+  npm update -g @ponytail/mcp-server

@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+VENV_DIR="$SCRIPT_DIR/.venv"
+
+log() { printf '[bootstrap] %s\n' "$*"; }
+die() { printf '[bootstrap] ERROR: %s\n' "$*" >&2; exit 1; }
+
+check_python() {
+    local py_cmd=""
+    for cmd in python3.12 python3.11 python3.10 python3 python; do
+        if command -v "$cmd" &>/dev/null; then
+            local ver
+            ver=$("$cmd" -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')" 2>/dev/null || echo "0.0")
+            local major minor
+            major=$(echo "$ver" | cut -d. -f1)
+            minor=$(echo "$ver" | cut -d. -f2)
+            if [ "$major" -ge 3 ] && [ "$minor" -ge 10 ]; then
+                py_cmd="$cmd"
+                break
+            fi
+        fi
+    done
+    if [ -z "$py_cmd" ]; then
+        die "Python >= 3.10 required. Install it first."
+    fi
+    echo "$py_cmd"
+}
+
+setup_venv() {
+    local py_cmd="$1"
+    if [ ! -d "$VENV_DIR" ]; then
+        log "Creating virtual environment in .venv"
+        "$py_cmd" -m venv "$VENV_DIR"
+    fi
+    # shellcheck disable=SC1091
+    source "$VENV_DIR/bin/activate" 2>/dev/null || source "$VENV_DIR/Scripts/activate" 2>/dev/null || die "Failed to activate venv"
+}
+
+install_deps() {
+    local stamp="$VENV_DIR/.deps_installed"
+    local pyproject="$SCRIPT_DIR/pyproject.toml"
+    if [ ! -f "$stamp" ] || [ "$pyproject" -nt "$stamp" ]; then
+        log "Installing dependencies"
+        pip install --quiet -e "$SCRIPT_DIR"
+        touch "$stamp"
+    fi
+}
+
+main() {
+    log "ai-workstation-environment bootstrap"
+    log "Detecting Python..."
+    local py_cmd
+    py_cmd=$(check_python)
+    log "Found: $py_cmd ($($py_cmd --version 2>&1))"
+
+    setup_venv "$py_cmd"
+    install_deps
+
+    log "Launching core..."
+    exec python -m core.main "$@"
+}
+
+main "$@"

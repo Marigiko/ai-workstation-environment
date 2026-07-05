@@ -1,0 +1,7 @@
+name: n8n
+version: "latest"
+description: "n8n - Workflow automation (Docker)"
+platforms: [linux]
+profiles: [host]
+depends_on: [docker, postgresql]
+optional: false

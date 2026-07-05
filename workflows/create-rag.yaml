@@ -1,0 +1,64 @@
+name: create-rag
+description: "Set up a RAG (Retrieval Augmented Generation) pipeline"
+version: "1.0"
+
+context:
+  - "Python 3.12+ project"
+  - "Document ingestion pipeline"
+  - "Vector database integration"
+  - "LLM-powered generation"
+
+prompt: "@prompts/architecture/system-design.md"
+
+tools:
+  - filesystem
+  - git
+  - postgres
+
+mcp_required:
+  - filesystem
+  - git
+
+model_recommended: "claude-sonnet-4-20250514"
+
+steps:
+  - name: "Architecture"
+    action: "Design RAG system: ingestion → embedding → storage → retrieval → generation"
+    
+  - name: "Document Loader"
+    action: "Create loaders for PDF, Markdown, HTML, code files"
+    
+  - name: "Chunking Strategy"
+    action: "Implement text chunking with overlap and metadata"
+    
+  - name: "Embedding"
+    action: "Set up embedding model (OpenAI/local)"
+    
+  - name: "Vector Store"
+    action: "Configure Qdrant/Pinecone/pgvector"
+    
+  - name: "Retrieval"
+    action: "Implement similarity search with filters"
+    
+  - name: "Prompt Template"
+    action: "Create RAG prompt template with context injection"
+    
+  - name: "LLM Integration"
+    action: "Connect to LLM (OpenAI/Anthropic/local)"
+    
+  - name: "Pipeline"
+    action: "Create end-to-end pipeline with error handling"
+    
+  - name: "API"
+    action: "Create FastAPI endpoints for RAG queries"
+    
+  - name: "Evaluation"
+    action: "Add evaluation metrics (faithfulness, relevance)"
+
+deliverables:
+  - "Document ingestion pipeline"
+  - "Vector database setup"
+  - "Retrieval system"
+  - "RAG prompt template"
+  - "API endpoints"
+  - "Evaluation framework"

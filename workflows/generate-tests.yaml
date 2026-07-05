@@ -1,0 +1,56 @@
+name: generate-tests
+description: "Generate comprehensive test suite for existing code"
+version: "1.0"
+
+context:
+  - "Analyze existing code"
+  - "Generate unit, integration, property tests"
+  - "Achieve high coverage"
+  - "Test edge cases"
+
+prompt: "@prompts/coding/clean-implementation.md"
+
+tools:
+  - filesystem
+  - git
+
+mcp_required:
+  - filesystem
+  - git
+
+model_recommended: "claude-sonnet-4-20250514"
+
+steps:
+  - name: "Analyze Code"
+    action: "Read source files, understand functions and classes"
+    
+  - name: "Identify Test Targets"
+    action: "List functions/methods that need testing"
+    
+  - name: "Unit Tests"
+    action: "Generate unit tests for each function"
+    
+  - name: "Edge Cases"
+    action: "Add tests for edge cases and error conditions"
+    
+  - name: "Integration Tests"
+    action: "Create integration tests for component interactions"
+    
+  - name: "Property Tests"
+    action: "Add property-based tests with hypothesis"
+    
+  - name: "Fixtures"
+    action: "Create reusable test fixtures"
+    
+  - name: "Mocks"
+    action: "Add mocks for external dependencies"
+    
+  - name: "Coverage"
+    action: "Verify test coverage meets target"
+
+deliverables:
+  - "Unit tests for all public functions"
+  - "Integration tests for key workflows"
+  - "Property-based tests for invariants"
+  - "Test fixtures and mocks"
+  - "Coverage report"

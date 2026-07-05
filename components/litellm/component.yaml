@@ -1,0 +1,7 @@
+name: litellm
+version: "latest"
+description: "LiteLLM - Unified LLM API proxy (Docker)"
+platforms: [linux]
+profiles: [host]
+depends_on: [docker]
+optional: false

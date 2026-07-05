@@ -1,0 +1,61 @@
+name: create-scraper
+description: "Build a robust web scraper with error handling"
+version: "1.0"
+
+context:
+  - "Python 3.12+ project"
+  - "Async scraping with rate limiting"
+  - "Respect robots.txt"
+  - "Data validation and storage"
+
+prompt: "@prompts/coding/clean-implementation.md"
+
+tools:
+  - filesystem
+  - git
+  - browser
+
+mcp_required:
+  - filesystem
+  - git
+
+model_recommended: "claude-sonnet-4-20250514"
+
+steps:
+  - name: "Project Setup"
+    action: "Create project structure with src/, tests/, data/"
+    
+  - name: "HTTP Client"
+    action: "Configure httpx/aiohttp with retry logic and rate limiting"
+    
+  - name: "Parser"
+    action: "Create BeautifulSoup/selectolax parser with CSS/XPath selectors"
+    
+  - name: "Data Models"
+    action: "Define Pydantic models for scraped data"
+    
+  - name: "Pipeline"
+    action: "Create scraper pipeline: fetch → parse → validate → store"
+    
+  - name: "Error Handling"
+    action: "Add retry logic, timeout handling, error recovery"
+    
+  - name: "Storage"
+    action: "Implement storage backend (JSON/CSV/database)"
+    
+  - name: "Respect"
+    action: "Add robots.txt parsing, delays, user-agent rotation"
+    
+  - name: "Testing"
+    action: "Create tests with mock responses"
+    
+  - name: "CLI"
+    action: "Create CLI interface with argparse/typer"
+
+deliverables:
+  - "Async web scraper with rate limiting"
+  - "Robust error handling and retries"
+  - "Data validation with Pydantic"
+  - "Multiple storage backends"
+  - "CLI interface"
+  - "Test suite with mocks"

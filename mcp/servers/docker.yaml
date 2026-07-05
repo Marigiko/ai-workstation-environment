@@ -1,0 +1,17 @@
+name: docker
+description: "Docker container management"
+version: "latest"
+enabled: false
+priority: nice-to-have
+
+config:
+  command: npx
+  args:
+    - -y
+    - "@modelcontextprotocol/server-docker"
+
+install: |
+  echo "Docker MCP server is built-in to npx"
+
+update: |
+  npx -y @modelcontextprotocol/server-docker --version

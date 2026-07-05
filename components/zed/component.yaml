@@ -1,0 +1,7 @@
+name: zed
+version: "latest"
+description: "Zed editor"
+platforms: [linux, darwin]
+profiles: [notebook, desktop]
+depends_on: []
+optional: false

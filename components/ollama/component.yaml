@@ -1,0 +1,7 @@
+name: ollama
+version: "latest"
+description: "Ollama - Local LLM runner (Docker)"
+platforms: [linux]
+profiles: [host]
+depends_on: [docker]
+optional: false

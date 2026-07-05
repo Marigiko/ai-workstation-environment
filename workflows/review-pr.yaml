@@ -1,0 +1,53 @@
+name: review-pr
+description: "Comprehensive pull request review"
+version: "1.0"
+
+context:
+  - "Code review for merge readiness"
+  - "Check quality, security, performance"
+  - "Provide actionable feedback"
+
+prompt: "@prompts/review/pr-review.md"
+
+tools:
+  - git
+  - github
+  - filesystem
+
+mcp_required:
+  - git
+  - github
+
+model_recommended: "claude-sonnet-4-20250514"
+
+steps:
+  - name: "Fetch PR"
+    action: "Get PR details, changed files, diff"
+    
+  - name: "Understand Context"
+    action: "Read PR description, linked issues, project context"
+    
+  - name: "Review Changes"
+    action: "Analyze each changed file for quality issues"
+    
+  - name: "Check Tests"
+    action: "Verify tests are added/updated, check coverage"
+    
+  - name: "Security Check"
+    action: "Look for security vulnerabilities"
+    
+  - name: "Performance Check"
+    action: "Identify performance bottlenecks"
+    
+  - name: "Documentation"
+    action: "Check if docs are updated"
+    
+  - name: "Feedback"
+    action: "Compile review with specific, actionable feedback"
+
+deliverables:
+  - "Approval status (Approve/Request Changes/Comment)"
+  - "Critical issues list"
+  - "Suggestions for improvement"
+  - "Positive aspects highlighted"
+  - "Questions for clarification"

@@ -1,0 +1,12 @@
+name: git
+version: "2.40"
+description: "Git version control system"
+platforms: [linux, darwin]
+profiles: [notebook, desktop, host, minimal]
+depends_on: []
+optional: false
+
+packages:
+  apt: [git]
+  pacman: [git]
+  brew: [git]

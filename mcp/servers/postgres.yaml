@@ -1,0 +1,19 @@
+name: postgres
+description: "PostgreSQL database operations"
+version: "latest"
+enabled: false
+priority: nice-to-have
+
+config:
+  command: npx
+  args:
+    - -y
+    - "@modelcontextprotocol/server-postgres"
+  env:
+    DATABASE_URL: "{{ postgres_url | default('postgresql://localhost:5432/mydb') }}"
+
+install: |
+  echo "Postgres MCP server is built-in to npx"
+
+update: |
+  npx -y @modelcontextprotocol/server-postgres --version

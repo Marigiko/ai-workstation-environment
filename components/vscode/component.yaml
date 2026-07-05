@@ -1,0 +1,7 @@
+name: vscode
+version: "latest"
+description: "Visual Studio Code editor"
+platforms: [linux, darwin]
+profiles: [desktop]
+depends_on: []
+optional: true

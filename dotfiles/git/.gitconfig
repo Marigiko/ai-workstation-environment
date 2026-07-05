@@ -1,0 +1,23 @@
+[user]
+	name = {{ git.user_name }}
+	email = {{ git.user_email }}
+
+[init]
+	defaultBranch = main
+
+[core]
+	excludesFile = ~/.gitignore_global
+	editor = zed --wait
+
+[pull]
+	rebase = true
+
+[push]
+	autoSetupRemote = true
+
+[alias]
+	st = status
+	co = checkout
+	br = branch
+	ci = commit
+	lg = log --oneline --graph --all -20

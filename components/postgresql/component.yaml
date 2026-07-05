@@ -1,0 +1,7 @@
+name: postgresql
+version: "16"
+description: "PostgreSQL database (Docker)"
+platforms: [linux]
+profiles: [host]
+depends_on: [docker]
+optional: false

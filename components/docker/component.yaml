@@ -1,0 +1,7 @@
+name: docker
+version: "24.0"
+description: "Docker Engine + Docker Compose"
+platforms: [linux]
+profiles: [notebook, desktop, host]
+depends_on: []
+optional: false

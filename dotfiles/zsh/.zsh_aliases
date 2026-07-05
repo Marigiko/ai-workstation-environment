@@ -1,0 +1,24 @@
+# Aliases — managed by ai-workstation-environment
+
+# General
+alias ll="ls -lah"
+alias la="ls -A"
+alias ..="cd .."
+alias ...="cd ../.."
+
+# Git
+alias gs="git status"
+alias gl="git log --oneline -20"
+alias gd="git diff"
+alias ga="git add"
+alias gc="git commit"
+alias gp="git push"
+
+# Docker
+alias dk="docker"
+alias dkc="docker compose"
+alias dkps="docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'"
+
+# AI Workstation Environment
+alias awe="bash ~/ai-workstation-environment/bootstrap"
+alias awe-detect="bash ~/ai-workstation-environment/bootstrap detect"

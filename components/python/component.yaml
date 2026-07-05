@@ -1,0 +1,12 @@
+name: python
+version: "3.12"
+description: "Python via pyenv or system package"
+platforms: [linux, darwin]
+profiles: [notebook, desktop, host]
+depends_on: []
+optional: false
+
+packages:
+  apt: [python3, python3-pip, python3-venv]
+  pacman: [python, python-pip]
+  brew: [python]

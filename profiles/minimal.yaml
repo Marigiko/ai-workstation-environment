@@ -1,0 +1,6 @@
+name: minimal
+description: "Bare minimum for any machine"
+
+components:
+  - git
+  - ssh

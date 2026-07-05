@@ -1,0 +1,7 @@
+name: rust
+version: "stable"
+description: "Rust programming language via rustup"
+platforms: [linux, darwin]
+profiles: [desktop]
+depends_on: []
+optional: false

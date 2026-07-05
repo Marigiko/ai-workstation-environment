@@ -1,0 +1,20 @@
+name: github
+description: "GitHub API (PRs, issues, checks)"
+version: "latest"
+enabled: true
+priority: immediate
+
+config:
+  command: npx
+  args:
+    - -y
+    - "@modelcontextprotocol/server-github"
+  env:
+    GITHUB_TOKEN: "{{ github_token }}"
+
+install: |
+  echo "GitHub MCP server is built-in to npx"
+  echo "NOTE: Set GITHUB_TOKEN in your environment"
+
+update: |
+  npx -y @modelcontextprotocol/server-github --version

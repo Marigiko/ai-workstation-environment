@@ -1,0 +1,63 @@
+# MCP Servers Registry
+# List of available MCP servers and their configurations
+
+servers:
+  - name: filesystem
+    description: "File system operations"
+    enabled: true
+    priority: immediate
+
+  - name: git
+    description: "Git operations (diff, blame, log)"
+    enabled: true
+    priority: immediate
+
+  - name: github
+    description: "GitHub API (PRs, issues, checks)"
+    enabled: true
+    priority: immediate
+
+  - name: headroom
+    description: "Context compression"
+    enabled: true
+    priority: immediate
+
+  - name: codebase-memory
+    description: "Persistent memory across sessions"
+    enabled: true
+    priority: immediate
+
+  - name: ponytail
+    description: "Code quality enforcement"
+    enabled: true
+    priority: immediate
+
+  - name: docker
+    description: "Docker container management"
+    enabled: false
+    priority: nice-to-have
+
+  - name: postgres
+    description: "PostgreSQL database operations"
+    enabled: false
+    priority: nice-to-have
+
+  - name: playwright
+    description: "Browser automation and testing"
+    enabled: false
+    priority: nice-to-have
+
+  - name: sequential-thinking
+    description: "Multi-step reasoning"
+    enabled: false
+    priority: nice-to-have
+
+  - name: browser
+    description: "Web browsing and research"
+    enabled: false
+    priority: nice-to-have
+
+  - name: memory
+    description: "General-purpose memory"
+    enabled: false
+    priority: nice-to-have

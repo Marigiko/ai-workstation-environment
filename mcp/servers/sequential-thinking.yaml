@@ -1,0 +1,17 @@
+name: sequential-thinking
+description: "Multi-step reasoning for complex tasks"
+version: "latest"
+enabled: false
+priority: nice-to-have
+
+config:
+  command: npx
+  args:
+    - -y
+    - "@modelcontextprotocol/server-sequential-thinking"
+
+install: |
+  echo "Sequential thinking MCP server is built-in to npx"
+
+update: |
+  npx -y @modelcontextprotocol/server-sequential-thinking --version

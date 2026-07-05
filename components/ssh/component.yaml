@@ -1,0 +1,12 @@
+name: ssh
+version: "9.0"
+description: "OpenSSH client and server"
+platforms: [linux, darwin]
+profiles: [notebook, desktop, host, minimal]
+depends_on: []
+optional: false
+
+packages:
+  apt: [openssh-client, openssh-server]
+  pacman: [openssh]
+  brew: [openssh]
