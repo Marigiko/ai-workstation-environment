@@ -81,6 +81,12 @@ def test_generate_config_opencode(tmp_path):
     assert server["type"] == "local"
     assert server["command"] == "npx"
 
+    compact_cmd = tmp_path / ".config" / "opencode" / "commands" / "compact.md"
+    assert compact_cmd.exists()
+    content = compact_cmd.read_text()
+    assert "description:" in content
+    assert "headroom" in content
+
 
 def test_generate_config_claude(tmp_path):
     root = _setup_mcp(tmp_path)
@@ -98,3 +104,44 @@ def test_generate_config_zed(tmp_path):
     assert mcp.generate_config("zed")
     config_file = tmp_path / ".config" / "zed" / "settings.json"
     assert config_file.exists()
+
+
+def test_generate_config_mimo(tmp_path):
+    root = _setup_mcp(tmp_path)
+    mcp = MCPManager(root)
+    mcp.config_dir = tmp_path / ".config"
+    assert mcp.generate_config("mimo")
+    config_file = tmp_path / ".config" / "mimocode" / "mimocode.json"
+    assert config_file.exists()
+    with open(config_file) as f:
+        data = json.load(f)
+    assert "$schema" in data
+    assert "mcp" in data
+    server = data["mcp"]["test-server"]
+    assert server["type"] == "local"
+    assert server["enabled"] is True
+    assert server["command"] == ["npx", "-y", "test"]
+
+
+def test_generate_config_mimo_with_template(tmp_path):
+    root = _setup_mcp(tmp_path)
+    configs_dir = root / "configs"
+    configs_dir.mkdir()
+    template = {
+        "$schema": "https://mimo.xiaomi.com/mimocode/config.json",
+        "model": "litellm/claude-sonnet",
+        "provider": {"litellm": {"name": "LiteLLM"}},
+    }
+    (configs_dir / "mimo-template.json").write_text(json.dumps(template))
+
+    mcp = MCPManager(root)
+    mcp.config_dir = tmp_path / ".config"
+    assert mcp.generate_config("mimo")
+
+    config_file = tmp_path / ".config" / "mimocode" / "mimocode.json"
+    with open(config_file) as f:
+        data = json.load(f)
+    assert data["model"] == "litellm/claude-sonnet"
+    assert data["provider"]["litellm"]["name"] == "LiteLLM"
+    assert "mcp" in data
+    assert data["mcp"]["test-server"]["type"] == "local"

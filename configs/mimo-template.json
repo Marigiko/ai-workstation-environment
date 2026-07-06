@@ -1,0 +1,108 @@
+{
+  "$schema": "https://mimo.xiaomi.com/mimocode/config.json",
+  "model": "litellm/claude-sonnet-4-20250514",
+  "small_model": "litellm/local",
+  "default_agent": "build",
+  "provider": {
+    "litellm": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "LiteLLM Gateway",
+      "options": {
+        "baseURL": "http://localhost:4000/v1",
+        "apiKey": "sk-litellm-master-key"
+      },
+      "models": {
+        "claude-sonnet-4-20250514": { "name": "Claude Sonnet 4" },
+        "claude-opus-4-20250514": { "name": "Claude Opus 4" },
+        "gpt-4": { "name": "GPT-4" },
+        "local": { "name": "Local (Ollama)" },
+        "openrouter/auto": { "name": "OpenRouter Auto" },
+        "gemini-2.5-pro": { "name": "Gemini 2.5 Pro" },
+        "fast": { "name": "Fast (Local)" },
+        "smart": { "name": "Smart (Claude)" },
+        "reasoning": { "name": "Reasoning (GPT-4)" }
+      }
+    }
+  },
+  "disabled_providers": ["openai", "google", "openrouter"],
+  "skills": {
+    "paths": [
+      "~/.config/mimocode/skills/",
+      "{env:HOME}/.opencode/skills/"
+    ]
+  },
+  "instructions": ["AGENTS.md"],
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "tail_turns": 3
+  },
+  "checkpoint": {
+    "auto": true,
+    "threshold": 0.7,
+    "reserved_tokens": 2000
+  },
+  "memory": {
+    "enabled": true,
+    "auto_save": true,
+    "file": "MEMORY.md"
+  },
+  "permission": {
+    "bash": "allow",
+    "edit": "allow"
+  },
+  "command": {
+    "review": {
+      "template": "Review this PR comprehensively: check correctness, security, performance, and maintainability. Use the codebase-memory context.",
+      "description": "Full PR review",
+      "agent": "build"
+    },
+    "debug": {
+      "template": "Systematically debug this issue: reproduce, isolate, hypothesize, fix, verify. Use sequential-thinking if needed.",
+      "description": "Systematic debugging",
+      "agent": "build"
+    },
+    "test": {
+      "template": "Generate comprehensive tests for the current changes. Include edge cases, error paths, and integration tests.",
+      "description": "Generate tests",
+      "agent": "build"
+    },
+    "doc": {
+      "template": "Generate documentation for the current changes: update README, add inline docs, update API docs if applicable.",
+      "description": "Generate docs",
+      "agent": "build"
+    },
+    "architect": {
+      "template": "Analyze the current codebase architecture. Identify patterns, anti-patterns, and suggest improvements. Do NOT make changes.",
+      "description": "Architecture analysis",
+      "agent": "plan"
+    },
+    "benchmark": {
+      "template": "Run a model benchmark: test the same task with claude-sonnet-4-20250514, gpt-4, and local. Compare quality, speed, and token usage.",
+      "description": "Model benchmark",
+      "agent": "build"
+    },
+    "dream": {
+      "template": "Execute /dream command: extract persistent knowledge from this session into project memory, remove outdated entries, and consolidate learnings.",
+      "description": "Extract knowledge to memory",
+      "agent": "build"
+    },
+    "distill": {
+      "template": "Execute /distill command: discover repeated manual workflows in recent work and package high-confidence candidates into reusable skills, subagents, or commands.",
+      "description": "Extract patterns to skills",
+      "agent": "build"
+    },
+    "memory": {
+      "template": "Review and manage project memory: show current MEMORY.md contents, suggest cleanup of outdated entries, and verify memory consistency.",
+      "description": "Manage project memory",
+      "agent": "build"
+    },
+    "checkpoint": {
+      "template": "Create a checkpoint: save current session state, task progress, and context for later resumption.",
+      "description": "Save session checkpoint",
+      "agent": "build"
+    }
+  },
+  "autoupdate": "notify",
+  "share": "manual"
+}

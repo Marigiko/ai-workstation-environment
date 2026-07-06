@@ -316,9 +316,9 @@ config_overrides:
 
 ### 1. **OpenCode**
 
-AWE genera automáticamente la configuración de MCP servers para OpenCode en `~/.config/opencode/config.json`.
+AWE genera automáticamente la configuración de MCP servers para OpenCode en `~/.config/opencode/config.json` y los comandos personalizados en `~/.config/opencode/commands/`.
 
-**Formato**:
+**Formato del config.json**:
 ```json
 {
   "mcp": {
@@ -331,6 +331,16 @@ AWE genera automáticamente la configuración de MCP servers para OpenCode en `~
   }
 }
 ```
+
+**Comandos personalizados**:
+
+Los comandos se definen como archivos markdown en `~/.config/opencode/commands/`:
+
+| Comando | Archivo | Descripción |
+|---------|---------|-------------|
+| `/compact` | `commands/compact.md` | Comprime el contexto de la conversación usando headroom MCP para liberar espacio en la ventana de contexto |
+
+**Uso**: En OpenCode, escribe `/compact` para comprimir el contexto de la conversación actual. Esto es útil cuando la conversación se vuelve muy larga y necesitas liberar espacio.
 
 **Regenerar config**:
 ```bash

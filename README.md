@@ -118,6 +118,20 @@ Utility scripts in `scripts/`:
 | `setup-ssh-keys.sh` | Generate and configure SSH keys |
 | `backup.sh` | Backup configs and state |
 
+## OpenCode Commands
+
+Custom slash commands for OpenCode (auto-generated during bootstrap):
+
+| Command | Description |
+|---------|-------------|
+| `/compact` | Compress conversation context using headroom MCP |
+
+These commands are defined as markdown files in `~/.config/opencode/commands/` and generated automatically when running:
+
+```bash
+./bootstrap mcp-generate opencode
+```
+
 ## Architecture
 
 ```

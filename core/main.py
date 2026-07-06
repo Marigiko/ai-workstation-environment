@@ -99,7 +99,7 @@ def cmd_bootstrap(args: argparse.Namespace, root: Path) -> None:
         mcp.install_server(server_name)
 
     if args.generate_mcp:
-        for tool in ["opencode", "claude-code", "zed"]:
+        for tool in ["opencode", "claude-code", "zed", "mimo"]:
             mcp.generate_config(tool)
 
     print()
@@ -334,7 +334,7 @@ def build_parser() -> argparse.ArgumentParser:
     mcp_install.add_argument("server", help="MCP server name")
 
     mcp_gen = sub.add_parser("mcp-generate", help="Generate MCP config for AI tool")
-    mcp_gen.add_argument("tool", choices=["opencode", "claude-code", "zed"], help="AI tool")
+    mcp_gen.add_argument("tool", choices=["opencode", "claude-code", "zed", "mimo"], help="AI tool")
 
     sub.add_parser("update", help="Update environment (git pull + re-bootstrap)")
     sub.add_parser("update-tools", help="Check for component updates")

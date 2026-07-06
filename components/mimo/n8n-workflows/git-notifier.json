@@ -1,0 +1,108 @@
+{
+  "name": "Git Commit Notifier",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "git-notify",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "command": "git log -1 --pretty=format:'%h|%s|%an|%ae|%ai'"
+      },
+      "id": "get-commit",
+      "name": "Get Last Commit",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const commitData = items[0].json.stdout.split('|');\nreturn [{\n  json: {\n    hash: commitData[0],\n    subject: commitData[1],\n    author: commitData[2],\n    email: commitData[3],\n    date: commitData[4]\n  }\n}];"
+      },
+      "id": "parse-commit",
+      "name": "Parse Commit",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "status",
+              "value": "notified"
+            },
+            {
+              "name": "message",
+              "value": "Commit {{ $json.hash }}: {{ $json.subject }} by {{ $json.author }}"
+            }
+          ]
+        }
+      },
+      "id": "format-response",
+      "name": "Format Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [850, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get Last Commit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Last Commit": {
+      "main": [
+        [
+          {
+            "node": "Parse Commit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Commit": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "versionId": "1",
+  "meta": {
+    "instanceId": "ai-workstation"
+  },
+  "tags": [
+    {
+      "name": "ai-workstation"
+    },
+    {
+      "name": "git"
+    }
+  ]
+}

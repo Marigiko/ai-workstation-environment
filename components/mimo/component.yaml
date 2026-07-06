@@ -1,0 +1,7 @@
+name: mimo
+version: "latest"
+description: "MiMo Code AI coding assistant (Xiaomi)"
+platforms: [linux, darwin]
+profiles: [notebook, desktop]
+depends_on: [node]
+optional: false

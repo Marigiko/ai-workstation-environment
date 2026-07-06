@@ -113,6 +113,7 @@ class MCPManager:
             "opencode": self._gen_opencode,
             "claude-code": self._gen_claude,
             "zed": self._gen_zed,
+            "mimo": self._gen_mimo,
         }
 
         gen = generators.get(tool)
@@ -125,10 +126,27 @@ class MCPManager:
     def _gen_opencode(self, servers: dict) -> bool:
         config_file = self.config_dir / "opencode" / "config.json"
         config_file.parent.mkdir(parents=True, exist_ok=True)
+
         data = {"mcp": servers}
         with open(config_file, "w") as f:
-            json.dump(data, f, indent=2)
+            json.dump(data, f, indent=2, ensure_ascii=False)
         log.info("Generated: %s", config_file)
+
+        commands_dir = self.config_dir / "opencode" / "commands"
+        commands_dir.mkdir(parents=True, exist_ok=True)
+
+        compact_cmd = commands_dir / "compact.md"
+        compact_cmd.write_text(
+            "---\n"
+            "description: Comprimir el contexto de la conversacion usando headroom\n"
+            "---\n\n"
+            "Comprime el contexto de esta conversacion usando el MCP de headroom.\n\n"
+            "Identifica la informacion mas importante y descarta detalles "
+            "redundantes o irrelevantes. Manten el contexto esencial para continuar "
+            "trabajando efectivamente.\n",
+            encoding="utf-8",
+        )
+        log.info("Generated: %s", compact_cmd)
         return True
 
     def _gen_claude(self, servers: dict) -> bool:
@@ -152,6 +170,43 @@ class MCPManager:
         existing["context_servers"] = servers
         with open(config_file, "w") as f:
             json.dump(existing, f, indent=2)
+        log.info("Generated: %s", config_file)
+        return True
+
+    def _gen_mimo(self, servers: dict) -> bool:
+        config_file = self.config_dir / "mimocode" / "mimocode.json"
+        config_file.parent.mkdir(parents=True, exist_ok=True)
+
+        template_path = self.project_root / "configs" / "mimo-template.json"
+        if template_path.exists():
+            with open(template_path) as f:
+                config = json.load(f)
+        else:
+            config = {"$schema": "https://mimo.xiaomi.com/mimocode/config.json"}
+
+        mimo_servers: dict[str, Any] = {}
+        for name, srv in servers.items():
+            cmd = srv.get("command", "")
+            args = srv.get("args", [])
+            if isinstance(cmd, str) and cmd:
+                full_cmd = [cmd] + args
+            elif isinstance(cmd, list):
+                full_cmd = cmd + args
+            else:
+                full_cmd = args
+            entry: dict[str, Any] = {
+                "type": "local",
+                "command": full_cmd,
+                "enabled": True,
+            }
+            env = srv.get("env", {})
+            if env:
+                entry["environment"] = env
+            mimo_servers[name] = entry
+
+        config["mcp"] = mimo_servers
+        with open(config_file, "w") as f:
+            json.dump(config, f, indent=2, ensure_ascii=False)
         log.info("Generated: %s", config_file)
         return True
 

@@ -9,6 +9,7 @@ components:
   - rust
   - zed
   - vscode
+  - mimo
   - opencode
   - claude-code
   - tailscale

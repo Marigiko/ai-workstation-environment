@@ -1,0 +1,221 @@
+{
+  "name": "Platform Health Monitor",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 5
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:4000/health",
+        "options": {
+          "timeout": 5000
+        }
+      },
+      "id": "check-litellm",
+      "name": "Check LiteLLM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [450, 200],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:11434/api/tags",
+        "options": {
+          "timeout": 5000
+        }
+      },
+      "id": "check-ollama",
+      "name": "Check Ollama",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [450, 300],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:6333/healthz",
+        "options": {
+          "timeout": 5000
+        }
+      },
+      "id": "check-qdrant",
+      "name": "Check Qdrant",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [450, 400],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "timestamp",
+              "value": "={{ $now.toISO() }}"
+            },
+            {
+              "name": "litellm_status",
+              "value": "={{ $('Check LiteLLM').item.json.statusCode === 200 ? 'healthy' : 'down' }}"
+            },
+            {
+              "name": "ollama_status",
+              "value": "={{ $('Check Ollama').item.json.statusCode === 200 ? 'healthy' : 'down' }}"
+            },
+            {
+              "name": "qdrant_status",
+              "value": "={{ $('Check Qdrant').item.json.statusCode === 200 ? 'healthy' : 'down' }}"
+            }
+          ]
+        }
+      },
+      "id": "aggregate-status",
+      "name": "Aggregate Status",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.litellm_status }}",
+              "value2": "down"
+            },
+            {
+              "value1": "={{ $json.ollama_status }}",
+              "value2": "down"
+            },
+            {
+              "value1": "={{ $json.qdrant_status }}",
+              "value2": "down"
+            }
+          ],
+          "operation": "any"
+        }
+      },
+      "id": "check-alert",
+      "name": "Check Alert",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "command": "echo \"[ALERT] Platform service down at {{ $json.timestamp }}: LiteLLM={{ $json.litellm_status }}, Ollama={{ $json.ollama_status }}, Qdrant={{ $json.qdrant_status }}\" >> /tmp/platform-health.log"
+      },
+      "id": "log-alert",
+      "name": "Log Alert",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1050, 200]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Check LiteLLM",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check Ollama",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check Qdrant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check LiteLLM": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Ollama": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Qdrant": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Status": {
+      "main": [
+        [
+          {
+            "node": "Check Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Alert": {
+      "main": [
+        [
+          {
+            "node": "Log Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "versionId": "1",
+  "meta": {
+    "instanceId": "ai-workstation"
+  },
+  "tags": [
+    {
+      "name": "ai-workstation"
+    },
+    {
+      "name": "monitoring"
+    }
+  ]
+}

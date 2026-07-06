@@ -1,18 +1,48 @@
 model_list:
-  - model_name: ollama
+  - model_name: local
     litellm_params:
       model: ollama/llama3
       api_base: http://host.docker.internal:11434
+
+  - model_name: claude-sonnet-4-20250514
+    litellm_params:
+      model: claude-sonnet-4-20250514
+      api_key: os.environ/ANTHROPIC_API_KEY
+
+  - model_name: claude-opus-4-20250514
+    litellm_params:
+      model: claude-opus-4-20250514
+      api_key: os.environ/ANTHROPIC_API_KEY
 
   - model_name: gpt-4
     litellm_params:
       model: gpt-4
       api_key: os.environ/OPENAI_API_KEY
 
-  - model_name: claude-sonnet-4-20250514
+  - model_name: openrouter/auto
+    litellm_params:
+      model: openrouter/auto
+      api_key: os.environ/OPENROUTER_API_KEY
+
+  - model_name: gemini-2.5-pro
+    litellm_params:
+      model: gemini/gemini-2.5-pro
+      api_key: os.environ/GEMINI_API_KEY
+
+  - model_name: fast
+    litellm_params:
+      model: ollama/llama3
+      api_base: http://host.docker.internal:11434
+
+  - model_name: smart
     litellm_params:
       model: claude-sonnet-4-20250514
       api_key: os.environ/ANTHROPIC_API_KEY
+
+  - model_name: reasoning
+    litellm_params:
+      model: gpt-4
+      api_key: os.environ/OPENAI_API_KEY
 
 general_settings:
   master_key: sk-litellm-master-key
