@@ -28,7 +28,7 @@ docker run -d \
     -p 5678:5678 \
     -e DB_TYPE=postgresdb \
     -e DB_POSTGRESDB_HOST=awe-postgresql \
-    -e DB_POSTGRESDB_PORT=5432 \
+    -e DB_POSTGRESDB_PORT=5433 \
     -e DB_POSTGRESDB_DATABASE=awe \
     -e DB_POSTGRESDB_USER=awe \
     -e DB_POSTGRESDB_PASSWORD=awe-password \

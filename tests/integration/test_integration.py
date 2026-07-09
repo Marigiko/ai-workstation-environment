@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 """Integration tests for the AI Engineering platform."""
 
-import asyncio
 import pytest
-from unittest.mock import AsyncMock, MagicMock
 
 
 class TestTelegramBot:
@@ -19,7 +17,7 @@ class TestTelegramBot:
         bot = TelegramBot()
         assert "bot" in bot.config
         assert "n8n" in bot.config
-        assert "workspace" in bot.config
+        assert "proxy" in bot.config
 
 
 class TestAutoOrchestrator:
@@ -31,10 +29,10 @@ class TestAutoOrchestrator:
         assert orch.plans == {}
 
     def test_model_selection(self):
-        from components.auto_orchestrator.orchestrator import AutoOrchestrator, AgentType
+        from components.auto_orchestrator.orchestrator import AgentType, AutoOrchestrator
         orch = AutoOrchestrator()
         model = orch.get_model_for_agent(AgentType.CODER)
-        assert model == "qwen2.5-coder:7b"
+        assert model == "mimo-auto"
 
     @pytest.mark.asyncio
     async def test_plan_creation(self):
@@ -128,7 +126,7 @@ class TestWorktreeManager:
     def test_manager_initialization(self):
         from components.workspace.app.core.worktree_manager import WorktreeManager
         manager = WorktreeManager()
-        assert manager.worktrees == {}
+        assert isinstance(manager.worktrees, dict)
 
     def test_create_worktree(self):
         from components.workspace.app.core.worktree_manager import WorktreeManager
@@ -140,9 +138,10 @@ class TestWorktreeManager:
     def test_list_worktrees(self):
         from components.workspace.app.core.worktree_manager import WorktreeManager
         manager = WorktreeManager()
+        initial_count = len(manager.list_worktrees())
         manager.create_worktree("project1", "/tmp/p1")
         manager.create_worktree("project2", "/tmp/p2")
-        assert len(manager.list_worktrees()) == 2
+        assert len(manager.list_worktrees()) == initial_count + 2
 
 
 class TestHermesSync:

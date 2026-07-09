@@ -17,7 +17,7 @@ fi
 if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
     echo "Starting existing PostgreSQL container..."
     docker start awe-postgresql
-    echo "PostgreSQL started on port 5432"
+    echo "PostgreSQL started on port 5433"
     exit 0
 fi
 
@@ -25,11 +25,11 @@ echo "Starting PostgreSQL..."
 docker run -d \
     --name awe-postgresql \
     --restart unless-stopped \
-    -p 5432:5432 \
+    -p 5433:5432 \
     -e POSTGRES_USER=awe \
     -e POSTGRES_PASSWORD=awe-password \
     -e POSTGRES_DB=awe \
     -v postgres_data:/var/lib/postgresql/data \
     postgres:16-alpine
 
-echo "PostgreSQL started on port 5432"
+echo "PostgreSQL started on port 5433"

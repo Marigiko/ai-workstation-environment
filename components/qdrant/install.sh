@@ -17,7 +17,7 @@ fi
 if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
     echo "Starting existing Qdrant container..."
     docker start awe-qdrant
-    echo "Qdrant started on port 6333 (API) and 6334 (gRPC)"
+    echo "Qdrant started on port 6335 (API) and 6336 (gRPC)"
     exit 0
 fi
 
@@ -25,9 +25,9 @@ echo "Starting Qdrant..."
 docker run -d \
     --name awe-qdrant \
     --restart unless-stopped \
-    -p 6333:6333 \
-    -p 6334:6334 \
+    -p 6335:6333 \
+    -p 6336:6334 \
     -v qdrant_data:/qdrant/storage \
     qdrant/qdrant:latest
 
-echo "Qdrant started on port 6333 (API) and 6334 (gRPC)"
+echo "Qdrant started on port 6335 (API) and 6336 (gRPC)"

@@ -19,7 +19,7 @@ from telegram.ext import (
     ContextTypes,
 )
 
-from project_manager import ProjectManager
+from components.telegram_bot.project_manager import ProjectManager
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",

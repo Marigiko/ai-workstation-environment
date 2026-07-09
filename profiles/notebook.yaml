@@ -13,6 +13,15 @@ components:
   - terax
   - tailscale
   - docker
+  - rust
+  - vscode
+  - postgresql
+  - litellm
+  - ollama
+  - qdrant
+  - n8n
+  - workspace
+  - telegram-bot
 
 config_overrides:
   environment:
