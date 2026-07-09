@@ -1,4 +1,4 @@
-import { tool } from "@mimocode/cli/plugin"
+import { tool } from "@mimo-ai/plugin/tool"
 
 export default tool({
   description: "Benchmark different models with the same prompt",

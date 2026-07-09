@@ -1,0 +1,7 @@
+name: workspace
+version: "0.1.0"
+description: "Distributed AI Workspace Manager"
+platforms: [linux, darwin]
+profiles: [host, desktop]
+depends_on: [docker, postgresql]
+optional: false

@@ -13,6 +13,7 @@ components:
   - qdrant
   - postgresql
   - n8n
+  - workspace
 
 config_overrides:
   docker:

@@ -1,4 +1,4 @@
-import { tool } from "@mimocode/cli/plugin"
+import { tool } from "@mimo-ai/plugin/tool"
 import { exec } from "child_process"
 import { promisify } from "util"
 

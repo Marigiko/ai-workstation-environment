@@ -1,4 +1,4 @@
-import { tool } from "@mimocode/cli/plugin"
+import { tool } from "@mimo-ai/plugin/tool"
 import { readFileSync, writeFileSync, existsSync } from "fs"
 import { join } from "path"
 

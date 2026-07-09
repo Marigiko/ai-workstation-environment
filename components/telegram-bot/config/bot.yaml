@@ -1,0 +1,27 @@
+# Telegram Bot Configuration
+# Get token from @BotFather on Telegram
+bot:
+  token: "8806095218:AAEoj1fz00AJpS7nd9Ed3sbnMugwmR02ClE"
+  webhook_url: ""  # Set for production
+  allowed_users: []  # Telegram user IDs (empty = allow all)
+
+# n8n integration
+n8n:
+  webhook_url: "http://localhost:5678/webhook/telegram"
+  api_url: "http://localhost:5678/api/v1"
+  api_key: ""
+
+# Workspace API
+workspace:
+  api_url: "http://localhost:8080"
+  api_key: ""
+
+# Gateway API
+gateway:
+  api_url: "http://localhost:8000"
+  api_key: ""
+
+# Session settings
+session:
+  timeout: 3600  # 1 hour
+  max_concurrent: 5

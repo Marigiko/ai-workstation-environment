@@ -1,0 +1,16 @@
+name: terax
+description: "Terax AI-native terminal - integration configuration"
+version: "latest"
+enabled: true
+priority: immediate
+
+config:
+  command: npx
+  args: ["-y", "@anthropic-ai/placeholder"]
+
+install: |
+  echo "Terax: config-only MCP entry (no server to run)"
+  echo "Terax connects to LiteLLM via OpenAI-compatible endpoint"
+
+update: |
+  echo "Terax: config-only MCP entry (no update needed)"

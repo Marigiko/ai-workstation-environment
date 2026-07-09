@@ -1,0 +1,85 @@
+# Auto Orchestrator - Configuration
+
+# Model assignments per agent type
+# Priority: proxy (MiMo/Claude) → local (Ollama) → cloud (Gemini)
+# All models go through Headroom compression via AI Proxy (port 8090)
+models:
+  architect:
+    default: "mimo-auto"           # Free MiMo via proxy
+    fallback: "qwen2.5-coder:7b"   # Local Ollama
+    cloud: "gemini-2.5-flash"      # Cloud fallback
+
+  coder:
+    default: "mimo-auto"           # Free MiMo via proxy
+    fallback: "qwen2.5-coder:7b"   # Local Ollama
+    cloud: "gemini-2.5-flash"      # Cloud fallback
+
+  reviewer:
+    default: "claude"              # Claude via proxy (Claude Max)
+    fallback: "gemini-2.5-flash"   # Cloud fallback
+    local: "qwen2.5-coder:7b"     # Local fallback
+
+  documenter:
+    default: "mimo-fast"           # Fast MiMo via proxy
+    fallback: "qwen2.5-coder:1.5b" # Local Ollama
+    cloud: "gemini-2.5-flash"      # Cloud fallback
+
+  tester:
+    default: "mimo-fast"           # Fast MiMo via proxy
+    fallback: "phi3:mini"          # Local Ollama
+    cloud: "gemini-2.5-flash"      # Cloud fallback
+
+  debugger:
+    default: "claude"              # Claude via proxy (best reasoning)
+    fallback: "qwen2.5-coder:7b"   # Local Ollama
+    cloud: "gemini-2.5-pro"        # Cloud fallback
+
+# Task decomposition settings
+decomposition:
+  max_subtasks: 10
+  timeout_seconds: 300
+  use_llm: true
+
+# Headroom compression settings
+# Applied to ALL requests via AI Proxy before reaching any backend
+headroom:
+  enabled: true
+  level: "aggressive"  # aggressive, moderate, light
+  preserve_code: true
+  preserve_numbers: true
+  strategies:
+    - normalize_whitespace
+    - strip_comments
+    - dedup_lines
+    - aggressive_compress
+
+# AI Proxy settings (port 8090)
+proxy:
+  enabled: true
+  url: "http://localhost:8090"
+  timeout: 120
+  backends:
+    mimo:
+      enabled: true
+      models: ["mimo", "mimo-auto", "mimo-fast"]
+    claude:
+      enabled: true
+      models: ["claude", "claude-code"]
+
+# Execution settings
+execution:
+  max_concurrent: 3
+  timeout_per_subtask: 120
+  retry_count: 2
+  retry_delay: 5
+  backend_priority:
+    - "proxy"      # MiMo/Claude via AI Proxy (free)
+    - "local"      # Ollama (local GPU)
+    - "cloud"      # Gemini/OpenRouter (cloud)
+
+# Notification settings
+notifications:
+  telegram: true
+  workspace_api: true
+  on_complete: true
+  on_error: true

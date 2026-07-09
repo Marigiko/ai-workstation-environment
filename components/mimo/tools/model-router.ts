@@ -1,4 +1,4 @@
-import { tool } from "@mimocode/cli/plugin"
+import { tool } from "@mimo-ai/plugin/tool"
 
 export default tool({
   description: "Switch the active model via LiteLLM API",

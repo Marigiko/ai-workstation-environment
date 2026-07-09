@@ -4,4 +4,4 @@ description: "OpenCode AI coding assistant"
 platforms: [linux, darwin]
 profiles: [notebook, desktop]
 depends_on: [node]
-optional: false
+optional: true

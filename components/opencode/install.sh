@@ -13,11 +13,15 @@ if [ -s "$NVM_DIR/nvm.sh" ]; then
 fi
 
 if ! command -v npm &>/dev/null; then
-    echo "ERROR: npm not found. Install node first." >&2
-    exit 1
+    echo "WARNING: npm not found. Skip OpenCode." >&2
+    exit 0
 fi
 
 echo "Installing OpenCode..."
-npm install -g @opencode-ai/opencode
+if npm install -g opencode 2>/dev/null; then
+    echo "OpenCode installed: $(opencode --version 2>/dev/null || echo 'installed')"
+    exit 0
+fi
 
-echo "OpenCode installed: $(opencode --version 2>/dev/null || echo 'installed')"
+echo "WARNING: OpenCode npm package not found. Skipping (optional)."
+exit 0

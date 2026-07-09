@@ -1,4 +1,4 @@
-import { tool } from "@mimocode/cli/plugin"
+import { tool } from "@mimo-ai/plugin/tool"
 
 export default tool({
   description: "Check health status of AI platform services",

@@ -1,0 +1,7 @@
+name: telegram-bot
+version: "1.0.0"
+description: "Telegram bot for AI Engineering platform automation"
+platforms: [linux, darwin]
+profiles: [host, desktop]
+depends_on: [node]
+optional: false

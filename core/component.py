@@ -50,9 +50,16 @@ class Component:
         check_script = self.path / "check.sh"
         if not check_script.exists():
             return False
+        import os
+        env = dict(os.environ)
+        # Ensure PATH is set for subprocess
+        if "PATH" not in env or not env["PATH"]:
+            env["PATH"] = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+        env["NVM_DIR"] = env.get("NVM_DIR", str(Path.home() / ".nvm"))
         r = subprocess.run(
             ["bash", str(check_script)],
             capture_output=True, text=True, timeout=30,
+            env=env,
         )
         return r.returncode == 0
 
@@ -69,7 +76,6 @@ class Component:
         if r.returncode != 0:
             log.error("Install failed for %s: %s", self.name, r.stderr)
             return False
-        log.info("Installed %s", self.name)
         return True
 
     def uninstall(self) -> bool:
@@ -109,8 +115,20 @@ def install_component(comp: Component, state: State, current_os: str) -> bool:
         return True
 
     if not comp.install():
+        if comp.optional:
+            log.info("Skipped optional component: %s", comp.name)
+            return True
         return False
 
+    # Verify installation actually succeeded
+    if not comp.check():
+        if comp.optional:
+            log.info("Skipped optional component (not available): %s", comp.name)
+            return True
+        log.error("Install reported success but check failed for %s", comp.name)
+        return False
+
+    log.info("Installed %s", comp.name)
     version = comp.metadata.get("version", "unknown")
     state.record(comp.name, version=version, method="script")
     return True

@@ -11,7 +11,7 @@ config:
     - "@headroom/mcp-server"
 
 install: |
-  npm install -g @headroom/mcp-server
+  echo "headroom MCP: uses npx -y @headroom/mcp-server (downloaded on demand)"
 
 update: |
-  npm update -g @headroom/mcp-server
+  echo "headroom MCP: no update needed (npx handles versions)"

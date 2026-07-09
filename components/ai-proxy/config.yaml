@@ -1,0 +1,77 @@
+# AI Proxy Server Configuration
+
+server:
+  host: "0.0.0.0"
+  port: 8090
+  workers: 1
+
+# Backend configuration
+backends:
+  mimo:
+    binary: "mimo"
+    command: "run"
+    timeout: 120
+    # mimo run "<prompt>" — positional argument, not --prompt flag
+
+  claude:
+    binary: "claude"
+    command: "-p"
+    timeout: 120
+    # claude -p --max-turns 1 "<prompt>"
+
+# Headroom compression (applied to ALL requests before forwarding)
+headroom:
+  enabled: true
+  max_tokens: 4096
+  aggressive: true
+  preserve_code: true
+  strip_comments: true
+  normalize_whitespace: true
+  dedup_lines: true
+
+# Model routing
+models:
+  mimo:
+    handler: "mimo"
+    description: "MiMo Auto (free, no API key)"
+    tier: "free"
+
+  mimo-auto:
+    handler: "mimo"
+    description: "MiMo Auto channel"
+    tier: "free"
+
+  mimo-fast:
+    handler: "mimo"
+    description: "MiMo Fast (free, no API key)"
+    tier: "free"
+
+  claude:
+    handler: "claude"
+    description: "Claude Code (requires claude login)"
+    tier: "free"
+
+  claude-code:
+    handler: "claude"
+    description: "Claude Code"
+    tier: "free"
+
+  local:
+    handler: "mimo"
+    description: "Local model via MiMo"
+    tier: "free"
+
+  smart:
+    handler: "claude"
+    description: "Smart model via Claude"
+    tier: "free"
+
+# Rate limiting
+rate_limit:
+  requests_per_minute: 30
+  tokens_per_minute: 100000
+
+# Logging
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

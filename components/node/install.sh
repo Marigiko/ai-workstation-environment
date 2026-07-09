@@ -21,9 +21,9 @@ fi
 [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
 
 echo "Installing Node.js LTS..."
-nvm install --lts
-nvm use --lts
-nvm alias default lts/*
+nvm install --lts || nvm install node
+nvm use --lts 2>/dev/null || nvm use node 2>/dev/null || true
+nvm alias default lts/* 2>/dev/null || nvm alias default node 2>/dev/null || true
 
 echo "Node.js installed: $(node --version)"
 echo "npm installed: $(npm --version)"

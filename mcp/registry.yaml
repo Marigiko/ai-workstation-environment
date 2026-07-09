@@ -61,3 +61,8 @@ servers:
     description: "General-purpose memory"
     enabled: false
     priority: nice-to-have
+
+  - name: terax
+    description: "Terax AI-native terminal integration"
+    enabled: true
+    priority: immediate

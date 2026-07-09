@@ -1,0 +1,362 @@
+{
+  "name": "Telegram Bot Handler",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "telegram",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-1",
+      "name": "Telegram Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.command }}",
+              "operation": "equals",
+              "value2": "prompt"
+            }
+          ]
+        }
+      },
+      "id": "if-prompt-1",
+      "name": "Is Prompt Command",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:8080/tasks",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "workspace_id",
+              "value": "={{ $json.workspace_id }}"
+            },
+            {
+              "name": "title",
+              "value": "={{ $json.task }}"
+            },
+            {
+              "name": "description",
+              "value": "Telegram task from user {{ $json.user_id }}"
+            },
+            {
+              "name": "priority",
+              "value": "5"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "http-request-1",
+      "name": "Create Task in Workspace",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [650, 200]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { task_id: $json.id, status: $json.status, message: 'Task created successfully' } }}"
+      },
+      "id": "respond-1",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [850, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.command }}",
+              "operation": "equals",
+              "value2": "status"
+            }
+          ]
+        }
+      },
+      "id": "if-status-1",
+      "name": "Is Status Command",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 500]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.task_id ? 'http://localhost:8080/tasks/' + $json.task_id : 'http://localhost:8080/health' }}",
+        "options": {}
+      },
+      "id": "http-request-2",
+      "name": "Get Status from Workspace",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [650, 500]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { status: $json.status, details: $json } }}"
+      },
+      "id": "respond-2",
+      "name": "Respond Status",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [850, 500]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.command }}",
+              "operation": "equals",
+              "value2": "approve"
+            }
+          ]
+        }
+      },
+      "id": "if-approve-1",
+      "name": "Is Approve Command",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 700]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=http://localhost:8080/tasks/{{ $json.task_id }}/approve",
+        "options": {}
+      },
+      "id": "http-request-3",
+      "name": "Approve Task",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [650, 700]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { status: 'approved', task_id: $json.task_id } }}"
+      },
+      "id": "respond-3",
+      "name": "Respond Approved",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [850, 700]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.command }}",
+              "operation": "equals",
+              "value2": "reject"
+            }
+          ]
+        }
+      },
+      "id": "if-reject-1",
+      "name": "Is Reject Command",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 900]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=http://localhost:8080/tasks/{{ $json.task_id }}/reject",
+        "options": {}
+      },
+      "id": "http-request-4",
+      "name": "Reject Task",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [650, 900]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { status: 'rejected', task_id: $json.task_id } }}"
+      },
+      "id": "respond-4",
+      "name": "Respond Rejected",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [850, 900]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { error: 'Unknown command' } }}",
+        "options": {}
+      },
+      "id": "respond-default",
+      "name": "Respond Default",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [650, 1100]
+    }
+  ],
+  "connections": {
+    "Telegram Webhook": {
+      "main": [
+        [
+          {
+            "node": "Is Prompt Command",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Is Status Command",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Is Approve Command",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Is Reject Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Prompt Command": {
+      "main": [
+        [
+          {
+            "node": "Create Task in Workspace",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Is Status Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Task in Workspace": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Status Command": {
+      "main": [
+        [
+          {
+            "node": "Get Status from Workspace",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Is Approve Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Status from Workspace": {
+      "main": [
+        [
+          {
+            "node": "Respond Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Approve Command": {
+      "main": [
+        [
+          {
+            "node": "Approve Task",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Is Reject Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approve Task": {
+      "main": [
+        [
+          {
+            "node": "Respond Approved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Reject Command": {
+      "main": [
+        [
+          {
+            "node": "Reject Task",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Default",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reject Task": {
+      "main": [
+        [
+          {
+            "node": "Respond Rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

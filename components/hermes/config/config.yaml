@@ -1,0 +1,38 @@
+# Hermes Agent Configuration
+
+# Connection settings
+hermes:
+  url: "http://localhost:8081"
+  timeout: 30
+  retry_count: 3
+
+# Workspace API connection
+workspace:
+  api_url: "http://localhost:8080"
+  api_key: ""
+
+# Gateway connection
+gateway:
+  api_url: "http://localhost:8000"
+  api_key: ""
+
+# Session settings
+session:
+  timeout: 3600
+  max_concurrent: 5
+  auto_sync: true
+
+# Notification settings
+notifications:
+  enabled: true
+  channels:
+    - type: "telegram"
+      enabled: true
+    - type: "websocket"
+      enabled: true
+
+# Model settings
+models:
+  default: "qwen2.5-coder:7b"
+  fast: "qwen2.5-coder:1.5b"
+  smart: "gemini-2.5-flash"

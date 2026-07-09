@@ -11,7 +11,7 @@ config:
     - "@ponytail/mcp-server"
 
 install: |
-  npm install -g @ponytail/mcp-server
+  echo "ponytail MCP: uses npx -y @ponytail/mcp-server (downloaded on demand)"
 
 update: |
-  npm update -g @ponytail/mcp-server
+  echo "ponytail MCP: no update needed (npx handles versions)"

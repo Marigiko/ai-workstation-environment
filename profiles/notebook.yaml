@@ -10,6 +10,7 @@ components:
   - mimo
   - opencode
   - claude-code
+  - terax
   - tailscale
   - docker
 

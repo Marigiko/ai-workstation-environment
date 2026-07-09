@@ -103,6 +103,7 @@ Config file: `~/.config/zed/settings.json`
 | headroom | Context compression | See headroom docs |
 | codebase-memory | Persistent memory | See codebase-memory docs |
 | ponytail | Code quality | See ponytail docs |
+| terax | Terminal integration | Config-only (connects via OpenAI-compatible) |
 
 ### Nice to Have
 

@@ -1,0 +1,105 @@
+# Serena Configuration - Optimal Efficiency Settings
+
+# Performance settings
+performance:
+  fast_startup: true
+  minimal_memory: true
+  smart_model_selection: true
+  lazy_loading: true
+
+# Model selection rules
+models:
+  auto_select: true
+  rules:
+    - task_type: "code"
+      model: "qwen2.5-coder:7b"
+      fallback: "phi3:mini"
+      reason: "Code generation needs quality model"
+    
+    - task_type: "review"
+      model: "gemini-2.5-flash"
+      fallback: "qwen2.5-coder:7b"
+      reason: "Review benefits from larger context"
+    
+    - task_type: "docs"
+      model: "qwen2.5-coder:1.5b"
+      fallback: "phi3:mini"
+      reason: "Documentation is straightforward"
+    
+    - task_type: "planning"
+      model: "qwen2.5-coder:7b"
+      fallback: "gemini-2.5-pro"
+      reason: "Planning needs reasoning"
+    
+    - task_type: "debug"
+      model: "qwen2.5-coder:7b"
+      fallback: "phi3:mini"
+      reason: "Debugging needs quality model"
+    
+    - task_type: "test"
+      model: "phi3:mini"
+      fallback: "qwen2.5-coder:1.5b"
+      reason: "Test generation is pattern-based"
+
+# Resource limits
+resources:
+  max_concurrent_agents: 3
+  max_tokens_per_agent: 8192
+  timeout_per_task: 300
+  memory_limit_mb: 4096
+
+# Context compression
+context:
+  headroom_enabled: true
+  compression_level: "aggressive"
+  preserve_code: true
+  preserve_numbers: true
+
+# Agent defaults
+agents:
+  architect:
+    model: "qwen2.5-coder:7b"
+    tools: ["bash", "read", "write", "edit", "grep", "glob"]
+    timeout: 120
+  
+  coder:
+    model: "qwen2.5-coder:7b"
+    tools: ["bash", "read", "write", "edit"]
+    timeout: 180
+  
+  reviewer:
+    model: "gemini-2.5-flash"
+    tools: ["read", "grep", "glob"]
+    timeout: 60
+  
+  documenter:
+    model: "qwen2.5-coder:1.5b"
+    tools: ["read", "write"]
+    timeout: 60
+  
+  tester:
+    model: "phi3:mini"
+    tools: ["bash", "read", "write"]
+    timeout: 120
+  
+  debugger:
+    model: "qwen2.5-coder:7b"
+    tools: ["bash", "read", "grep"]
+    timeout: 180
+
+# Notification settings
+notifications:
+  on_task_complete: true
+  on_task_failed: true
+  on_approval_needed: true
+  channels:
+    - type: "telegram"
+      enabled: true
+    - type: "websocket"
+      enabled: true
+
+# Worktree settings
+worktrees:
+  base_path: "/mnt/d/Projects"
+  auto_create: true
+  isolate_sessions: true

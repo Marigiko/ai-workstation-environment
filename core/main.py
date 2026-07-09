@@ -127,12 +127,11 @@ def cmd_list(args: argparse.Namespace, root: Path) -> None:
     if not all_components:
         print("No components found.")
         return
-    state = State(root / ".state")
     print(f"{'Component':<30} {'Platforms':<20} {'Installed'}")
     print("-" * 65)
     for name, comp in sorted(all_components.items()):
         platforms = ", ".join(comp.platforms) if comp.platforms else "all"
-        is_installed = "yes" if state.is_installed(name) else "no"
+        is_installed = "yes" if comp.check() else "no"
         print(f"{name:<30} {platforms:<20} {is_installed}")
 
 
@@ -310,6 +309,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("detect", help="Detect system environment")
 
     boot = sub.add_parser("bootstrap", help="Run full bootstrap")
+    boot.add_argument("--profile", default=None, help="Profile to apply")
     boot.add_argument("--only", help="Install only this component")
     boot.add_argument("--force", action="store_true", help="Force overwrite dotfiles")
     boot.add_argument("--dry-run", action="store_true", help="Show what would be done")

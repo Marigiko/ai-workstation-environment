@@ -1,10 +1,10 @@
-import { tool } from "@mimocode/cli/plugin"
+import { tool } from "@mimo-ai/plugin/tool"
 
 export default tool({
   description: "Trigger n8n workflow automation via webhook",
   args: {
     workflow: tool.schema.string().describe("Workflow name (post-commit-tests, health-monitor, session-summary, git-notifier)"),
-    data: tool.schema.record(tool.schema.any()).optional().describe("Data to send to the workflow"),
+    data: tool.schema.string().optional().describe("JSON string with data to send to the workflow"),
   },
   async execute(args) {
     const n8nURL = process.env.N8N_URL || "http://localhost:5678"
@@ -12,13 +12,22 @@ export default tool({
 
     const webhookURL = `${n8nURL}/webhook/${webhookPath}`
 
+    let payload = {}
+    if (args.data) {
+      try {
+        payload = JSON.parse(args.data)
+      } catch {
+        return "Error: 'data' must be valid JSON string"
+      }
+    }
+
     try {
       const response = await fetch(webhookURL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(args.data || {}),
+        body: JSON.stringify(payload),
         signal: AbortSignal.timeout(10000),
       })
 

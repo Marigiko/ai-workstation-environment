@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
-set -euo pipefail
 
 CONTAINER_NAME="awe-ollama"
+
+if ! docker info &>/dev/null; then
+    exit 1
+fi
 
 if docker ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
     exit 0

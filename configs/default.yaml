@@ -16,3 +16,10 @@ mcp:
     - headroom
     - codebase-memory
     - ponytail
+    - terax
+
+terax:
+  enabled: true
+  proxy_url: "http://localhost:4000"
+  agent_detection: true
+  default_model: "claude-sonnet-4-20250514"

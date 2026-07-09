@@ -1,0 +1,7 @@
+name: terax
+version: "latest"
+description: "Terax AI-native terminal with LiteLLM and MCP integration"
+platforms: [linux, darwin]
+profiles: [notebook, desktop]
+depends_on: [node]
+optional: true

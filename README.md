@@ -45,7 +45,7 @@ cd ~/ai-workstation-environment
 
 | Profile | Use Case | Components |
 |---------|----------|------------|
-| `notebook` | Laptop AI dev | git, ssh, node, python, zed, opencode, claude-code, tailscale, docker |
+| `notebook` | Laptop AI dev | git, ssh, node, python, zed, opencode, claude-code, terax, tailscale, docker |
 | `desktop` | Workstation AI dev | notebook + rust, vscode |
 | `host` | Infrastructure server | git, ssh, docker, tailscale, node, python, ollama, litellm, qdrant, postgresql, n8n |
 | `minimal` | Bare minimum | git, ssh |
@@ -65,6 +65,7 @@ cd ~/ai-workstation-environment
 | `vscode` | Visual Studio Code (optional) | linux, darwin |
 | `opencode` | OpenCode AI assistant | linux, darwin |
 | `claude-code` | Claude Code AI assistant | linux, darwin |
+| `terax` | Terax AI-native terminal (optional) | linux, darwin |
 | `ollama` | Local LLM runner (Docker) | linux |
 | `litellm` | Unified LLM API proxy (Docker) | linux |
 | `qdrant` | Vector database (Docker) | linux |
@@ -137,6 +138,7 @@ These commands are defined as markdown files in `~/.config/opencode/commands/` a
 ```
 ai-workstation-environment/
 ├── bootstrap              # Bash shim → Python venv → core
+├── TERAX.md               # Terax workspace memory (project-level)
 ├── core/                  # Python engine
 │   ├── detect.py          # System detection (OS, WSL, GPU, Docker, etc.)
 │   ├── config.py          # Layered YAML config merge

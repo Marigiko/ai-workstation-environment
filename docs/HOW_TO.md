@@ -55,7 +55,7 @@ cd ai-workstation-environment
 ./bootstrap --profile host
 ```
 
-**Resultado**: Todos los servicios se instalan en Docker con configuraciones óptimas.
+**Resultado**: Todos los servicios se instalan en Docker con configuraciones óptimas, incluyendo el Distributed AI Workspace para gestión multi-dispositivo.
 
 ### Caso 4: Equipo con Estándares
 
@@ -130,9 +130,9 @@ Esto te muestra qué herramientas ya tienes instaladas y qué falta.
 
 | Perfil | Para qué sirve | Qué instala |
 |--------|----------------|-------------|
-| `notebook` | Laptop de desarrollo | Git, SSH, Node, Python, Zed, OpenCode, Claude Code, Tailscale, Docker |
-| `desktop` | Workstation completa | notebook + Rust, VSCode |
-| `host` | Servidor de infraestructura | Git, SSH, Docker, Tailscale, Node, Python, Ollama, LiteLLM, Qdrant, PostgreSQL, n8n |
+| `notebook` | Laptop de desarrollo | Git, SSH, Node, Python, Zed, Mimo, OpenCode, Claude Code, Terax, Tailscale, Docker |
+| `desktop` | Workstation completa | notebook + Rust, VSCode, Workspace API |
+| `host` | Servidor de infraestructura | Git, SSH, Docker, Tailscale, Node, Python, Ollama, LiteLLM, Qdrant, PostgreSQL, n8n, Workspace |
 | `minimal` | Bare minimum | Solo Git y SSH |
 
 #### 4. Ejecutar el Bootstrap
@@ -147,7 +147,8 @@ El bootstrap:
 3. Instala las herramientas que faltan
 4. Configura los dotfiles (symlinks)
 5. Instala y configura los MCP servers
-6. Genera configs para OpenCode, Claude Code, Zed
+6. Genera configs para Mimo, OpenCode, Claude Code, Zed
+7. Instala agentes custom, skills y custom tools de Mimo
 
 #### 5. Verificar la Instalación
 
@@ -164,17 +165,40 @@ El bootstrap:
 ### Flujo 1: Desarrollo Diario con AI Tools
 
 ```bash
-# 1. Iniciar tu editor (Zed)
-zed .
+# 1. Iniciar Mimo (frontend principal)
+mimo
 
-# 2. OpenCode ya está configurado con MCP servers
+# 2. Conversar con el agente Build (default)
+> Crea un endpoint FastAPI para autenticación JWT
+
+# 3. Cambiar al agente Plan (solo análisis, sin cambios)
+# Presiona Tab para cambiar de agente
+
+# 4. Usar un agente especializado
+@security-auditor Revisa este código por vulnerabilidades
+
+# 5. Usar un skill
+Use skill: system-design
+
+# 6. Ejecutar un comando custom
+/review
+/debug
+/test
+/doc
+/architect
+/benchmark
+```
+
+**OpenCode y Claude Code** (alternativos):
+```bash
+# OpenCode también está configurado con MCP servers
 opencode
 
-# 3. Claude Code también está listo
+# Claude Code también está listo
 claude
 ```
 
-Los MCP servers (filesystem, git, github, headroom, codebase-memory, ponytail) ya están configurados automáticamente.
+Los MCP servers (filesystem, git, github) ya están configurados automáticamente.
 
 ### Flujo 2: Agregar una Nueva Herramienta
 
@@ -270,6 +294,7 @@ chmod +x components/ripgrep/*.sh
 ./bootstrap mcp-disable postgres
 
 # Regenerar configs para AI tools
+./bootstrap mcp-generate mimo
 ./bootstrap mcp-generate opencode
 ./bootstrap mcp-generate claude-code
 ./bootstrap mcp-generate zed
@@ -297,6 +322,7 @@ components:
   - python
   - docker
   - zed
+  - mimo
   - opencode
   - ripgrep  # Tu componente personalizado
 
@@ -365,7 +391,334 @@ AWE genera la configuración en `~/.config/zed/settings.json`.
 ./bootstrap mcp-generate zed
 ```
 
-### 4. **Docker**
+### 4. **Mimo (Frontend Principal)**
+
+Mimo es el frontend principal de tu AI Engineering Platform. Es un agente AI terminal-native (fork de OpenCode) con memoria persistente, agentes custom, skills, compose mode, y self-improvement.
+
+**Iniciar Mimo**:
+```bash
+mimo
+```
+
+**Configuración generada automáticamente**:
+```bash
+./bootstrap mcp-generate mimo
+```
+
+Esto genera `~/.config/mimocode/mimocode.json` con:
+- **Provider**: LiteLLM como gateway unificado (http://localhost:4000/v1)
+- **Modelos**: Claude Sonnet, GPT-4, Ollama local, Gemini, OpenRouter
+- **MCP servers**: filesystem, git, github, docker, sequential-thinking
+- **Skills**: 28 skills migrados de la biblioteca de prompts
+- **Custom commands**: /review, /debug, /test, /doc, /architect, /benchmark, /dream, /distill
+- **Agentes custom**: security-auditor, docs-writer, perf-analyzer, tdd-driver, refactor, infra
+
+#### Flujo de Trabajo con Mimo
+
+**Sesión básica**:
+```bash
+# 1. Iniciar Mimo
+mimo
+
+# 2. Conversar con el agente Build (default)
+> Crea un endpoint FastAPI para autenticación JWT
+
+# 3. Cambiar al agente Plan (solo análisis, sin cambios)
+# Presiona Tab para cambiar de agente
+
+# 4. Usar un agente especializado
+@security-auditor Revisa este código por vulnerabilidades
+
+# 5. Usar un skill
+Use skill: system-design
+
+# 6. Ejecutar un comando custom
+/review
+/debug
+/test
+/doc
+/architect
+/benchmark
+```
+
+**Gestión de sesiones**:
+```bash
+# Ver sesiones activas
+mimo sessions
+
+# Reanudar una sesión anterior
+mimo session <session-id>
+
+# Limpiar contexto actual
+/clear
+```
+
+**Modelos**:
+```bash
+# Cambiar modelo
+/models
+
+# Seleccionar modelo específico
+/models litellm/claude-sonnet-4-20250514
+/models litellm/local        # Ollama (CPU)
+/models litellm/gpt-4
+/models litellm/gemini-2.5-pro
+/models litellm/fast         # Alias para Ollama
+/models litellm/smart        # Alias para Claude Sonnet
+/models litellm/reasoning    # Alias para GPT-4
+```
+
+**Agentes custom**:
+| Agente | Tipo | Uso |
+|--------|------|-----|
+| `@security-auditor` | subagent | Auditoría de seguridad (read-only) |
+| `@docs-writer` | subagent | Documentación (modelo local) |
+| `@perf-analyzer` | subagent | Análisis de rendimiento |
+| `@tdd-driver` | subagent | TDD estricto (Red-Green-Refactor) |
+| `@refactor` | subagent | Refactoring seguro |
+| `@infra` | subagent | Infraestructura y Docker |
+
+**Skills disponibles** (28):
+```
+# Architecture
+system-design, component-design, tradeoff-analysis
+
+# Coding
+clean-implementation, refactoring, pattern-implementation
+
+# Review
+code-review, pr-review, security-audit
+
+# Planning
+project-planning, sprint-planning, task-estimation
+
+# Debug
+systematic-debugging, performance-debugging, log-analysis
+
+# Documentation
+readme-generation, api-documentation, inline-documentation
+
+# Security
+threat-modeling, secure-coding-review
+
+# Compose Workflows
+compose-fastapi, compose-scraper, compose-pr-review,
+compose-tests, compose-rag-pipeline, compose-debug
+
+# Memory
+dream-distill, checkpoint-management
+```
+
+**Custom tools**:
+| Tool | Función |
+|------|---------|
+| `health-check` | Verificar estado de servicios (LiteLLM, Ollama, Qdrant) |
+| `benchmark` | Comparar modelos (tiempo + tokens) |
+| `model-router` | Verificar modelos disponibles en LiteLLM |
+| `workflow-runner` | Ejecutar workflows de la plataforma |
+| `context-injector` | Inyectar contexto RAG desde Qdrant |
+| `n8n-trigger` | Disparar automatizaciones n8n |
+| `memory-manager` | Gestionar MEMORY.md (read/write/search/clean) |
+
+**Memory y Dream/Distill**:
+```bash
+# Extraer conocimiento de la sesión a memoria
+/dream
+
+# Detectar patrones y crear skills/commands
+/distill
+
+# Gestionar memoria
+/memory read
+/memory write "Nueva convención: usar type hints en todo"
+/memory search "convención"
+/memory clean
+
+# Crear checkpoint manual
+/checkpoint
+```
+
+**Compose mode** (specs-driven development):
+```bash
+# Iniciar modo compose
+/compose
+
+# Workflows disponibles:
+# - fastapi: Crear proyecto FastAPI completo
+# - scraper: Crear web scraper async
+# - pr-review: Review completo de PR
+# - tests: Generar suite de tests
+# - rag-pipeline: Crear pipeline RAG
+# - debug: Debug sistemático
+```
+
+**Notificaciones n8n**:
+Mimo puede disparar workflows de n8n para:
+- Ejecutar tests post-commit
+- Monitorear salud de servicios (cada 5 min)
+- Log de resúmenes de sesión
+- Notificar commits
+
+```bash
+# Desde Mimo, usar el tool n8n-trigger
+n8n-trigger --workflow "post-commit-tests"
+n8n-trigger --workflow "health-monitor"
+```
+
+### 5. **Terax (Terminal AI-Nativo)**
+
+Terax es un terminal AI-nativo que sirve como la **capa de presentación visual** en la plataforma. Se conecta a LiteLLM vía endpoint OpenAI-compatible y detecta agentes externos (MiMoCode, Claude Code) vía marcadores OSC 777.
+
+**Arquitectura**:
+```
+Terax (Terminal/UI) → Orquestador (MiMoCode/ClaudeCode) → LiteLLM (Gateway) → Modelos + MCP
+```
+
+**Instalación**:
+```bash
+./bootstrap bootstrap --profile notebook  # Incluye Terax
+# O instalar solo Terax:
+./components/terax/install.sh
+```
+
+**Configuración**: Terax se configura automáticamente para conectarse a LiteLLM:
+```yaml
+# ~/.config/terax/config.yaml
+ai:
+  provider: openai-compatible
+  base_url: "http://localhost:4000"
+  api_key: "sk-litellm"
+  model: "claude-sonnet-4-20250514"
+```
+
+**Agentes Custom**:
+- `/orchestrator` — Orquestación completa de AI Engineering
+- `/debugger` — Debugging sistemático
+- `/reviewer` — Revisión de código con auditoría de seguridad
+
+**Snippets**:
+- `/research` — Investigación profunda con sub-agentes paralelos
+- `/deploy` — Health check + deployment
+- `/benchmark` — Comparación de rendimiento de modelos
+- `/review-pr` — Revisión de pull requests
+
+**Detección de Agentes**: Terax detecta automáticamente MiMoCode y Claude Code vía marcadores OSC 777. Cuando ejecutas estos agentes en terminales de Terax, su estado aparece en el panel de notificaciones.
+
+**Documentación completa**: Ver `docs/terax-integration.md`
+
+### 7. **Distributed AI Workspace**
+
+El Distributed AI Workspace es un **sistema de gestión de sesiones, tareas y workspaces multi-dispositivo** que permite iniciar, continuar, monitorear y finalizar workflows desde cualquier dispositivo sin perder contexto.
+
+**Arquitectura**:
+```
+Clients (Hermes/MiMo/OpenCode/Claude/Web)
+    ↓ REST + WebSocket
+API Gateway (FastAPI :8080)
+    ↓
+Workspace Layer
+├── Workspace Manager (workspaces, dispositivos, usuarios)
+├── Session Manager (sesiones, checkpoints, sync, migración)
+├── Task Manager (tareas, progreso, métricas)
+├── Workflow Engine (workflows, pasos, eventos)
+├── Notification Service (alertas, push, historial)
+└── Presence Service (heartbeat, actividad, idle detection)
+    ↓ Event Bus (Redis Pub/Sub)
+AI Engineering Platform (LiteLLM, Ollama, Qdrant, n8n, MCP)
+    ↓
+Storage (PostgreSQL + Redis)
+```
+
+**Instalación**:
+```bash
+# Incluir workspace en el perfil
+./bootstrap bootstrap --profile host    # Incluye workspace
+./bootstrap bootstrap --profile desktop # Incluye workspace
+
+# O instalar solo workspace
+./bootstrap bootstrap --only workspace
+```
+
+**Iniciar servicios**:
+```bash
+cd components/workspace
+docker compose up -d
+
+# Verificar
+curl http://localhost:8080/health
+# {"status":"ok","version":"0.1.0"}
+```
+
+**API Documentation**:
+```bash
+# Swagger UI
+http://localhost:8080/docs
+
+# ReDoc
+http://localhost:8080/redoc
+```
+
+**Endpoints principales**:
+
+| Categoría | Endpoints | Descripción |
+|-----------|-----------|-------------|
+| Workspaces | 8 | CRUD workspaces, dispositivos |
+| Sessions | 13 | Lifecycle, mensajes, checkpoints, sync, migración |
+| Tasks | 14 | Cola, progreso, métricas, acciones remotas |
+| Workflows | 8 | Ejecución, pasos, pausa/resumen |
+| Notifications | 8 | Alertas, reglas, historial |
+| Presence | 4 | Heartbeat, actividad, idle detection |
+| WebSocket | 1 | Eventos real-time |
+
+**Ejemplo: Crear Workspace y Sesión**:
+```bash
+# Crear workspace
+WS=$(curl -s -X POST http://localhost:8080/workspaces/ \
+  -H "Content-Type: application/json" \
+  -d '{"name":"AI Engineering","description":"Main workspace","owner_id":"user-1"}')
+WS_ID=$(echo "$WS" | python3 -c "import sys,json; print(json.load(sys.stdin)['id'])")
+
+# Crear sesión
+curl -s -X POST http://localhost:8080/sessions/ \
+  -H "Content-Type: application/json" \
+  -d "{\"workspace_id\":\"$WS_ID\",\"title\":\"Debug Session\"}"
+
+# Agregar mensaje
+curl -s -X POST "http://localhost:8080/sessions/$SESS_ID/messages" \
+  -H "Content-Type: application/json" \
+  -d '{"role":"user","content":"Help me debug this error"}'
+```
+
+**Ejemplo: Crear y Ejecutar Tarea**:
+```bash
+# Crear tarea
+TASK=$(curl -s -X POST http://localhost:8080/tasks/ \
+  -H "Content-Type: application/json" \
+  -d "{\"workspace_id\":\"$WS_ID\",\"title\":\"Run benchmark\",\"priority\":5}")
+TASK_ID=$(echo "$TASK" | python3 -c "import sys,json; print(json.load(sys.stdin)['id'])")
+
+# Ver progreso
+curl -s "http://localhost:8080/tasks/$TASK_ID"
+```
+
+**WebSocket para Eventos Real-Time**:
+```javascript
+const ws = new WebSocket('ws://localhost:8080/ws?workspace_id=<uuid>');
+
+ws.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  console.log(data.type, data.payload);
+};
+
+// Event types:
+// session.created, session.message.new, session.paused, session.resumed
+// task.created, task.started, task.progress, task.completed, task.failed
+// device.online, device.offline
+```
+
+**Documentación completa**: Ver `docs/distributed-workspace-api.md`, `docs/distributed-workspace-deployment.md`, `docs/distributed-workspace-integration.md`
+
+### 8. **Docker**
 
 Los componentes de infraestructura (Ollama, Qdrant, PostgreSQL, n8n) corren en Docker.
 
@@ -384,7 +737,7 @@ docker logs awe-ollama
 docker stop awe-ollama
 ```
 
-### 5. **Tailscale**
+### 6. **Tailscale**
 
 Tailscale se instala pero no se configura automáticamente (requiere autenticación).
 
@@ -395,7 +748,7 @@ sudo tailscale up
 
 Esto te dará un URL para autenticarte en tu cuenta de Tailscale.
 
-### 6. **Git**
+### 7. **Git**
 
 Los dotfiles de Git se configuran automáticamente con symlinks.
 
@@ -407,7 +760,7 @@ vim ~/ai-workstation-environment/dotfiles/git/.gitconfig
 # Los cambios se reflejan instantáneamente (symlink)
 ```
 
-### 7. **SSH**
+### 8. **SSH**
 
 Los dotfiles de SSH también se configuran con symlinks.
 
@@ -501,6 +854,7 @@ Salida esperada:
 ✓ OpenCode
 ✓ Claude Code
 ✓ Zed
+✓ Terax
 
 --- Infrastructure ---
 ✓ Tailscale
@@ -509,9 +863,16 @@ Salida esperada:
 ✓ Qdrant
 ✓ PostgreSQL
 ✓ n8n
+✓ Workspace API
+✓ Workspace Redis
+
+--- MCP Configs ---
+✓ OpenCode MCP
+✓ Claude MCP
+✓ Terax Config
 
 === Summary ===
-Passed: 16
+Passed: 20
 Failed: 0
 Warnings: 0
 ```
@@ -645,6 +1006,7 @@ sudo usermod -aG docker $USER
 **Solución**:
 ```bash
 # Regenerar configs
+./bootstrap mcp-generate mimo
 ./bootstrap mcp-generate opencode
 ./bootstrap mcp-generate claude-code
 ./bootstrap mcp-generate zed
@@ -653,12 +1015,60 @@ sudo usermod -aG docker $USER
 ./bootstrap mcp-list
 ```
 
+### Problema: Mimo no funciona
+
+**Solución**:
+```bash
+# Verificar que Mimo está instalado
+mimo --version
+
+# Regenerar configuración
+./bootstrap mcp-generate mimo
+
+# Verificar que LiteLLM está corriendo (necesario para Mimo)
+docker ps | grep litellm
+
+# Si LiteLLM no está corriendo:
+./bootstrap bootstrap --only litellm
+```
+
 ### Problema: Dotfiles no se actualizan
 
 **Solución**:
 ```bash
 # Forzar recreación de symlinks
 ./bootstrap bootstrap --force
+```
+
+### Problema: Workspace API no inicia
+
+**Solución**:
+```bash
+# Verificar que Docker está corriendo
+docker info
+
+# Verificar que PostgreSQL está accesible
+docker exec awe-postgresql psql -U awe -d awe -c "SELECT 1;"
+
+# Recrear contenedores
+cd components/workspace
+docker compose down
+docker compose up -d --build
+
+# Verificar salud
+curl http://localhost:8080/health
+```
+
+### Problema: Puerto 8080 ya en uso
+
+**Solución**:
+```bash
+# Encontrar qué usa el puerto
+ss -tlnp | grep 8080
+
+# Cambiar puerto en docker-compose.yaml
+# Editar components/workspace/docker-compose.yaml
+# Cambiar "8080:8080" a "8081:8080"
 ```
 
 ---
@@ -706,8 +1116,10 @@ Sí, puedes descargar el ZIP del repositorio y ejecutar el bootstrap. Pero perde
 6. Resuelve dependencias entre componentes
 7. Instala cada componente (si no está ya instalado)
 8. Aplica dotfiles (symlinks)
-9. Instala y configura MCP servers
-10. Genera configs para OpenCode, Claude Code, Zed
+9. Instala y configura MCP servers (13 servers definidos)
+10. Genera configs para Mimo, OpenCode, Claude Code, Zed, Terax
+11. Instala agentes custom, skills y custom tools de Mimo
+12. Inicia Workspace API (si profile lo incluye)
 
 ---
 
@@ -719,6 +1131,17 @@ Sí, puedes descargar el ZIP del repositorio y ejecutar el bootstrap. Pero perde
 - **docs/adding-components.md**: Cómo agregar componentes
 - **docs/profiles.md**: Sistema de perfiles
 - **docs/mcp-management.md**: Gestión de MCP servers
+- **docs/GETTING_STARTED.md**: Guía de inicio rápido
+- **docs/mimo-architecture.md**: Análisis de capacidades de Mimo
+- **docs/mimo-platform-design.md**: Diseño de integración Mimo + Plataforma
+- **docs/mimo-implementation-plan.md**: Plan de implementación Mimo
+- **docs/distributed-workspace-summary.md**: Diseño de Distributed AI Workspace
+- **docs/distributed-workspace-architecture.md**: Arquitectura completa del Workspace
+- **docs/distributed-workspace-diagrams.md**: Diagramas de flujo del Workspace
+- **docs/distributed-workspace-api.md**: API Reference del Workspace
+- **docs/distributed-workspace-deployment.md**: Guía de deployment del Workspace
+- **docs/distributed-workspace-integration.md**: Guía de integración de clientes
+- **docs/terax-integration.md**: Integración de Terax
 
 ---
 
@@ -736,6 +1159,22 @@ Si tienes problemas o preguntas:
 
 AI Workstation Environment transforma la configuración de entornos de desarrollo de un proceso manual, lento y propenso a errores, en un comando automatizado, rápido y reproducible.
 
+Con **Mimo como frontend principal**, tienes un agente AI terminal-native con:
+- **28 skills** para tareas especializadas
+- **6 agentes custom** para diferentes roles
+- **7 custom tools** para interactuar con tu plataforma
+- **6 compose workflows** para desarrollo guiado
+- **Memory persistente** con dream/distill para auto-mejora
+- **Integración completa** con LiteLLM, Ollama, Qdrant, n8n y todos tus MCP servers
+
+Con **Distributed AI Workspace**, tienes un sistema multi-dispositivo con:
+- **57 endpoints REST** para workspaces, sesiones, tareas, workflows, notificaciones
+- **WebSocket real-time** para sincronización entre dispositivos
+- **Session migration** para cambiar de notebook a desktop sin perder contexto
+- **Task management** con progreso, métricas y acciones remotas
+- **Notification system** con alertas multi-canal (WebSocket, SSE, webhooks)
+- **Presence service** con heartbeat y detección de idle
+
 **Empieza ahora**:
 ```bash
 git clone https://github.com/TU_USUARIO/ai-workstation-environment.git
@@ -743,4 +1182,4 @@ cd ai-workstation-environment
 ./bootstrap --profile notebook
 ```
 
-En 10 minutos tendrás un entorno profesional de AI Engineering completamente configurado.
+En 10 minutos tendrás un entorno profesional de AI Engineering completamente configurado con Mimo como tu interfaz inteligente.

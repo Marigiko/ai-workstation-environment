@@ -1,0 +1,63 @@
+# Terax Configuration Reference
+# =============================================
+# IMPORTANT: Terax does NOT read this YAML file!
+# Terax uses its own Settings UI for provider configuration.
+# This file is for reference only.
+# =============================================
+
+# How to configure Terax providers:
+#
+# 1. Open Terax
+# 2. Press Ctrl+, (Windows/Linux) or Cmd+, (macOS) to open Settings
+# 3. Go to "Providers" section
+# 4. Add each provider manually:
+#
+# --- Gemini (Free tier) ---
+# Provider Type: Google AI (Gemini)
+# API Key: AIzaSyAPLtU1wafUAvQ4PdWmMZYgs9vKn3soKZw
+#
+# --- OpenCode Go (Free credits) ---
+# Provider Type: OpenAI-Compatible
+# Name: OpenCode Go
+# Base URL: https://openrouter.ai/api/v1
+# API Key: sk-jjMBlcLr2GBT9EHr3o2qDkm5CCrjvoyTKbkoNI8pRUytUYXJnliJxO5QBDPn5mEV
+#
+# --- Ollama (Local, Free) ---
+# Provider Type: Ollama
+# Base URL: http://127.0.0.1:11434
+#
+# --- LiteLLM Proxy (All models) ---
+# Provider Type: OpenAI-Compatible
+# Name: LiteLLM Gateway
+# Base URL: http://localhost:4000
+# API Key: sk-litellm-master-key
+#
+# After adding providers, select a model from the model selector in Terax.
+
+# =============================================
+# LiteLLM Proxy Models (available via localhost:4000)
+# =============================================
+# Local Models (Ollama):
+#   - local (qwen2.5-coder:1.5b) - Fast, 986MB
+#   - local-fast (qwen2.5-coder:1.5b) - Fastest
+#   - phi3 (phi3:mini) - Balanced, 2.2GB
+#   - gemma (gemma2:2b) - Google small, 1.6GB
+#   - code-7b (qwen2.5-coder:7b) - Best code, 4.7GB
+#   - embeddings (nomic-embed-text) - For RAG
+#
+# Cloud Models (Free):
+#   - gemini-2.5-flash - Google free tier
+#   - gemini-2.5-pro - Google free tier (rate limited)
+#   - free (OpenRouter auto) - Free credits
+#
+# Cloud Models (Paid):
+#   - claude-sonnet-4-20250514 - Anthropic (requires API key)
+#   - gpt-4o - OpenAI (requires API key)
+#
+# Aliases:
+#   - fast = local (qwen2.5-coder:1.5b)
+#   - balanced = phi3 (phi3:mini)
+#   - smart = gemini-2.5-flash
+#   - reasoning = gemini-2.5-pro
+#   - code = code-7b (qwen2.5-coder:7b)
+#   - free = OpenRouter auto

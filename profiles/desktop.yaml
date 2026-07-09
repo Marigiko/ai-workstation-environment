@@ -12,8 +12,10 @@ components:
   - mimo
   - opencode
   - claude-code
+  - terax
   - tailscale
   - docker
+  - workspace
 
 config_overrides:
   environment:

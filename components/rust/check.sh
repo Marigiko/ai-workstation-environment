@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-set -euo pipefail
+
+# Check PATH including cargo bin
+export PATH="$HOME/.cargo/bin:$PATH"
 
 if command -v rustc &>/dev/null; then
     exit 0

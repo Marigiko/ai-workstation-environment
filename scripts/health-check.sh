@@ -51,6 +51,7 @@ echo "--- AI Tools ---"
 warn_check "OpenCode" "command -v opencode"
 warn_check "Claude Code" "command -v claude"
 warn_check "Zed" "command -v zed"
+warn_check "Terax" "command -v terax"
 
 echo
 echo "--- Infrastructure ---"
@@ -60,6 +61,8 @@ warn_check "LiteLLM" "docker ps --format '{{.Names}}' | grep -q awe-litellm"
 warn_check "Qdrant" "docker ps --format '{{.Names}}' | grep -q awe-qdrant"
 warn_check "PostgreSQL" "docker ps --format '{{.Names}}' | grep -q awe-postgresql"
 warn_check "n8n" "docker ps --format '{{.Names}}' | grep -q awe-n8n"
+warn_check "Workspace API" "docker ps --format '{{.Names}}' | grep -q awe-workspace-api"
+warn_check "Workspace Redis" "docker ps --format '{{.Names}}' | grep -q awe-workspace-redis"
 
 echo
 echo "--- Dotfiles ---"
@@ -70,6 +73,7 @@ echo
 echo "--- MCP Configs ---"
 warn_check "OpenCode MCP" "[ -f ~/.config/opencode/config.json ]"
 warn_check "Claude MCP" "[ -f ~/.claude/config.json ] || [ -f ~/.config/claude/config.json ]"
+warn_check "Terax Config" "[ -f ~/.config/terax/config.yaml ]"
 
 echo
 echo "=== Summary ==="

@@ -1,0 +1,41 @@
+# Worktree Configuration
+
+# Default settings
+default:
+  base_path: "/mnt/d/Projects"
+  models:
+    default: "qwen2.5-coder:7b"
+    fast: "qwen2.5-coder:1.5b"
+    smart: "gemini-2.5-flash"
+  agents:
+    default: "coder"
+    auto_mode: true
+
+# Worktree templates
+templates:
+  webapp:
+    model: "qwen2.5-coder:7b"
+    agent: "coder"
+    tools: ["bash", "read", "write", "edit"]
+  
+  api:
+    model: "qwen2.5-coder:7b"
+    agent: "coder"
+    tools: ["bash", "read", "write", "edit"]
+  
+  docs:
+    model: "qwen2.5-coder:1.5b"
+    agent: "documenter"
+    tools: ["read", "write"]
+
+# Isolation settings
+isolation:
+  separate_git: true
+  separate_sessions: true
+  separate_models: false
+
+# Sync settings
+sync:
+  auto_sync: true
+  sync_interval: 60
+  conflict_resolution: "last-write-wins"

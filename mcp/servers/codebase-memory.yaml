@@ -13,7 +13,7 @@ config:
     MEMORY_DIR: "~/.codebase-memory"
 
 install: |
-  npm install -g @codebase-memory/mcp-server
+  echo "codebase-memory MCP: uses npx -y @codebase-memory/mcp-server (downloaded on demand)"
 
 update: |
-  npm update -g @codebase-memory/mcp-server
+  echo "codebase-memory MCP: no update needed (npx handles versions)"

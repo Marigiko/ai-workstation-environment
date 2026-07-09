@@ -1,48 +1,132 @@
 model_list:
+  # ============================================
+  # LOCAL MODELS (Ollama - Free, GPU-accelerated)
+  # Hardware: i7 10700K + RTX 2060 (6GB VRAM) + 48GB RAM
+  # ============================================
+
+  # Tier 1: Fast, lightweight (1-2GB VRAM)
   - model_name: local
     litellm_params:
-      model: ollama/llama3
-      api_base: http://host.docker.internal:11434
+      model: ollama/qwen2.5-coder:1.5b
+      api_base: http://172.17.0.1:11434
+      max_tokens: 4096
 
+  - model_name: local-fast
+    litellm_params:
+      model: ollama/qwen2.5-coder:1.5b
+      api_base: http://172.17.0.1:11434
+      max_tokens: 2048
+
+  - model_name: phi3
+    litellm_params:
+      model: ollama/phi3:mini
+      api_base: http://172.17.0.1:11434
+      max_tokens: 4096
+
+  - model_name: gemma
+    litellm_params:
+      model: ollama/gemma2:2b
+      api_base: http://172.17.0.1:11434
+      max_tokens: 4096
+
+  # Tier 2: Balanced quality/speed (4-5GB VRAM)
+  - model_name: code-7b
+    litellm_params:
+      model: ollama/qwen2.5-coder:7b
+      api_base: http://172.17.0.1:11434
+      max_tokens: 8192
+
+  # Embeddings
+  - model_name: embeddings
+    litellm_params:
+      model: ollama/nomic-embed-text
+      api_base: http://172.17.0.1:11434
+
+  # ============================================
+  # GEMINI (Free tier via API key)
+  # ============================================
+  - model_name: gemini-2.5-flash
+    litellm_params:
+      model: gemini/gemini-2.5-flash
+      api_key: AIzaSyAPLtU1wafUAvQ4PdWmMZYgs9vKn3soKZw
+
+  - model_name: gemini-2.5-pro
+    litellm_params:
+      model: gemini/gemini-2.5-pro
+      api_key: AIzaSyAPLtU1wafUAvQ4PdWmMZYgs9vKn3soKZw
+
+  # ============================================
+  # OPENCODE (Free credits via API key)
+  # ============================================
+  - model_name: opencode-auto
+    litellm_params:
+      model: openrouter/auto
+      api_key: sk-jjMBlcLr2GBT9EHr3o2qDkm5CCrjvoyTKbkoNI8pRUytUYXJnliJxO5QBDPn5mEV
+      api_base: https://openrouter.ai/api/v1
+
+  # ============================================
+  # ANTHROPIC (Claude Max - via claude login)
+  # ============================================
   - model_name: claude-sonnet-4-20250514
     litellm_params:
       model: claude-sonnet-4-20250514
       api_key: os.environ/ANTHROPIC_API_KEY
 
-  - model_name: claude-opus-4-20250514
+  - model_name: claude-haiku-3-5
     litellm_params:
-      model: claude-opus-4-20250514
+      model: claude-3-5-haiku-20241022
       api_key: os.environ/ANTHROPIC_API_KEY
 
-  - model_name: gpt-4
+  # ============================================
+  # OPENAI (Paid - if user adds key later)
+  # ============================================
+  - model_name: gpt-4o
     litellm_params:
-      model: gpt-4
+      model: gpt-4o
       api_key: os.environ/OPENAI_API_KEY
 
-  - model_name: openrouter/auto
+  - model_name: gpt-4o-mini
     litellm_params:
-      model: openrouter/auto
-      api_key: os.environ/OPENROUTER_API_KEY
+      model: gpt-4o-mini
+      api_key: os.environ/OPENAI_API_KEY
 
-  - model_name: gemini-2.5-pro
-    litellm_params:
-      model: gemini/gemini-2.5-pro
-      api_key: os.environ/GEMINI_API_KEY
-
+  # ============================================
+  # ALIASES (for easy model selection)
+  # ============================================
   - model_name: fast
     litellm_params:
-      model: ollama/llama3
-      api_base: http://host.docker.internal:11434
+      model: ollama/qwen2.5-coder:1.5b
+      api_base: http://172.17.0.1:11434
+
+  - model_name: balanced
+    litellm_params:
+      model: ollama/phi3:mini
+      api_base: http://172.17.0.1:11434
 
   - model_name: smart
     litellm_params:
-      model: claude-sonnet-4-20250514
-      api_key: os.environ/ANTHROPIC_API_KEY
+      model: gemini/gemini-2.5-flash
+      api_key: AIzaSyAPLtU1wafUAvQ4PdWmMZYgs9vKn3soKZw
 
   - model_name: reasoning
     litellm_params:
-      model: gpt-4
-      api_key: os.environ/OPENAI_API_KEY
+      model: gemini/gemini-2.5-pro
+      api_key: AIzaSyAPLtU1wafUAvQ4PdWmMZYgs9vKn3soKZw
+
+  - model_name: code
+    litellm_params:
+      model: ollama/qwen2.5-coder:7b
+      api_base: http://172.17.0.1:11434
+
+  - model_name: free
+    litellm_params:
+      model: openrouter/auto
+      api_key: sk-jjMBlcLr2GBT9EHr3o2qDkm5CCrjvoyTKbkoNI8pRUytUYXJnliJxO5QBDPn5mEV
+      api_base: https://openrouter.ai/api/v1
 
 general_settings:
   master_key: sk-litellm-master-key
+
+litellm_settings:
+  drop_params: true
+  set_verbose: false

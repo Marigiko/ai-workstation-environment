@@ -1,4 +1,4 @@
-import { tool } from "@mimocode/cli/plugin"
+import { tool } from "@mimo-ai/plugin/tool"
 
 export default tool({
   description: "Inject relevant context from Qdrant vector database (RAG)",
