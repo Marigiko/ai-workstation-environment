@@ -28,7 +28,7 @@ mkdir -p "$AGENTS_DIR"
 if [ -d "$SCRIPT_DIR/agents" ]; then
     echo "Installing Mimo agents..."
     cp -f "$SCRIPT_DIR/agents/"*.md "$AGENTS_DIR/"
-    echo "Agents installed: $(ls "$AGENTS_DIR"/*.md 2>/dev/null | wc -l) files"
+    echo "Agents installed: $(find "$AGENTS_DIR" -maxdepth 1 -name '*.md' 2>/dev/null | wc -l) files"
 fi
 
 SKILLS_DIR="${HOME}/.config/mimocode/skills"
@@ -46,7 +46,7 @@ mkdir -p "$TOOLS_DIR"
 if [ -d "$SCRIPT_DIR/tools" ]; then
     echo "Installing Mimo tools..."
     cp -f "$SCRIPT_DIR/tools/"*.ts "$TOOLS_DIR/"
-    echo "Tools installed: $(ls "$TOOLS_DIR"/*.ts 2>/dev/null | wc -l) files"
+    echo "Tools installed: $(find "$TOOLS_DIR" -maxdepth 1 -name '*.ts' 2>/dev/null | wc -l) files"
 fi
 
 N8N_WORKFLOWS_DIR="${HOME}/.config/mimocode/n8n-workflows"
@@ -55,6 +55,6 @@ mkdir -p "$N8N_WORKFLOWS_DIR"
 if [ -d "$SCRIPT_DIR/n8n-workflows" ]; then
     echo "Installing n8n workflows..."
     cp -f "$SCRIPT_DIR/n8n-workflows/"*.json "$N8N_WORKFLOWS_DIR/"
-    echo "n8n workflows installed: $(ls "$N8N_WORKFLOWS_DIR"/*.json 2>/dev/null | wc -l) workflows"
+    echo "n8n workflows installed: $(find "$N8N_WORKFLOWS_DIR" -maxdepth 1 -name '*.json' 2>/dev/null | wc -l) workflows"
     echo "Import these workflows in n8n UI: http://localhost:5678"
 fi

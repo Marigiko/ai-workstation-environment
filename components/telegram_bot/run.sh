@@ -10,6 +10,7 @@ PIDFILE="/tmp/telegram-bot.pid"
 
 # Load token
 if [ -f "$SCRIPT_DIR/.env" ]; then
+    # shellcheck disable=SC2046
     export $(grep -v '^#' "$SCRIPT_DIR/.env" | xargs)
 fi
 
@@ -29,7 +30,7 @@ case "${1:-start}" in
         fi
 
         echo "Starting bot..."
-        cd "$SCRIPT_DIR"
+        cd "$SCRIPT_DIR" || exit
         export TELEGRAM_BOT_TOKEN="$TOKEN"
 
         # Use setsid to detach from terminal

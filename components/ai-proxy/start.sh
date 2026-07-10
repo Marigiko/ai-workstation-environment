@@ -44,12 +44,12 @@ do_start() {
     fi
 
     echo "Starting AI Proxy Server on port 8090..."
-    cd "$SCRIPT_DIR"
+    cd "$SCRIPT_DIR" || exit
     nohup "$PYTHON" server.py > "$LOG" 2>&1 &
     echo $! > "$PIDFILE"
 
     # Wait for readiness
-    for i in $(seq 1 15); do
+    for _ in $(seq 1 15); do
         if curl -s http://localhost:8090/health > /dev/null 2>&1; then
             echo "Server ready (PID: $(cat $PIDFILE))"
             return 0
@@ -58,7 +58,7 @@ do_start() {
     done
 
     echo "Server failed to start. Check $LOG"
-    cat "$LOG" | tail -20
+    tail -20 "$LOG"
     return 1
 }
 

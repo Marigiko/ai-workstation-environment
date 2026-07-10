@@ -30,7 +30,7 @@ if [ -n "${TELEGRAM_BOT_TOKEN:-}" ]; then
     else
         echo ""
         echo "Ingresa tu nuevo token:"
-        read -p "> " NEW_TOKEN
+        read -r -p "> " NEW_TOKEN
         export TELEGRAM_BOT_TOKEN="$NEW_TOKEN"
     fi
 else
@@ -46,7 +46,7 @@ else
     echo ""
     echo -e "${BLUE}Token se ve así:${NC} 7123456789:AAH1bGciOiJSUzI1NiIs..."
     echo ""
-    read -p "Pega tu token aquí: " TELEGRAM_BOT_TOKEN
+    read -r -p "Pega tu token aquí: " TELEGRAM_BOT_TOKEN
 
     if [ -z "$TELEGRAM_BOT_TOKEN" ]; then
         echo -e "${RED}✗${NC} No se proporcionó token. Saliendo."
@@ -178,7 +178,7 @@ echo "  1. Sí, iniciar en background"
 echo "  2. Sí, iniciar en foreground (ver logs)"
 echo "  3. No, iniciar después manualmente"
 echo ""
-read -p "Selecciona (1-3): " choice
+read -r -p "Selecciona (1-3): " choice
 
 case $choice in
     1)
@@ -188,7 +188,7 @@ case $choice in
         nohup python3 "$SCRIPT_DIR/bot.py" > /tmp/telegram-bot.log 2>&1 &
         echo $! > /tmp/telegram-bot.pid
         sleep 2
-        if kill -0 $(cat /tmp/telegram-bot.pid) 2>/dev/null; then
+        if kill -0 "$(cat /tmp/telegram-bot.pid)" 2>/dev/null; then
             echo -e "${GREEN}✓${NC} Bot iniciado (PID: $(cat /tmp/telegram-bot.pid))"
             echo "  Logs: /tmp/telegram-bot.log"
         else
