@@ -9,11 +9,11 @@ components:
   - node
   - python
   - ollama
-  - litellm
   - qdrant
   - postgresql
   - n8n
   - workspace
+  - ai-workstation
 
 config_overrides:
   docker:

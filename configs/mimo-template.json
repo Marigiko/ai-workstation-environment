@@ -9,7 +9,7 @@
       "name": "LiteLLM Gateway",
       "options": {
         "baseURL": "http://localhost:4000/v1",
-        "apiKey": "sk-litellm-master-key"
+        "apiKey": "${LITELLM_API_KEY}"
       },
       "models": {
         "claude-sonnet-4-20250514": { "name": "Claude Sonnet 4" },

@@ -1,7 +1,7 @@
 name: terax
 version: "latest"
-description: "Terax AI-native terminal with LiteLLM and MCP integration"
+description: "Terax AI-native terminal (fork). Connects to ai-workstation gateway."
 platforms: [linux, darwin]
 profiles: [notebook, desktop]
-depends_on: [node]
+depends_on: [node, ai-workstation]
 optional: true

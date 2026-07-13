@@ -48,7 +48,7 @@ class TelegramBot:
         return {
             "bot": {"token": os.getenv("TELEGRAM_BOT_TOKEN", ""), "allowed_users": []},
             "proxy": {"api_url": "http://localhost:8090"},
-            "litellm": {"api_url": "http://localhost:4000", "api_key": "sk-litellm-master-key"},
+            "litellm": {"api_url": "http://localhost:4000", "api_key": os.environ.get("LITELLM_API_KEY", "")},
             "n8n": {"webhook_url": "http://localhost:5678/webhook/telegram"},
         }
 

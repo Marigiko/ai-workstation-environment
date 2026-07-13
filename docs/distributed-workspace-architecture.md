@@ -1388,7 +1388,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - DATABASE_URL=postgresql://awe:awe-password@awe-postgresql:5432/awe
+      - DATABASE_URL=postgresql://awe:${POSTGRES_PASSWORD:-}@awe-postgresql:5432/awe
       - REDIS_URL=redis://awe-redis:6379
       - QDRANT_URL=http://awe-qdrant:6333
       - LITELLM_URL=http://awe-litellm:4000
@@ -1404,7 +1404,7 @@ services:
     command: python -m core.worker
     restart: unless-stopped
     environment:
-      - DATABASE_URL=postgresql://awe:awe-password@awe-postgresql:5432/awe
+      - DATABASE_URL=postgresql://awe:${POSTGRES_PASSWORD:-}@awe-postgresql:5432/awe
       - REDIS_URL=redis://awe-redis:6379
     depends_on:
       - postgresql

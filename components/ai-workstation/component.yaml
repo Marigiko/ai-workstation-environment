@@ -1,0 +1,10 @@
+name: ai-workstation
+version: "1.0.0"
+description: "AI Workstation Gateway — FastAPI middleware for AI models, MCP, memory, and routing"
+platforms: [linux, darwin]
+profiles: [desktop, host]
+depends_on: [docker]
+optional: false
+packages:
+  apt: [curl]
+  pacman: [curl]

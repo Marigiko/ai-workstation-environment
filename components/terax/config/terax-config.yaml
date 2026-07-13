@@ -14,13 +14,13 @@
 #
 # --- Gemini (Free tier) ---
 # Provider Type: Google AI (Gemini)
-# API Key: AIzaSyAPLtU1wafUAvQ4PdWmMZYgs9vKn3soKZw
+# API Key: <your-google-api-key-from-ai-studio>
 #
 # --- OpenCode Go (Free credits) ---
 # Provider Type: OpenAI-Compatible
 # Name: OpenCode Go
 # Base URL: https://openrouter.ai/api/v1
-# API Key: sk-jjMBlcLr2GBT9EHr3o2qDkm5CCrjvoyTKbkoNI8pRUytUYXJnliJxO5QBDPn5mEV
+# API Key: <your-openrouter-api-key>
 #
 # --- Ollama (Local, Free) ---
 # Provider Type: Ollama
@@ -30,7 +30,7 @@
 # Provider Type: OpenAI-Compatible
 # Name: LiteLLM Gateway
 # Base URL: http://localhost:4000
-# API Key: sk-litellm-master-key
+# API Key: <your-litellm-master-key>
 #
 # After adding providers, select a model from the model selector in Terax.
 

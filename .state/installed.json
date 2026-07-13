@@ -1,0 +1,72 @@
+{
+  "docker": {
+    "version": "24.0",
+    "installed_at": "2026-07-07T13:00:46.023883+00:00",
+    "method": "script"
+  },
+  "mimo": {
+    "version": "latest",
+    "installed_at": "2026-07-07T15:17:31.648948+00:00",
+    "method": "script"
+  },
+  "tailscale": {
+    "version": "1.60",
+    "installed_at": "2026-07-07T12:41:49.129366+00:00",
+    "method": "script"
+  },
+  "vscode": {
+    "version": "latest",
+    "installed_at": "2026-07-07T12:42:19.727650+00:00",
+    "method": "script"
+  },
+  "claude-code": {
+    "version": "latest",
+    "installed_at": "2026-07-07T15:17:31.134204+00:00",
+    "method": "script"
+  },
+  "litellm": {
+    "version": "latest",
+    "installed_at": "2026-07-07T13:01:43.118814+00:00",
+    "method": "script"
+  },
+  "rust": {
+    "version": "stable",
+    "installed_at": "2026-07-07T15:17:33.798986+00:00",
+    "method": "script"
+  },
+  "zed": {
+    "version": "latest",
+    "installed_at": "2026-07-07T15:17:40.531811+00:00",
+    "method": "script"
+  },
+  "postgresql": {
+    "version": "16",
+    "installed_at": "2026-07-07T14:29:42.333463+00:00",
+    "method": "script"
+  },
+  "qdrant": {
+    "version": "latest",
+    "installed_at": "2026-07-07T14:29:45.328626+00:00",
+    "method": "script"
+  },
+  "n8n": {
+    "version": "latest",
+    "installed_at": "2026-07-07T14:36:12.262271+00:00",
+    "method": "script"
+  },
+  "opencode": {
+    "version": "latest",
+    "installed_at": "2026-07-07T15:17:32.381418+00:00",
+    "method": "script"
+  },
+  "ollama": {
+    "version": "latest",
+    "installed_at": "2026-07-07T15:25:56.716008+00:00",
+    "method": "script"
+  },
+  "terax": {
+    "version": "latest",
+    "installed_at": "2026-07-07T23:01:14.697902+00:00",
+    "method": "script"
+  }
+}

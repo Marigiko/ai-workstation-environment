@@ -16,6 +16,7 @@ components:
   - tailscale
   - docker
   - workspace
+  - ai-workstation
 
 config_overrides:
   environment:

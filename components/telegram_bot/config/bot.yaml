@@ -1,7 +1,8 @@
 # Telegram Bot Configuration
-# Get token from @BotFather on Telegram
+# Set TELEGRAM_BOT_TOKEN env var before running.
+# Get token from @BotFather on Telegram if you need to create one.
 bot:
-  token: "8806095218:AAEoj1fz00AJpS7nd9Ed3sbnMugwmR02ClE"
+  token: ${TELEGRAM_BOT_TOKEN}
   webhook_url: ""  # Set for production
   allowed_users: []  # Telegram user IDs (empty = allow all)
 

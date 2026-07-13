@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     redis_url: str = "redis://localhost:6379/0"
     qdrant_url: str = "http://localhost:6335"
     litellm_url: str = "http://localhost:4000"
-    secret_key: str = "change-me-in-production"
+    secret_key: str = ""
     api_host: str = "0.0.0.0"
     api_port: int = 8080
 

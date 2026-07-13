@@ -5,7 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from core.component import discover_components, install_component
+from core.component import Component, discover_components, install_component
 from core.config import load_config
 from core.detect import detect_all
 from core.dotfiles import apply_dotfiles
@@ -62,6 +62,11 @@ def cmd_bootstrap(args: argparse.Namespace, root: Path) -> None:
         selected = {n: c for n, c in all_components.items() if n == args.only}
         if not selected:
             log.error("Component not found: %s", args.only)
+            sys.exit(1)
+    elif getattr(args, "custom", False):
+        selected = _select_components_interactive(all_components, env)
+        if not selected:
+            log.error("No components selected.")
             sys.exit(1)
     else:
         profile_data = _load_profile(root, args.profile)
@@ -284,7 +289,42 @@ def cmd_update_tools(args: argparse.Namespace, root: Path) -> None:
     log.info("Update complete: %d components updated", updated)
 
 
-def _load_profile(root: Path, profile: str | None) -> dict:
+def _select_components_interactive(
+    all_components: dict[str, Component], env
+) -> dict[str, Component]:
+    """Interactive component selection. Returns filtered component dict."""
+    print("\n=== AI Workstation — Custom Installation ===\n")
+    print("Select components to install (toggle with number, 'a' for all, 'd' done):\n")
+
+    names = sorted(all_components.keys())
+    selected = set()
+
+    while True:
+        for i, name in enumerate(names, 1):
+            comp = all_components[name]
+            mark = "[x]" if name in selected else "[ ]"
+            installed = " (installed)" if comp.check() else ""
+            optional = " [optional]" if comp.optional else ""
+            print(f"  {i:>2}. {mark} {name:<25} {comp.description[:40]}{installed}{optional}")
+        print()
+        raw = input("Toggle (number/a/d): ").strip().lower()
+
+        if raw == "d":
+            break
+        elif raw == "a":
+            selected = set(names)
+        elif raw.isdigit():
+            idx = int(raw) - 1
+            if 0 <= idx < len(names):
+                name = names[idx]
+                if name in selected:
+                    selected.discard(name)
+                else:
+                    selected.add(name)
+        else:
+            print("Invalid input. Use number, 'a' (all), or 'd' (done).")
+
+    return {n: c for n, c in all_components.items() if n in selected}
     if not profile:
         return {}
     profile_path = root / "profiles" / f"{profile}.yaml"
@@ -311,6 +351,7 @@ def build_parser() -> argparse.ArgumentParser:
     boot = sub.add_parser("bootstrap", help="Run full bootstrap")
     boot.add_argument("--profile", default=None, help="Profile to apply")
     boot.add_argument("--only", help="Install only this component")
+    boot.add_argument("--custom", action="store_true", help="Interactive component selection")
     boot.add_argument("--force", action="store_true", help="Force overwrite dotfiles")
     boot.add_argument("--dry-run", action="store_true", help="Show what would be done")
     boot.add_argument(

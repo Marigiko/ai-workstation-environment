@@ -7,7 +7,7 @@ export default tool({
   },
   async execute(args) {
     const baseURL = process.env.LITELLM_URL || "http://localhost:4000"
-    const apiKey = process.env.LITELLM_API_KEY || "sk-litellm-master-key"
+    const apiKey = process.env.LITELLM_API_KEY || ""
 
     try {
       const response = await fetch(`${baseURL}/v1/models`, {

@@ -7,7 +7,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      DATABASE_URL: "postgresql+asyncpg://awe:newpassword123@localhost:5433/workspace"
+      DATABASE_URL: "postgresql+asyncpg://${POSTGRES_USER:-awe}:${POSTGRES_PASSWORD:-}@localhost:5433/workspace"
       REDIS_URL: "redis://localhost:6380/0"
       QDRANT_URL: "http://localhost:6335"
       LITELLM_URL: "http://localhost:4000"
@@ -22,7 +22,7 @@ services:
       dockerfile: Dockerfile
     command: ["python", "-m", "app.worker"]
     environment:
-      DATABASE_URL: "postgresql+asyncpg://awe:newpassword123@localhost:5433/workspace"
+      DATABASE_URL: "postgresql+asyncpg://${POSTGRES_USER:-awe}:${POSTGRES_PASSWORD:-}@localhost:5433/workspace"
       REDIS_URL: "redis://localhost:6380/0"
       QDRANT_URL: "http://localhost:6335"
       LITELLM_URL: "http://localhost:4000"

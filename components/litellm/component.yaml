@@ -1,7 +1,7 @@
 name: litellm
 version: "latest"
-description: "LiteLLM - Unified LLM API proxy (Docker)"
+description: "LiteLLM - Unified LLM API proxy (Docker). Optional: ai-workstation gateway includes LiteLLM natively."
 platforms: [linux]
 profiles: [host]
 depends_on: [docker]
-optional: false
+optional: true

@@ -26,9 +26,9 @@ docker run -d \
     --name awe-postgresql \
     --restart unless-stopped \
     -p 5433:5432 \
-    -e POSTGRES_USER=awe \
-    -e POSTGRES_PASSWORD=awe-password \
-    -e POSTGRES_DB=awe \
+    -e POSTGRES_USER=${POSTGRES_USER:-awe} \
+    -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-$(openssl rand -hex 16)} \
+    -e POSTGRES_DB=${POSTGRES_DB:-awe} \
     -v postgres_data:/var/lib/postgresql/data \
     postgres:16-alpine
 

@@ -305,7 +305,7 @@ class GeminiHandler:
 
     def __init__(self):
         self.litellm_url = "http://localhost:4000"
-        self.api_key = "sk-litellm-master-key"
+        self.api_key = os.environ.get("LITELLM_API_KEY", "")
 
     async def complete(self, messages: List[Message], max_tokens: int = 1024) -> str:
         """Send messages to Gemini via LiteLLM."""

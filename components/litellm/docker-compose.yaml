@@ -9,4 +9,4 @@ services:
       - ./litellm_config.yaml:/app/config.yaml
     command: ["--config", "/app/config.yaml", "--port", "4000"]
     environment:
-      - LITELLM_MASTER_KEY=sk-litellm-master-key
+      - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY:-}

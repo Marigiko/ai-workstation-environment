@@ -1,33 +1,17 @@
-# Python
-.venv/
-__pycache__/
-*.py[cod]
-*.egg-info/
-dist/
-build/
-.ruff_cache/
-.pytest_cache/
-coverage.xml
-.coverage
-htmlcov/
-
-# State
-.state/
-
-# Local config overrides
-configs/local.yaml
-
-# Editor
-*.swp
-*.swo
-*~
-.idea/
-.vscode/
-
-# OS
-.DS_Store
-Thumbs.db
-
 # Serena
 .serena/cache/
 .serena/project.local.yml
+
+# Secrets — never commit
+components/*/.env
+**/.env.example.bak
+**/secrets.json
+*.pem
+*.key
+
+# Credentials
+.git-credentials
+credentials.json
+
+.venv
+__pycache__

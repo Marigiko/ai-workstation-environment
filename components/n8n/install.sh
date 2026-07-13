@@ -30,8 +30,8 @@ docker run -d \
     -e DB_POSTGRESDB_HOST=awe-postgresql \
     -e DB_POSTGRESDB_PORT=5433 \
     -e DB_POSTGRESDB_DATABASE=awe \
-    -e DB_POSTGRESDB_USER=awe \
-    -e DB_POSTGRESDB_PASSWORD=awe-password \
+    -e DB_POSTGRESDB_USER=${POSTGRES_USER:-awe} \
+    -e DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD:-$(openssl rand -hex 16)} \
     -e N8N_HOST=localhost \
     -e N8N_PORT=5678 \
     -e WEBHOOK_URL=http://localhost:5678/ \

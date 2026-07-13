@@ -66,7 +66,7 @@ export default tool({
 
 async function embedText(text: string): Promise<number[]> {
   const baseURL = process.env.LITELLM_URL || "http://localhost:4000"
-  const apiKey = process.env.LITELLM_API_KEY || "sk-litellm-master-key"
+  const apiKey = process.env.LITELLM_API_KEY || ""
 
   const response = await fetch(`${baseURL}/v1/embeddings`, {
     method: "POST",

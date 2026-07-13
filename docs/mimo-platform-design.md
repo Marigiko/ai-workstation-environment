@@ -94,7 +94,7 @@ Usuario -> Mimo TUI
       "name": "LiteLLM Gateway",
       "options": {
         "baseURL": "http://localhost:4000/v1",
-        "apiKey": "sk-litellm-master-key"
+        "apiKey": "${LITELLM_API_KEY}"
       },
       "models": {
         "claude-sonnet-4-20250514": { "name": "Claude Sonnet 4" },
@@ -233,7 +233,7 @@ model_list:
       api_key: os.environ/OPENAI_API_KEY
 
 general_settings:
-  master_key: sk-litellm-master-key
+  master_key: ${LITELLM_MASTER_KEY}
 ```
 
 ## Agentes Custom

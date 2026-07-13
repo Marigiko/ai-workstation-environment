@@ -120,7 +120,7 @@ class HeadroomConfig:
 
     # Legacy settings (for direct LiteLLM integration)
     litellm_url: str = "http://localhost:4000"
-    api_key: str = "sk-litellm-master-key"
+    api_key: str = ""
 
 
 class HeadroomClient:

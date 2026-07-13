@@ -48,12 +48,12 @@ model_list:
   - model_name: gemini-2.5-flash
     litellm_params:
       model: gemini/gemini-2.5-flash
-      api_key: AIzaSyAPLtU1wafUAvQ4PdWmMZYgs9vKn3soKZw
+      api_key: os.environ/GOOGLE_API_KEY
 
   - model_name: gemini-2.5-pro
     litellm_params:
       model: gemini/gemini-2.5-pro
-      api_key: AIzaSyAPLtU1wafUAvQ4PdWmMZYgs9vKn3soKZw
+      api_key: os.environ/GOOGLE_API_KEY
 
   # ============================================
   # OPENCODE (Free credits via API key)
@@ -61,7 +61,7 @@ model_list:
   - model_name: opencode-auto
     litellm_params:
       model: openrouter/auto
-      api_key: sk-jjMBlcLr2GBT9EHr3o2qDkm5CCrjvoyTKbkoNI8pRUytUYXJnliJxO5QBDPn5mEV
+      api_key: os.environ/OPENROUTER_API_KEY
       api_base: https://openrouter.ai/api/v1
 
   # ============================================
@@ -106,12 +106,12 @@ model_list:
   - model_name: smart
     litellm_params:
       model: gemini/gemini-2.5-flash
-      api_key: AIzaSyAPLtU1wafUAvQ4PdWmMZYgs9vKn3soKZw
+      api_key: os.environ/GOOGLE_API_KEY
 
   - model_name: reasoning
     litellm_params:
       model: gemini/gemini-2.5-pro
-      api_key: AIzaSyAPLtU1wafUAvQ4PdWmMZYgs9vKn3soKZw
+      api_key: os.environ/GOOGLE_API_KEY
 
   - model_name: code
     litellm_params:
@@ -121,11 +121,11 @@ model_list:
   - model_name: free
     litellm_params:
       model: openrouter/auto
-      api_key: sk-jjMBlcLr2GBT9EHr3o2qDkm5CCrjvoyTKbkoNI8pRUytUYXJnliJxO5QBDPn5mEV
+      api_key: os.environ/OPENROUTER_API_KEY
       api_base: https://openrouter.ai/api/v1
 
 general_settings:
-  master_key: sk-litellm-master-key
+  master_key: os.environ/LITELLM_MASTER_KEY
 
 litellm_settings:
   drop_params: true

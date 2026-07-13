@@ -83,7 +83,7 @@ Terax connects to LiteLLM via the OpenAI-compatible endpoint:
 ai:
   provider: openai-compatible
   base_url: "http://localhost:4000"
-  api_key: "sk-litellm"
+  api_key: "<your-litellm-master-key>"
   model: "claude-sonnet-4-20250514"
 ```
 

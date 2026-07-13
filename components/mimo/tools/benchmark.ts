@@ -8,7 +8,7 @@ export default tool({
   },
   async execute(args) {
     const baseURL = process.env.LITELLM_URL || "http://localhost:4000"
-    const apiKey = process.env.LITELLM_API_KEY || "sk-litellm-master-key"
+    const apiKey = process.env.LITELLM_API_KEY || ""
     const modelList = args.models?.split(",").map(m => m.trim()) || ["local", "claude-sonnet-4-20250514", "gpt-4"]
 
     const results = await Promise.all(
