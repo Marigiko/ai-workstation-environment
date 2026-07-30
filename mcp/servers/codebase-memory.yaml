@@ -1,19 +1,19 @@
+# Fixed 2026-07-30. Previously `npx -y @codebase-memory/mcp-server`, which does not
+# exist on npm. It is a released binary from github.com/DeusData/codebase-memory-mcp
+# (its install.ps1 in ~/SKILLS/codebase-memory-mcp downloads exactly this).
 name: codebase-memory
-description: "Persistent memory across AI sessions"
+description: "Persistent memory across sessions"
 version: "latest"
 enabled: true
 priority: immediate
 
 config:
-  command: npx
-  args:
-    - -y
-    - "@codebase-memory/mcp-server"
-  env:
-    MEMORY_DIR: "~/.codebase-memory"
+  command: /home/keyz/.local/bin/codebase-memory-mcp
+  args: []
 
 install: |
-  echo "codebase-memory MCP: uses npx -y @codebase-memory/mcp-server (downloaded on demand)"
+  gh release download --repo DeusData/codebase-memory-mcp \
+    --pattern '*linux*amd64*' --dir /tmp/cbm --clobber
 
 update: |
-  echo "codebase-memory MCP: no update needed (npx handles versions)"
+  echo "re-run install to fetch the latest release"

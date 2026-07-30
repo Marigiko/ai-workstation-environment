@@ -1,3 +1,6 @@
+# WARNING 2026-07-30: npm 'ponytail' is an unrelated package
+# ("Rethinking maintenance of multiple sites"). There is no ponytail MCP server
+# on npm. Disabled; do not re-enable without a verified command.
 name: ponytail
 description: "Code quality and lazy development enforcement"
 version: "latest"

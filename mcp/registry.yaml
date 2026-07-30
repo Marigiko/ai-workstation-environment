@@ -1,68 +1,53 @@
-# MCP Servers Registry
-# List of available MCP servers and their configurations
-
 servers:
-  - name: filesystem
-    description: "File system operations"
-    enabled: true
-    priority: immediate
-
-  - name: git
-    description: "Git operations (diff, blame, log)"
-    enabled: true
-    priority: immediate
-
-  - name: github
-    description: "GitHub API (PRs, issues, checks)"
-    enabled: true
-    priority: immediate
-
-  - name: headroom
-    description: "Context compression"
-    enabled: true
-    priority: immediate
-
-  - name: codebase-memory
-    description: "Persistent memory across sessions"
-    enabled: true
-    priority: immediate
-
-  - name: ponytail
-    description: "Code quality enforcement"
-    enabled: true
-    priority: immediate
-
-  - name: docker
-    description: "Docker container management"
-    enabled: false
-    priority: nice-to-have
-
-  - name: postgres
-    description: "PostgreSQL database operations"
-    enabled: false
-    priority: nice-to-have
-
-  - name: playwright
-    description: "Browser automation and testing"
-    enabled: false
-    priority: nice-to-have
-
-  - name: sequential-thinking
-    description: "Multi-step reasoning"
-    enabled: false
-    priority: nice-to-have
-
-  - name: browser
-    description: "Web browsing and research"
-    enabled: false
-    priority: nice-to-have
-
-  - name: memory
-    description: "General-purpose memory"
-    enabled: false
-    priority: nice-to-have
-
-  - name: terax
-    description: "Terax AI-native terminal integration"
-    enabled: true
-    priority: immediate
+- description: File system operations
+  enabled: true
+  name: filesystem
+  priority: immediate
+- description: Git operations (diff, blame, log)
+  enabled: true
+  name: git
+  priority: immediate
+- description: GitHub API (PRs, issues, checks)
+  enabled: true
+  name: github
+  priority: immediate
+- description: Context compression
+  enabled: true
+  name: headroom
+  priority: immediate
+- description: Persistent memory across sessions
+  enabled: true
+  name: codebase-memory
+  priority: immediate
+- description: Code quality enforcement
+  enabled: false
+  name: ponytail
+  priority: immediate
+- description: Docker container management
+  enabled: false
+  name: docker
+  priority: nice-to-have
+- description: PostgreSQL database operations
+  enabled: false
+  name: postgres
+  priority: nice-to-have
+- description: Browser automation and testing
+  enabled: false
+  name: playwright
+  priority: nice-to-have
+- description: Multi-step reasoning
+  enabled: false
+  name: sequential-thinking
+  priority: nice-to-have
+- description: Web browsing and research
+  enabled: false
+  name: browser
+  priority: nice-to-have
+- description: General-purpose memory
+  enabled: false
+  name: memory
+  priority: nice-to-have
+- description: Terax AI-native terminal integration
+  enabled: false
+  name: terax
+  priority: immediate

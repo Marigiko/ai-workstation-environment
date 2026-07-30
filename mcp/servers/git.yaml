@@ -1,3 +1,8 @@
+# Fixed 2026-07-30 (second pass). `npx -y @modelcontextprotocol/server-git` does not
+# exist on npm; the server is the PyPI package `mcp-server-git`, run via uvx.
+# But the current release crashes against the newest `mcp` library:
+#   AttributeError: 'Server' object has no attribute 'list_tools'
+# so the mcp library is pinned to a version whose API it still matches.
 name: git
 description: "Git operations (diff, blame, log)"
 version: "latest"
@@ -5,13 +10,14 @@ enabled: true
 priority: immediate
 
 config:
-  command: npx
+  command: uvx
   args:
-    - -y
-    - "@modelcontextprotocol/server-git"
+    - "--with"
+    - "mcp==1.9.4"
+    - "mcp-server-git"
 
 install: |
-  echo "Git MCP server is built-in to npx"
+  command -v uv >/dev/null 2>&1 || { echo "uv required"; exit 1; }
 
 update: |
-  npx -y @modelcontextprotocol/server-git --version
+  echo "uvx resolves mcp-server-git per run; the mcp pin guards against upstream API drift"

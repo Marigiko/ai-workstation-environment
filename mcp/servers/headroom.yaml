@@ -1,17 +1,23 @@
+# Fixed 2026-07-30 (second pass). `npx -y headroom-ai` never worked: that npm package
+# declares no bin. headroom is a PyPI package; `headroom mcp` is a command GROUP, so the
+# server is `headroom mcp serve` ("Start the MCP server (called by Claude Code)").
+# It also requires the [mcp] extra, otherwise it exits with "MCP SDK not installed".
+# Installed with: uv tool install 'headroom-ai[mcp]'
 name: headroom
-description: "Context compression for AI tools"
+description: "Context compression"
 version: "latest"
 enabled: true
 priority: immediate
 
 config:
-  command: npx
+  command: /home/keyz/.local/bin/headroom
   args:
-    - -y
-    - "headroom-ai"
+    - mcp
+    - serve
 
 install: |
-  echo "headroom MCP: uses npx -y headroom-ai (downloaded on demand)"
+  command -v uv >/dev/null 2>&1 || { echo "uv required"; exit 1; }
+  uv tool install --force 'headroom-ai[mcp]'
 
 update: |
-  echo "headroom MCP: no update needed (npx handles versions)"
+  uv tool upgrade headroom-ai

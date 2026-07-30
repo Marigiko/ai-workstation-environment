@@ -33,6 +33,52 @@ def _expand_placeholders(value):
     return value
 
 
+def _load_jsonc(path):
+    """Parse a JSON-with-comments file (Zed's settings.json uses // and /* */).
+
+    json.load() raised JSONDecodeError on line 1 because the file starts with a
+    `// Zed settings` comment, which made `mcp-generate zed` fail outright.
+    """
+    import json
+    import re
+
+    raw = path.read_text(encoding="utf-8")
+    # strip /* ... */ then // ... , while leaving string literals alone
+    out, i, n = [], 0, len(raw)
+    in_str = esc = False
+    while i < n:
+        c = raw[i]
+        if in_str:
+            out.append(c)
+            if esc:
+                esc = False
+            elif c == "\\":
+                esc = True
+            elif c == '"':
+                in_str = False
+            i += 1
+            continue
+        if c == '"':
+            in_str = True
+            out.append(c)
+            i += 1
+            continue
+        if raw.startswith("//", i):
+            while i < n and raw[i] != "\n":
+                i += 1
+            continue
+        if raw.startswith("/*", i):
+            j = raw.find("*/", i + 2)
+            i = n if j == -1 else j + 2
+            continue
+        out.append(c)
+        i += 1
+    cleaned = "".join(out)
+    cleaned = re.sub(r",(\s*[}\]])", r"\1", cleaned)  # trailing commas
+    return json.loads(cleaned) if cleaned.strip() else {}
+
+
+
 class MCPManager:
     def __init__(self, project_root: Path):
         self.project_root = project_root
@@ -223,18 +269,46 @@ class MCPManager:
         return True
 
     def _gen_zed(self, servers: dict) -> bool:
+        """Merge MCP servers into Zed's settings.json.
+
+        Zed uses JSONC, so this must not use a plain json.load(); it previously
+        crashed with JSONDecodeError on the leading `// Zed settings` comment.
+        Comments are lost on rewrite (unavoidable when emitting JSON), so the
+        original is backed up first.
+        """
+        import datetime
+        import shutil
+
         config_file = self.config_dir / "zed" / "settings.json"
         config_file.parent.mkdir(parents=True, exist_ok=True)
 
-        existing: dict = {}
+        data: dict[str, Any] = {}
         if config_file.exists():
-            with open(config_file) as f:
-                existing = json.load(f)
+            stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+            backup = config_file.with_suffix(f".json.bak.{stamp}")
+            shutil.copy2(config_file, backup)
+            log.info("Backed up %s -> %s", config_file, backup)
+            try:
+                data = _load_jsonc(config_file)
+            except Exception as exc:
+                log.error("Refusing to overwrite unparseable %s: %s", config_file, exc)
+                return False
 
-        existing["context_servers"] = servers
+        # Zed expects context_servers: { name: { command: {path, args, env} } }
+        ctx = data.get("context_servers", {})
+        for name, entry in servers.items():
+            block: dict[str, Any] = {
+                "path": entry.get("command", ""),
+                "args": entry.get("args", []),
+            }
+            if entry.get("env"):
+                block["env"] = entry["env"]
+            ctx[name] = {"source": "custom", "command": block}
+        data["context_servers"] = ctx
+
         with open(config_file, "w") as f:
-            json.dump(existing, f, indent=2)
-        log.info("Generated: %s", config_file)
+            json.dump(data, f, indent=2)
+        log.info("Merged %d MCP servers into %s", len(servers), config_file)
         return True
 
     def _gen_mimo(self, servers: dict) -> bool:
