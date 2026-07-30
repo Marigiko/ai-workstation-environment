@@ -155,8 +155,6 @@ def test_generate_config_mimo(tmp_path, monkeypatch):
 
 def test_generate_config_mimo_with_template(tmp_path, monkeypatch):
     """Placeholders like {{ HOME }} must be expanded inside the command array too."""
-    import json as _json
-    import os as _os
 
     root = _setup_mcp(tmp_path)
     target = tmp_path / "mimocode2.json"
