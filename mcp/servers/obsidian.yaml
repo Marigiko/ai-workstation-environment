@@ -18,11 +18,17 @@
 # networkingMode=mirrored de ~/.wslconfig que necesito el servidor de Unity;
 # bajo el NAT por defecto WSL no alcanza un listener en 127.0.0.1 de Windows.
 #
-# Se instala con Python 3.12 y 'mcp<2' por consistencia con los demas servidores
-# Python del registry (upwork, freelance, git), que rompen con la rama 2.x.
+# Se instala con Python 3.12 y 'mcp<2' de forma defensiva, por consistencia con los
+# demas servidores Python del registry (upwork, freelance, git), que si rompen con la
+# rama 2.x. Hoy resuelve a mcp 1.29.0 y el pin no cambia nada; no fue el arreglo de
+# ningun problema, solo evita que un mcp 2.x futuro rompa este servidor tambien.
+#
+# Ojo al leer el handshake: serverInfo.version reporta 1.29.0, que es la version del
+# SDK mcp, no la del paquete. server.py hace Server("mcp-obsidian") sin declarar
+# version propia, asi que el SDK pone la suya. La version del paquete es 0.2.2.
 name: obsidian
 description: "Lee/escribe la boveda de Obsidian via el plugin Local REST API"
-version: "1.29.0"
+version: "0.2.2"
 enabled: true
 priority: nice-to-have
 
