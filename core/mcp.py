@@ -312,40 +312,51 @@ class MCPManager:
         return True
 
     def _gen_mimo(self, servers: dict) -> bool:
-        config_file = self.config_dir / "mimocode" / "mimocode.json"
-        config_file.parent.mkdir(parents=True, exist_ok=True)
+        """Merge MCP servers into ~/.config/mimocode/mimocode.json.
 
-        template_path = self.project_root / "configs" / "mimo-template.json"
-        if template_path.exists():
-            with open(template_path) as f:
-                config = json.load(f)
-        else:
-            config = {"$schema": "https://mimo.xiaomi.com/mimocode/config.json"}
+        mimo (and mimo-new) are OpenCode forks, and their schema wants a single
+        command-as-array - `command: ["/path/bin", "arg1"]` - not a command string plus a
+        separate `args` key, and `environment` rather than `env`. Emitting the OpenCode
+        *entry* shape used elsewhere made mimo-new reject every server with
+        "Configuration is invalid ... Invalid input mcp.<name>".
+        Merges rather than replaces, and backs the file up first.
+        """
+        import datetime
+        import re as _re
+        import shutil
+        from pathlib import Path
 
-        mimo_servers: dict[str, Any] = {}
-        for name, srv in servers.items():
-            cmd = srv.get("command", "")
-            args = srv.get("args", [])
-            if isinstance(cmd, str) and cmd:
-                full_cmd = [cmd] + args
-            elif isinstance(cmd, list):
-                full_cmd = cmd + args
-            else:
-                full_cmd = args
-            entry: dict[str, Any] = {
+        # Injectable so tests never write to a real home directory.
+        target = Path(os.environ.get(
+            "AWE_MIMO_CONFIG", Path.home() / ".config" / "mimocode" / "mimocode.json"))
+        target.parent.mkdir(parents=True, exist_ok=True)
+
+        data: dict[str, Any] = {}
+        if target.exists():
+            stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+            shutil.copy2(target, target.with_suffix(f".json.bak.{stamp}"))
+            raw = target.read_text()
+            try:
+                data = json.loads(_re.sub(r",(\s*[}\]])", r"\1", raw)) if raw.strip() else {}
+            except json.JSONDecodeError as exc:
+                log.error("Refusing to overwrite unparseable %s: %s", target, exc)
+                return False
+
+        mcp = data.get("mcp", {})
+        for name, entry in servers.items():
+            block: dict[str, Any] = {
                 "type": "local",
-                "command": full_cmd,
                 "enabled": True,
+                "command": [entry.get("command", ""), *entry.get("args", [])],
             }
-            env = srv.get("env", {})
-            if env:
-                entry["environment"] = env
-            mimo_servers[name] = entry
+            if entry.get("env"):
+                block["environment"] = entry["env"]
+            mcp[name] = block
+        data["mcp"] = mcp
 
-        config["mcp"] = mimo_servers
-        with open(config_file, "w") as f:
-            json.dump(config, f, indent=2, ensure_ascii=False)
-        log.info("Generated: %s", config_file)
+        with open(target, "w") as f:
+            json.dump(data, f, indent=2)
+        log.info("Merged %d MCP servers into %s", len(servers), target)
         return True
 
     def list_servers(self) -> list[dict[str, Any]]:

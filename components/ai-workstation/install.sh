@@ -1,72 +1,106 @@
 #!/usr/bin/env bash
 set -euo pipefail
+# AI Workstation Gateway Installer
+# Installs the FastAPI gateway for AI model routing, MCP, memory, and skills.
+#
+# Architecture:
+#   - Python monorepo (uv workspace), 11 packages + gateway + CLI
+#   - Uses shared infrastructure: PostgreSQL (5433), Redis (6380), Qdrant (6335)
+#   - Gateway runs on port 8000
+#
+# Known issue: litellm import takes ~25s on first start, so the gateway
+# can take up to 40s to become healthy.
 
-GATEWAY_DIR="${AI_WORKSTATION_DIR:-$HOME/ai-workstation}"
+GATEWAY_DIR="${AI_WORKSTATION_DIR:-/mnt/d/Projects/ai-workstation}"
 GATEWAY_PORT="${GATEWAY_PORT:-8000}"
+export PATH="$HOME/.micromamba/bin:$HOME/.local/bin:$HOME/.nvm/versions/node/v24.18.0/bin:$PATH"
 
-if ! docker info &>/dev/null; then
-    echo "ERROR: Docker is not running. Start Docker first." >&2
-    exit 1
+echo "=== AI Workstation Gateway Installer ==="
+
+# 1. Verify dependencies
+echo "[1/5] Checking dependencies..."
+if ! command -v uv &>/dev/null; then
+    echo "Installing uv (Python package manager)..."
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    export PATH="$HOME/.local/bin:$PATH"
 fi
 
-# Check if already running
-if curl -sf "http://localhost:${GATEWAY_PORT}/health" &>/dev/null; then
-    echo "AI Workstation Gateway is already running on port ${GATEWAY_PORT}"
-    exit 0
-fi
-
-# Clone if not exists
+# 2. Clone/pull repo
+echo "[2/5] Repository..."
 if [ ! -d "$GATEWAY_DIR" ]; then
-    echo "Cloning ai-workstation gateway..."
-    git clone https://github.com/keyz/ai-workstation.git "$GATEWAY_DIR"
-else
-    echo "ai-workstation directory found at ${GATEWAY_DIR}"
-    cd "$GATEWAY_DIR"
-    git pull --ff-only 2>/dev/null || true
+    echo "ERROR: ai-workstation directory not found at $GATEWAY_DIR" >&2
+    echo "Clone it first: git clone <url> $GATEWAY_DIR" >&2
+    exit 1
 fi
 
 cd "$GATEWAY_DIR"
 
-# Setup .env if missing
+# 3. Install Python dependencies
+echo "[3/5] Installing Python dependencies..."
+uv sync --all-packages
+
+# 4. Setup .env (critical for DATABASE_URL)
+echo "[4/5] Configuring .env..."
 if [ ! -f .env ]; then
-    echo "Creating .env from template..."
-    if [ -f infrastructure/compose/.env.example ]; then
-        cp infrastructure/compose/.env.example .env
+    if [ -f infrastructure/compose/.env ]; then
+        cp infrastructure/compose/.env .env
+        echo "  Created .env from infrastructure/compose/.env"
     else
-        touch .env
+        cat > .env <<'ENVEOF'
+DATABASE_URL=postgresql+asyncpg://awe:${AWE_PG_PASSWORD:?set AWE_PG_PASSWORD in ~/.config/awe/env/mcp.env}@localhost:5433/ai_workstation_gateway
+REDIS_URL=redis://localhost:6380/0
+QDRANT_URL=http://localhost:6335
+GATEWAY_PORT=8000
+GATEWAY_HOST=0.0.0.0
+OPENAI_API_KEY=
+ANTHROPIC_API_KEY=
+GOOGLE_API_KEY=
+ENVEOF
+        echo "  Created .env with shared infrastructure settings"
     fi
-
-    # Generate strong random passwords
-    POSTGRES_PASSWORD=$(openssl rand -hex 24)
-    GRAFANA_PASSWORD=$(openssl rand -hex 16)
-
-    cat >> .env <<EOF
-POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-GRAFANA_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
-EOF
-
-    echo "Generated secure passwords for PostgreSQL and Grafana."
-    echo "IMPORTANT: Add your LLM API keys to ${GATEWAY_DIR}/ .env"
-    echo "  (OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_API_KEY)"
+else
+    echo "  .env already exists"
 fi
 
-# Start gateway stack
-echo "Starting AI Workstation Gateway..."
-docker compose -f infrastructure/compose/docker-compose.prod.yml up -d
+# Ensure load_dotenv is in gateway main.py (fixes DATABASE_URL not loading)
+if ! grep -q "load_dotenv" apps/gateway/src/gateway/main.py 2>/dev/null; then
+    echo "  WARNING: load_dotenv not found in gateway main.py"
+    echo "  The gateway may fail to load DATABASE_URL from .env"
+fi
 
-# Wait for health
-echo "Waiting for gateway to be ready..."
-for i in $(seq 1 60); do
+# 5. Start gateway
+echo "[5/5] Starting gateway..."
+if curl -sf "http://localhost:${GATEWAY_PORT}/health" &>/dev/null; then
+    echo "  Gateway already running on port ${GATEWAY_PORT}"
+    exit 0
+fi
+
+# Use setsid+nohup for persistent background process
+(setsid nohup .venv/bin/uvicorn gateway.main:app \
+    --host 0.0.0.0 \
+    --port ${GATEWAY_PORT} \
+    --app-dir apps/gateway/src \
+    > /tmp/gateway.log 2>&1 < /dev/null &)
+
+echo "  Waiting for startup (litellm import takes ~25s)..."
+for i in $(seq 1 30); do
+    sleep 2
     if curl -sf "http://localhost:${GATEWAY_PORT}/health" &>/dev/null; then
-        echo "AI Workstation Gateway is ready!"
-        echo "  Gateway:  http://localhost:${GATEWAY_PORT}"
+        echo ""
+        echo "=== AI Workstation Gateway READY ==="
+        echo "  URL:      http://localhost:${GATEWAY_PORT}"
         echo "  Health:   http://localhost:${GATEWAY_PORT}/health"
-        echo "  Grafana:  http://localhost:3000"
+        echo "  Docs:     http://localhost:${GATEWAY_PORT}/docs"
+        echo "  Logs:     tail -f /tmp/gateway.log"
         exit 0
     fi
-    sleep 2
+    echo "  Waiting... ($((i*2))s)"
 done
 
-echo "WARNING: Gateway did not become healthy within 120 seconds." >&2
-echo "Check logs: docker compose -f ${GATEWAY_DIR}/infrastructure/compose/docker-compose.prod.yml logs" >&2
+echo "WARNING: Gateway did not become healthy within 60 seconds." >&2
+echo "Check logs: tail -f /tmp/gateway.log" >&2
+echo "Common issues:" >&2
+echo "  - DATABASE_URL not loading: check load_dotenv in main.py" >&2
+echo "  - PostgreSQL not running: check port 5433" >&2
+echo "  - litellm import slow: can take up to 40s on first start" >&2
 exit 1

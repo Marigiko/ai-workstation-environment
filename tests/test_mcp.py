@@ -123,42 +123,48 @@ def test_generate_config_zed(tmp_path):
     assert config_file.exists()
 
 
-def test_generate_config_mimo(tmp_path):
+def test_generate_config_mimo(tmp_path, monkeypatch):
+    """mimo/mimo-new use McpLocalConfig: a single command ARRAY plus `environment`.
+
+    Emitting OpenCode's entry shape (command string + separate args, `env`) made
+    mimo-new reject every server with "Configuration is invalid ... Invalid input
+    mcp.<name>". The SDK type is:
+        McpLocalConfig = { type: "local"; command: Array<string>; environment?: {...} }
+    """
+    import json as _json
+
     root = _setup_mcp(tmp_path)
-    mcp = MCPManager(root)
-    mcp.config_dir = tmp_path / ".config"
-    assert mcp.generate_config("mimo")
-    config_file = tmp_path / ".config" / "mimocode" / "mimocode.json"
-    assert config_file.exists()
-    with open(config_file) as f:
-        data = json.load(f)
-    assert "$schema" in data
-    assert "mcp" in data
-    server = data["mcp"]["test-server"]
-    assert server["type"] == "local"
-    assert server["enabled"] is True
-    assert server["command"] == ["npx", "-y", "test"]
+    target = tmp_path / "mimocode.json"
+    target.write_text(_json.dumps({"model": "keep-me", "mcp": {"old": {"enabled": True}}}))
+    monkeypatch.setenv("AWE_MIMO_CONFIG", str(target))
+
+    mgr = MCPManager(root)
+    assert mgr.generate_config("mimo")
+
+    data = _json.loads(target.read_text())
+    assert data["model"] == "keep-me"          # unrelated keys survive the merge
+    assert "old" in data["mcp"]                # pre-existing entries survive
+    for name, entry in data["mcp"].items():
+        if name == "old":
+            continue
+        assert entry["type"] == "local"
+        assert isinstance(entry["command"], list)   # never a bare string
+        assert "args" not in entry
+        assert "env" not in entry
 
 
-def test_generate_config_mimo_with_template(tmp_path):
+def test_generate_config_mimo_with_template(tmp_path, monkeypatch):
+    """Placeholders like {{ HOME }} must be expanded inside the command array too."""
+    import json as _json
+    import os as _os
+
     root = _setup_mcp(tmp_path)
-    configs_dir = root / "configs"
-    configs_dir.mkdir()
-    template = {
-        "$schema": "https://mimo.xiaomi.com/mimocode/config.json",
-        "model": "litellm/claude-sonnet",
-        "provider": {"litellm": {"name": "LiteLLM"}},
-    }
-    (configs_dir / "mimo-template.json").write_text(json.dumps(template))
+    target = tmp_path / "mimocode2.json"
+    monkeypatch.setenv("AWE_MIMO_CONFIG", str(target))
+    monkeypatch.setenv("HOME", str(tmp_path))
 
-    mcp = MCPManager(root)
-    mcp.config_dir = tmp_path / ".config"
-    assert mcp.generate_config("mimo")
-
-    config_file = tmp_path / ".config" / "mimocode" / "mimocode.json"
-    with open(config_file) as f:
-        data = json.load(f)
-    assert data["model"] == "litellm/claude-sonnet"
-    assert data["provider"]["litellm"]["name"] == "LiteLLM"
-    assert "mcp" in data
-    assert data["mcp"]["test-server"]["type"] == "local"
+    mgr = MCPManager(root)
+    assert mgr.generate_config("mimo")
+    blob = target.read_text()
+    assert "{{ HOME }}" not in blob
+    assert "{{" not in blob
