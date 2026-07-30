@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Managed by ai-workstation-environment (mcp/bin). Installed to ~/.local/bin.
+# Talks to the Obsidian "Local REST API" community plugin, which must be installed and
+# enabled inside Obsidian: https://github.com/coddingtonbear/obsidian-local-rest-api
+# Obsidian runs on the Windows side, so .wslconfig sets networkingMode=mirrored;
+# under the default NAT, WSL cannot reach a Windows 127.0.0.1 listener.
+set -euo pipefail
+[ -f "$HOME/.config/awe/env/mcp.env" ] && set -a && . "$HOME/.config/awe/env/mcp.env" && set +a
+export OBSIDIAN_HOST="${OBSIDIAN_HOST:-127.0.0.1}"
+export OBSIDIAN_PORT="${OBSIDIAN_PORT:-27124}"
+exec "$HOME/.local/bin/mcp-obsidian" "$@"

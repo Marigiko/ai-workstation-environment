@@ -1,0 +1,27 @@
+# mcp-obsidian - https://github.com/MarkusPfundstein/mcp-obsidian (PyPI: mcp-obsidian 0.2.2)
+#
+# PREREQUISITE, and it is not optional: the Obsidian "Local REST API" community plugin
+#   https://github.com/coddingtonbear/obsidian-local-rest-api
+# must be installed AND enabled in Obsidian, and its API key placed in
+# ~/.config/awe/env/mcp.env as OBSIDIAN_API_KEY. Without it the server starts but every
+# call fails - there is no filesystem fallback.
+#
+# The vault (D:\Documentos\Bovedas\Main) currently has only obsidian-importer and
+# paper_importer installed, so this plugin still needs to be added.
+#
+# Obsidian runs on the Windows side, so ~/.wslconfig sets networkingMode=mirrored.
+name: obsidian
+description: "Read/write the Obsidian vault via the Local REST API plugin"
+version: "0.2.2"
+enabled: true
+priority: nice-to-have
+
+config:
+  command: /home/keyz/.local/bin/mcp-obsidian-wrapped
+  args: []
+
+install: |
+  uv tool install --force mcp-obsidian
+
+update: |
+  uv tool upgrade mcp-obsidian

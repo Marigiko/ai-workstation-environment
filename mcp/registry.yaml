@@ -78,3 +78,7 @@ servers:
   description: 'Unity Editor control: scenes, GameObjects, assets, C# scripts'
   enabled: true
   priority: nice-to-have
+- name: obsidian
+  description: Read/write the Obsidian vault via the Local REST API plugin
+  enabled: true
+  priority: nice-to-have
