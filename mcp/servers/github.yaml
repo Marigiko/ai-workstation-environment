@@ -1,3 +1,12 @@
+# Fixed 2026-07-30. Two problems, both fixed:
+#  1. `npx -y @modelcontextprotocol/server-github` - npx lives in the nvm bin dir, which
+#     is NOT on PATH for a standalone/GUI client. mimo-new reported "Operation timed out
+#     after 30000ms" for precisely the npx-based servers while direct-binary ones
+#     connected. Now invoked by absolute path.
+#  2. The token was the literal placeholder "YOUR_GITHUB_TOKEN_HERE", so the server ran
+#     unauthenticated and rate-limited almost immediately. Rather than writing a PAT in
+#     cleartext into every client config, a small wrapper fetches it from the gh CLI at
+#     launch, so the secret never lands in a config file.
 name: github
 description: "GitHub API (PRs, issues, checks)"
 version: "latest"
@@ -5,16 +14,11 @@ enabled: true
 priority: immediate
 
 config:
-  command: npx
-  args:
-    - -y
-    - "@modelcontextprotocol/server-github"
-  env:
-    GITHUB_TOKEN: "YOUR_GITHUB_TOKEN_HERE"
+  command: /home/keyz/.local/bin/mcp-server-github-auth
+  args: []
 
 install: |
-  echo "GitHub MCP server is built-in to npx"
-  echo "NOTE: Set GITHUB_TOKEN in your environment"
+  npm install -g @modelcontextprotocol/server-github
 
 update: |
-  npx -y @modelcontextprotocol/server-github --version
+  npm update -g @modelcontextprotocol/server-github

@@ -1,3 +1,7 @@
+# Fixed 2026-07-30. Was `npx -y @modelcontextprotocol/server-filesystem`, which
+# re-resolves against the npm registry on EVERY start. mimo-new reported
+# "Operation timed out after 30000ms" for exactly the two npx-based servers while the
+# three using direct binaries connected fine. Installed globally and invoked directly.
 name: filesystem
 description: "File system operations"
 version: "latest"
@@ -5,14 +9,12 @@ enabled: true
 priority: immediate
 
 config:
-  command: npx
+  command: /home/keyz/.nvm/versions/node/v24.18.0/bin/mcp-server-filesystem
   args:
-    - -y
-    - "@modelcontextprotocol/server-filesystem"
     - "{{ HOME }}"
 
 install: |
-  echo "Filesystem MCP server is built-in to npx"
+  npm install -g @modelcontextprotocol/server-filesystem
 
 update: |
-  npx -y @modelcontextprotocol/server-filesystem --version
+  npm update -g @modelcontextprotocol/server-filesystem
