@@ -1,27 +1,37 @@
-# mcp-obsidian - https://github.com/MarkusPfundstein/mcp-obsidian (PyPI: mcp-obsidian 0.2.2)
+# mcp-obsidian - https://github.com/MarkusPfundstein/mcp-obsidian
 #
-# PREREQUISITE, and it is not optional: the Obsidian "Local REST API" community plugin
+# PREREQUISITO, y no es opcional: el plugin de comunidad "Local REST API"
 #   https://github.com/coddingtonbear/obsidian-local-rest-api
-# must be installed AND enabled in Obsidian, and its API key placed in
-# ~/.config/awe/env/mcp.env as OBSIDIAN_API_KEY. Without it the server starts but every
-# call fails - there is no filesystem fallback.
+# tiene que estar instalado Y habilitado en Obsidian, y su API key puesta en
+# ~/.config/awe/env/mcp.env como OBSIDIAN_API_KEY. Sin la key el servidor no llega
+# ni a importar: tools.py levanta ValueError en tiempo de import. No hay fallback
+# por filesystem.
 #
-# The vault (D:\Documentos\Bovedas\Main) currently has only obsidian-importer and
-# paper_importer installed, so this plugin still needs to be added.
+# La key son 64 caracteres hex. La UI del plugin ofrece copiar el header completo
+# ("Bearer <token>"); hay que guardar SOLO el token. Con el prefijo puesto, el
+# servidor manda "Authorization: Bearer Bearer <token>" y el plugin responde 401.
+# Ojo: GET / del plugin devuelve 200 SIN autenticar, asi que no sirve para validar
+# la key; hay que probar contra un endpoint autenticado como GET /vault/.
 #
-# Obsidian runs on the Windows side, so ~/.wslconfig sets networkingMode=mirrored.
+# Escucha solo en HTTPS (27124) con certificado self-signed, bindeado a 127.0.0.1
+# del lado Windows. Obsidian corre en Windows, asi que esto depende del mismo
+# networkingMode=mirrored de ~/.wslconfig que necesito el servidor de Unity;
+# bajo el NAT por defecto WSL no alcanza un listener en 127.0.0.1 de Windows.
+#
+# Se instala con Python 3.12 y 'mcp<2' por consistencia con los demas servidores
+# Python del registry (upwork, freelance, git), que rompen con la rama 2.x.
 name: obsidian
-description: "Read/write the Obsidian vault via the Local REST API plugin"
-version: "0.2.2"
+description: "Lee/escribe la boveda de Obsidian via el plugin Local REST API"
+version: "1.29.0"
 enabled: true
 priority: nice-to-have
 
 config:
-  command: /home/keyz/.local/bin/mcp-obsidian-wrapped
+  command: $HOME/.local/bin/mcp-obsidian-wrapped
   args: []
 
 install: |
-  uv tool install --force mcp-obsidian
+  uv tool install --force --python 3.12 --with 'mcp<2' mcp-obsidian
 
 update: |
   uv tool upgrade mcp-obsidian
