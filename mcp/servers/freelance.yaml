@@ -1,0 +1,18 @@
+# The package declares NO entrypoint (`uv tool install` fails with "No executables are
+# provided"), so it runs as a script from its own venv. Also needs `mcp<2`.
+# Credentials required: GROQ_API_KEY, UPWORK_*, FREELANCER_* in ~/.config/awe/env/mcp.env
+name: freelance
+description: "Freelance gig aggregator (Upwork + Freelancer + Groq)"
+version: "latest"
+enabled: true
+priority: nice-to-have
+
+config:
+  command: /home/keyz/.local/bin/mcp-freelance
+  args: []
+
+install: |
+  git clone https://github.com/N1KH1LT0X1N/FreelanceMCP ~/mcp-servers/FreelanceMCP && cd ~/mcp-servers/FreelanceMCP && uv venv .venv && uv pip install --python .venv/bin/python -r requirements.txt 'mcp<2'
+
+update: |
+  cd ~/mcp-servers/FreelanceMCP && git pull

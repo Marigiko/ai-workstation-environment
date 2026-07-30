@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Managed by ai-workstation-environment (mcp/bin). Installed to ~/.local/bin.
+# Sources ~/.config/awe/env/mcp.env because MCP servers are spawned by the client,
+# not by a shell, so shell exports never reach them.
+set -euo pipefail
+[ -f "$HOME/.config/awe/env/mcp.env" ] && set -a && . "$HOME/.config/awe/env/mcp.env" && set +a
+# Authenticate once:  mcp-server-linkedin --login --no-headless
+[ -n "${LINKEDIN_USER_DATA_DIR:-}" ] && export USER_DATA_DIR="${LINKEDIN_USER_DATA_DIR/#\~/$HOME}"
+[ -n "${LINKEDIN_HEADLESS:-}" ] && export HEADLESS="$LINKEDIN_HEADLESS"
+exec "$HOME/.local/bin/mcp-server-linkedin" "$@"

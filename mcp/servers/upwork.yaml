@@ -1,0 +1,17 @@
+# Requires `mcp<2`: the package imports mcp.server.fastmcp, which mcp 2.x removed
+# (ModuleNotFoundError: No module named 'mcp.server.fastmcp').
+name: upwork
+description: "Upwork job search via browser automation"
+version: "latest"
+enabled: true
+priority: nice-to-have
+
+config:
+  command: /home/keyz/.local/bin/mcp-upwork
+  args: []
+
+install: |
+  uv tool install --force --with 'mcp<2' git+https://github.com/vanooo/upwork-mcp
+
+update: |
+  uv tool upgrade upwork-mcp

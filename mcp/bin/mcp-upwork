@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Managed by ai-workstation-environment (mcp/bin). Installed to ~/.local/bin.
+# Sources ~/.config/awe/env/mcp.env because MCP servers are spawned by the client,
+# not by a shell, so shell exports never reach them.
+set -euo pipefail
+[ -f "$HOME/.config/awe/env/mcp.env" ] && set -a && . "$HOME/.config/awe/env/mcp.env" && set +a
+exec "$HOME/.local/bin/upwork-mcp" "$@"

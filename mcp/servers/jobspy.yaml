@@ -1,0 +1,18 @@
+# Not published to npm. package.json asks for @modelcontextprotocol/sdk ^1.10.1 but npm
+# resolves 1.27.1, which crashes: TypeError: Cannot read properties of null (reading '_zod').
+# Pinned to sdk 1.12.1. Runs in stdio mode with ENABLE_SSE=0; no credentials needed.
+name: jobspy
+description: "Job search across multiple boards"
+version: "latest"
+enabled: true
+priority: nice-to-have
+
+config:
+  command: /home/keyz/.local/bin/mcp-jobspy
+  args: []
+
+install: |
+  git clone https://github.com/borgius/jobspy-mcp-server ~/mcp-servers/jobspy-mcp-server && cd ~/mcp-servers/jobspy-mcp-server && npm install --omit=dev && npm install '@modelcontextprotocol/sdk@1.12.1'
+
+update: |
+  cd ~/mcp-servers/jobspy-mcp-server && git pull && npm install --omit=dev

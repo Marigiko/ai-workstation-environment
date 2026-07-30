@@ -15,3 +15,7 @@ credentials.json
 
 .venv
 __pycache__
+
+# real MCP credentials (template is env/mcp.env.example)
+env/*.env
+!env/*.env.example

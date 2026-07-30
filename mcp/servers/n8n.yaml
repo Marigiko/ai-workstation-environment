@@ -1,0 +1,17 @@
+# Published on npm as n8n-mcp. Documentation tools need no credentials;
+# set N8N_API_URL/N8N_API_KEY in ~/.config/awe/env/mcp.env to manage a live instance.
+name: n8n
+description: "n8n workflow builder + node documentation"
+version: "latest"
+enabled: true
+priority: nice-to-have
+
+config:
+  command: /home/keyz/.local/bin/mcp-n8n
+  args: []
+
+install: |
+  npm install -g n8n-mcp
+
+update: |
+  npm update -g n8n-mcp

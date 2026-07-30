@@ -1,0 +1,19 @@
+# Python (PyPI/git). The executable is `mcp-server-linkedin`, NOT `linkedin-mcp-server`.
+# Drives a real browser profile - authenticate once interactively:
+#   mcp-server-linkedin --login --no-headless
+# NOTE: scraping LinkedIn may breach their Terms of Service and risk the account.
+name: linkedin
+description: "LinkedIn profile/job scraping"
+version: "latest"
+enabled: true
+priority: nice-to-have
+
+config:
+  command: /home/keyz/.local/bin/mcp-linkedin
+  args: []
+
+install: |
+  uv tool install --force git+https://github.com/stickerdaniel/linkedin-mcp-server
+
+update: |
+  uv tool upgrade mcp-server-linkedin

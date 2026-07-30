@@ -1,3 +1,6 @@
+# MCP Servers Registry
+# List of available MCP servers and their configurations
+
 servers:
 - description: File system operations
   enabled: true
@@ -51,3 +54,23 @@ servers:
   enabled: false
   name: terax
   priority: immediate
+- name: n8n
+  description: n8n workflow builder + node documentation
+  enabled: true
+  priority: nice-to-have
+- name: linkedin
+  description: LinkedIn profile/job scraping
+  enabled: true
+  priority: nice-to-have
+- name: upwork
+  description: Upwork job search via browser automation
+  enabled: true
+  priority: nice-to-have
+- name: freelance
+  description: Freelance gig aggregator (Upwork + Freelancer + Groq)
+  enabled: true
+  priority: nice-to-have
+- name: jobspy
+  description: Job search across multiple job boards
+  enabled: true
+  priority: nice-to-have

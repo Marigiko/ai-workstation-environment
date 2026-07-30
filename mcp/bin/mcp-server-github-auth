@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Managed by ai-workstation-environment (mcp/bin). Installed to ~/.local/bin.
+# Sources ~/.config/awe/env/mcp.env because MCP servers are spawned by the client,
+# not by a shell, so shell exports never reach them.
+set -euo pipefail
+[ -f "$HOME/.config/awe/env/mcp.env" ] && set -a && . "$HOME/.config/awe/env/mcp.env" && set +a
+# gh.exe runs over WSL interop and CONSUMES STDIN - </dev/null is mandatory, or the
+# server starts but never receives the client's initialize request.
+if [ -z "${GITHUB_PERSONAL_ACCESS_TOKEN:-}" ]; then
+  for GH in "/mnt/c/Program Files/GitHub CLI/gh.exe" "$(command -v gh 2>/dev/null || true)"; do
+    [ -n "${GH:-}" ] && [ -x "$GH" ] || continue
+    TOKEN="$("$GH" auth token 2>/dev/null </dev/null | tr -d "\r")" || TOKEN=""
+    [ -n "$TOKEN" ] && { export GITHUB_PERSONAL_ACCESS_TOKEN="$TOKEN" GITHUB_TOKEN="$TOKEN"; break; }
+  done
+fi
+exec "/home/keyz/.nvm/versions/node/v24.18.0/bin/node" "/home/keyz/.nvm/versions/node/v24.18.0/bin/mcp-server-github" "$@"
