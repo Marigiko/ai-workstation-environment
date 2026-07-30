@@ -1,6 +1,6 @@
 [user]
-	name = {{ git.user_name }}
-	email = {{ git.user_email }}
+	name = Marigiko
+	email = marioaquinojob@gmail.com
 
 [init]
 	defaultBranch = main

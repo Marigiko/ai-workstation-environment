@@ -1,10 +1,17 @@
-# Aliases — managed by ai-workstation-environment
+# Aliases — combined dotfiles
 
 # General
 alias ll="ls -lah"
 alias la="ls -A"
 alias ..="cd .."
 alias ...="cd ../.."
+
+# LSD (modern ls)
+alias ls='lsd'
+alias ll='lsd -l'
+alias la='lsd -a'
+alias lla='lsd -la'
+alias cat='bat'
 
 # Git
 alias gs="git status"
@@ -22,3 +29,9 @@ alias dkps="docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'"
 # AI Workstation Environment
 alias awe="bash ~/ai-workstation-environment/bootstrap"
 alias awe-detect="bash ~/ai-workstation-environment/bootstrap detect"
+
+# Qtile workspace shortcuts
+alias zen='qtile cmd-obj -o group 2 -f toscreen && zen-browser &> /dev/null 2>&1 & disown'
+alias fox='qtile cmd-obj -o group 2 -f toscreen && firefox > /dev/null 2>&1 & disown'
+alias ds='qtile cmd-obj -o group 3 -f toscreen && ~/Programs/Discord/Discord > /dev/null 2>&1 & disown'
+alias chrm='qtile cmd-obj -o group 2 -f toscreen && chromium > /dev/null 2>&1 & disown'

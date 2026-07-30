@@ -13,28 +13,49 @@ install_terax_binary() {
 
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
         ARCH=$(uname -m)
-        if [ "$ARCH" = "x86_64" ]; then
-            DEB_URL="https://github.com/crynta/terax-ai/releases/latest/download/Terax_0.8.2_amd64.deb"
-        elif [ "$ARCH" = "aarch64" ]; then
-            DEB_URL="https://github.com/crynta/terax-ai/releases/latest/download/Terax_0.8.2_arm64.deb"
-        else
-            echo "ERROR: Unsupported architecture: $ARCH" >&2
-            return 1
-        fi
+        if command -v dpkg &>/dev/null; then
+            if [ "$ARCH" = "x86_64" ]; then
+                DEB_URL="https://github.com/crynta/terax-ai/releases/latest/download/Terax_0.8.2_amd64.deb"
+            elif [ "$ARCH" = "aarch64" ]; then
+                DEB_URL="https://github.com/crynta/terax-ai/releases/latest/download/Terax_0.8.2_arm64.deb"
+            else
+                echo "ERROR: Unsupported architecture: $ARCH" >&2
+                return 1
+            fi
 
-        TEMP_DIR=$(mktemp -d)
-        echo "Downloading Terax deb package..."
-        curl -sL "$DEB_URL" -o "$TEMP_DIR/terax.deb"
+            TEMP_DIR=$(mktemp -d)
+            echo "Downloading Terax deb package..."
+            curl -sL "$DEB_URL" -o "$TEMP_DIR/terax.deb"
 
-        if ! file "$TEMP_DIR/terax.deb" | grep -q "Debian"; then
-            echo "ERROR: Downloaded file is not a valid deb package" >&2
+            if ! file "$TEMP_DIR/terax.deb" | grep -q "Debian"; then
+                echo "ERROR: Downloaded file is not a valid deb package" >&2
+                rm -rf "$TEMP_DIR"
+                return 1
+            fi
+
+            sudo dpkg -i "$TEMP_DIR/terax.deb" || sudo apt-get install -f -y
             rm -rf "$TEMP_DIR"
+            echo "Terax installed via deb package"
+        elif command -v rpm &>/dev/null; then
+            if [ "$ARCH" = "x86_64" ]; then
+                RPM_URL="https://github.com/crynta/terax-ai/releases/latest/download/Terax_0.8.2_x86_64.rpm"
+            elif [ "$ARCH" = "aarch64" ]; then
+                RPM_URL="https://github.com/crynta/terax-ai/releases/latest/download/Terax_0.8.2_aarch64.rpm"
+            else
+                echo "ERROR: Unsupported architecture: $ARCH" >&2
+                return 1
+            fi
+
+            TEMP_DIR=$(mktemp -d)
+            echo "Downloading Terax rpm package..."
+            curl -sL "$RPM_URL" -o "$TEMP_DIR/terax.rpm"
+            sudo rpm -i "$TEMP_DIR/terax.rpm" || sudo dnf install -y "$TEMP_DIR/terax.rpm" || sudo zypper install -y "$TEMP_DIR/terax.rpm"
+            rm -rf "$TEMP_DIR"
+            echo "Terax installed via rpm package"
+        else
+            echo "ERROR: Neither dpkg nor rpm found. Cannot install Terax." >&2
             return 1
         fi
-
-        sudo dpkg -i "$TEMP_DIR/terax.deb" || sudo apt-get install -f -y
-        rm -rf "$TEMP_DIR"
-        echo "Terax installed via deb package"
 
     elif [[ "$OSTYPE" == "darwin"* ]]; then
         ARCH=$(uname -m)

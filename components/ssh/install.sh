@@ -11,6 +11,12 @@ if command -v apt-get &>/dev/null; then
     sudo apt-get install -y openssh-client openssh-server
 elif command -v pacman &>/dev/null; then
     sudo pacman -Sy --noconfirm openssh
+elif command -v dnf &>/dev/null; then
+    sudo dnf install -y openssh-clients openssh-server
+elif command -v zypper &>/dev/null; then
+    sudo zypper install -y openssh
+elif command -v apk &>/dev/null; then
+    sudo apk add openssh
 elif command -v brew &>/dev/null; then
     brew install openssh
 else

@@ -1,0 +1,11 @@
+name: security-tools
+version: "1.0"
+description: "Security and penetration testing tools"
+platforms: [linux]
+profiles: [notebook, desktop]
+depends_on: [git, python]
+optional: true
+packages:
+  apt: [nmap, hashcat, john, hydra, sqlmap, nikto, aircrack-ng, binwalk, steghide, ffuf, gobuster, dirb, whatweb, wpscan, burpsuite, metasploit-framework, bloodhound, torbrowser-launcher, openvpn, masscan, fcrackzip, seclists, exploitdb]
+  pacman: [nmap, hashcat, john, hydra, sqlmap, nikto, aircrack-ng, binwalk, steghide, ffuf, gobuster, dirb, whatweb, wpscan, burpsuite, metasploit, bloodhound, torbrowser-launcher, openvpn, masscan, fcrackzip, seclists, exploitdb]
+  dnf: [nmap, hashcat, john, hydra, sqlmap, nikto, aircrack-ng, binwalk, steghide, ffuf, gobuster, dirb, whatweb, wpscan, metasploit, bloodhound, torbrowser-launcher, openvpn, masscan, fcrackzip]

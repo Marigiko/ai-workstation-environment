@@ -8,7 +8,7 @@ services:
     environment:
       - DB_TYPE=postgresdb
       - DB_POSTGRESDB_HOST=awe-postgresql
-      - DB_POSTGRESDB_PORT=5433
+      - DB_POSTGRESDB_PORT=5432
       - DB_POSTGRESDB_DATABASE=awe
       - DB_POSTGRESDB_USER=${POSTGRES_USER:-awe}
       - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD:-}
@@ -17,9 +17,12 @@ services:
       - WEBHOOK_URL=http://localhost:5678/
     volumes:
       - n8n_data:/home/node/.n8n
-    # Uses the external awe-postgresql container (postgresql component)
-    external_links:
-      - awe-postgresql
+    networks:
+      - awe-shared
 
 volumes:
   n8n_data:
+
+networks:
+  awe-shared:
+    external: true

@@ -325,6 +325,9 @@ def _select_components_interactive(
             print("Invalid input. Use number, 'a' (all), or 'd' (done).")
 
     return {n: c for n, c in all_components.items() if n in selected}
+
+
+def _load_profile(root: Path, profile: str) -> dict:
     if not profile:
         return {}
     profile_path = root / "profiles" / f"{profile}.yaml"

@@ -98,6 +98,12 @@ def detect_package_manager() -> str:
         return "pacman"
     if shutil.which("apt-get"):
         return "apt"
+    if shutil.which("dnf"):
+        return "dnf"
+    if shutil.which("zypper"):
+        return "zypper"
+    if shutil.which("apk"):
+        return "apk"
     if shutil.which("brew"):
         return "brew"
     return "unknown"

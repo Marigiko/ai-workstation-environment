@@ -8,7 +8,7 @@ fi
 
 echo "Installing Tailscale..."
 
-if command -v apt-get &>/dev/null || command -v pacman &>/dev/null; then
+if command -v apt-get &>/dev/null || command -v pacman &>/dev/null || command -v dnf &>/dev/null || command -v zypper &>/dev/null; then
     curl -fsSL https://tailscale.com/install.sh | sh
 elif command -v brew &>/dev/null; then
     brew install tailscale
