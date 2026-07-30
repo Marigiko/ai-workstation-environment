@@ -1,7 +1,9 @@
-# Fixed 2026-07-30. Was `npx -y @modelcontextprotocol/server-filesystem`, which
-# re-resolves against the npm registry on EVERY start. mimo-new reported
-# "Operation timed out after 30000ms" for exactly the two npx-based servers while the
-# three using direct binaries connected fine. Installed globally and invoked directly.
+# Fixed 2026-07-30. Was `npx -y @modelcontextprotocol/server-filesystem`.
+# mimo-new reported "Operation timed out after 30000ms" for this server. Cause: a
+# standalone/GUI client spawns with a minimal PATH containing neither `npx` NOR `node`
+# (both live in ~/.nvm/versions/node/<v>/bin). The npm bin is a Node script with an
+# `#!/usr/bin/env node` shebang, so even an absolute path to it fails. The wrapper
+# invokes node explicitly, removing every PATH dependency.
 name: filesystem
 description: "File system operations"
 version: "latest"
@@ -9,7 +11,7 @@ enabled: true
 priority: immediate
 
 config:
-  command: /home/keyz/.nvm/versions/node/v24.18.0/bin/mcp-server-filesystem
+  command: /home/keyz/.local/bin/mcp-server-filesystem-wrapped
   args:
     - "{{ HOME }}"
 

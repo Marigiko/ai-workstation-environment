@@ -10,7 +10,7 @@ enabled: true
 priority: immediate
 
 config:
-  command: uvx
+  command: /home/keyz/.local/bin/uvx
   args:
     - "--with"
     - "mcp==1.9.4"
