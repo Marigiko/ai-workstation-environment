@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Managed by ai-workstation-environment (mcp/bin). Installed to ~/.local/bin.
+# MCP for Unity (CoplayDev/unity-mcp) - the Python half. The other half is a Unity
+# Editor package you add per project via Package Manager:
+#   https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#main
+# Unity runs on the Windows side here, so .wslconfig sets networkingMode=mirrored;
+# without it WSL cannot reach a Windows 127.0.0.1 listener.
+set -euo pipefail
+[ -f "$HOME/.config/awe/env/mcp.env" ] && set -a && . "$HOME/.config/awe/env/mcp.env" && set +a
+exec "$HOME/.local/bin/mcp-for-unity" "$@"

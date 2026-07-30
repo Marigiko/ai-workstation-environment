@@ -1,0 +1,30 @@
+# MCP for Unity - https://github.com/CoplayDev/unity-mcp (C# repo, Python server in Server/)
+#
+# Two halves, and only one of them lives here:
+#   * this Python server  -> uv tool install "git+https://github.com/CoplayDev/unity-mcp.git#subdirectory=Server"
+#     (package name mcpforunityserver; entrypoints mcp-for-unity and unity-mcp)
+#   * a Unity Editor package -> add per project in Unity: Package Manager > Add from git URL
+#       https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#main
+#     Without it the server has no Editor to drive.
+#
+# WARNING: the npm packages named 'unity-mcp' (Artmann) and 'unity-mcp-server'
+# (rachitkumarrastogi) are DIFFERENT projects by other authors - do not switch to them.
+#
+# Unity runs on the Windows side on this machine, so ~/.wslconfig sets
+# networkingMode=mirrored; under the default NAT, WSL cannot reach a Windows 127.0.0.1
+# listener and the Editor bridge is unreachable.
+name: unity
+description: "Unity Editor control: scenes, GameObjects, assets, C# scripts"
+version: "10.1.0"
+enabled: true
+priority: nice-to-have
+
+config:
+  command: /home/keyz/.local/bin/mcp-unity
+  args: []
+
+install: |
+  uv tool install --force "git+https://github.com/CoplayDev/unity-mcp.git#subdirectory=Server"
+
+update: |
+  uv tool upgrade mcpforunityserver
