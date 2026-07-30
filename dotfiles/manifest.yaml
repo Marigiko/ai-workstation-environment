@@ -1,6 +1,11 @@
 links:
-  - src: zsh/.zshrc
-    dst: .zshrc
+  # --- ownership boundary (see docs/SHELL-OWNERSHIP.md) ---
+  # ~/.zshrc is owned by the `dotfiles` repo (oh-my-zsh + powerlevel10k).
+  # Linking it from here would clobber that prompt on `bootstrap --force`.
+  # zsh/.zshrc is kept in-tree for machines that do NOT have the dotfiles repo;
+  # link it manually there. Do not re-enable this entry on this machine.
+  # - src: zsh/.zshrc
+  #   dst: .zshrc
   - src: zsh/.zsh_aliases
     dst: .zsh_aliases
   - src: zsh/.zshenv

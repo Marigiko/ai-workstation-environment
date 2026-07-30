@@ -1,27 +1,24 @@
 name: notebook
-description: "Lightweight AI dev environment for laptops"
+description: "Lightweight AI dev environment for laptops — no Docker service stack"
 
+# Corrected 2026-07-29. This profile previously carried the entire Docker service
+# stack (postgresql, litellm, ollama, qdrant, n8n, workspace, telegram-bot), which
+# made "notebook" heavier than "desktop" and contradicted the README.
+# It also listed `terax`, whose depends_on is [node, ai-workstation], without
+# ai-workstation — and core/graph.py silently drops dependencies that are not in the
+# selected set, so terax was installed with no gateway to talk to. Both fixed:
+# services and terax now live in `desktop`.
 components:
   - git
   - ssh
   - node
   - python
+  - docker
+  - tailscale
   - zed
   - mimo
-  - opencode
   - claude-code
-  - terax
-  - tailscale
-  - docker
-  - rust
-  - vscode
-  - postgresql
-  - litellm
-  - ollama
-  - qdrant
-  - n8n
-  - workspace
-  - telegram-bot
+  - opencode
 
 config_overrides:
   environment:

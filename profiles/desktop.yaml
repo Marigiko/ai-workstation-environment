@@ -1,23 +1,46 @@
 name: desktop
-description: "Full AI dev environment for desktop workstations"
+description: "Full AI dev workstation — notebook + rust/vscode + gateway + Docker services"
 
+# Corrected 2026-07-29: this is now genuinely a superset of `notebook`, matching the
+# README ("desktop = notebook + rust, vscode") and additionally owning the Docker
+# service stack that was previously mis-filed under `notebook`.
+# Dependency check (core/graph.py drops unlisted deps silently, so these matter):
+#   terax          -> node, ai-workstation   OK
+#   ai-workstation -> docker                 OK
+#   n8n            -> docker, postgresql     OK
+#   workspace      -> docker, postgresql     OK
+#   litellm/ollama/qdrant -> docker          OK
+#   telegram-bot   -> node                   OK
+#   mimo/claude-code/opencode -> node        OK
 components:
+  # --- notebook baseline ---
   - git
   - ssh
   - node
   - python
-  - rust
-  - zed
-  - vscode
-  - mimo
-  - opencode
-  - claude-code
-  - terax
-  - tailscale
   - docker
-  - workspace
+  - tailscale
+  - zed
+  - mimo
+  - claude-code
+  - opencode
+  # --- desktop additions ---
+  - rust
+  - vscode
+  # --- gateway + AI terminal ---
   - ai-workstation
+  - terax
+  # --- Docker service stack ---
+  - postgresql
+  - litellm
+  - ollama
+  - qdrant
+  - n8n
+  - workspace
+  - telegram-bot
 
 config_overrides:
   environment:
     editor: zed
+  docker:
+    resource_limits: false

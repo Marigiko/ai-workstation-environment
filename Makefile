@@ -1,7 +1,9 @@
+PROFILE ?= notebook
+
 .PHONY: bootstrap detect status list mcp-list test lint clean
 
 bootstrap:
-	@bash bootstrap bootstrap --profile notebook
+	@bash bootstrap bootstrap --profile $(PROFILE)
 
 detect:
 	@bash bootstrap detect
