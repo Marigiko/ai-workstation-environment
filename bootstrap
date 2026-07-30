@@ -32,7 +32,18 @@ setup_venv() {
     local py_cmd="$1"
     if [ ! -d "$VENV_DIR" ]; then
         log "Creating virtual environment in .venv"
-        "$py_cmd" -m venv "$VENV_DIR"
+        # `python3 -m venv` fails on Debian/Ubuntu when python3-venv (ensurepip) is not
+        # installed, and the shim then died with "Failed to activate venv" - which made
+        # the whole orchestrator unusable on a fresh machine. uv needs no ensurepip, so
+        # fall back to it when available.
+        if ! "$py_cmd" -m venv "$VENV_DIR" 2>/dev/null; then
+            if command -v uv &>/dev/null; then
+                log "python venv unavailable (missing python3-venv?); falling back to uv"
+                uv venv "$VENV_DIR" || die "uv venv failed"
+            else
+                die "Could not create a venv. Install python3-venv (apt install python3-venv) or uv."
+            fi
+        fi
     fi
     # shellcheck disable=SC1091
     source "$VENV_DIR/bin/activate" 2>/dev/null || source "$VENV_DIR/Scripts/activate" 2>/dev/null || die "Failed to activate venv"

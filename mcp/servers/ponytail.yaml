@@ -8,10 +8,10 @@ config:
   command: npx
   args:
     - -y
-    - "@ponytail/mcp-server"
+    - "ponytail"
 
 install: |
-  echo "ponytail MCP: uses npx -y @ponytail/mcp-server (downloaded on demand)"
+  echo "ponytail MCP: uses npx -y ponytail (downloaded on demand)"
 
 update: |
   echo "ponytail MCP: no update needed (npx handles versions)"

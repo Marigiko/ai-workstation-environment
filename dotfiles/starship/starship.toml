@@ -1,2 +1,25 @@
-[format]
-style = "aichat"
+# starship prompt configuration
+# NOTE: this file previously contained
+#     [format]
+#     style = "aichat"
+# which is not valid starship schema - `format` is a top-level string, not a table.
+# The prompt in use on this machine is powerlevel10k (see dotfiles/hosts/OWNERSHIP.md),
+# so this is only consumed if you switch to starship.
+add_newline = false
+command_timeout = 1000
+
+format = """$directory$git_branch$git_status$python$nodejs$rust$golang$cmd_duration$character"""
+
+[directory]
+truncation_length = 3
+truncate_to_repo = true
+
+[git_branch]
+symbol = " "
+
+[cmd_duration]
+min_time = 2000
+
+[character]
+success_symbol = "[>](bold green)"
+error_symbol = "[>](bold red)"

@@ -6,7 +6,10 @@ priority: immediate
 
 config:
   command: npx
-  args: ["-y", "@anthropic-ai/placeholder"]
+  args: ["-y", "@anthropic-ai/placeholder"]  # PLACEHOLDER - no real package;
+    # terax has no MCP server entrypoint (terax-ai/package.json declares no bin).
+    # Left as-is deliberately: inventing a command here would generate a broken client
+    # config. Disable it with `bootstrap mcp-disable terax` until an entrypoint exists.
 
 install: |
   echo "Terax: config-only MCP entry (no server to run)"

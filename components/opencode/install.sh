@@ -18,7 +18,9 @@ if ! command -v npm &>/dev/null; then
 fi
 
 echo "Installing OpenCode..."
-if npm install -g opencode 2>/dev/null; then
+# The npm package is `opencode-ai`; a bare `opencode` does not exist on the registry,
+# so this used to print a warning and exit 0, reporting success without installing.
+if npm install -g opencode-ai 2>/dev/null; then
     echo "OpenCode installed: $(opencode --version 2>/dev/null || echo 'installed')"
     exit 0
 fi

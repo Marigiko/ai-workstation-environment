@@ -88,14 +88,31 @@ def test_generate_config_opencode(tmp_path):
     assert "headroom" in content
 
 
-def test_generate_config_claude(tmp_path):
-    root = _setup_mcp(tmp_path)
-    mcp = MCPManager(root)
-    mcp.config_dir = tmp_path / ".config"
-    assert mcp.generate_config("claude-code")
-    config_file = tmp_path / ".config" / "claude" / "config.json"
-    assert config_file.exists()
+def test_generate_config_claude(tmp_path, monkeypatch):
+    """Claude Code reads ~/.claude.json, so the generator must merge into that file.
 
+    Previously it wrote ~/.config/claude/config.json in OpenCode's shape
+    ({enabled, type, ...}), which Claude Code never reads - the config had no effect.
+    AWE_CLAUDE_CONFIG keeps this test off the real home directory.
+    """
+    import json as _json
+
+    root = _setup_mcp(tmp_path)
+    target = tmp_path / "claude.json"
+    target.write_text(_json.dumps({"keepMe": True, "mcpServers": {"old": {"command": "x"}}}))
+    monkeypatch.setenv("AWE_CLAUDE_CONFIG", str(target))
+
+    mgr = MCPManager(root)
+    assert mgr.generate_config("claude-code")
+
+    data = _json.loads(target.read_text())
+    # unrelated keys and pre-existing servers must survive the merge
+    assert data["keepMe"] is True
+    assert "old" in data["mcpServers"]
+    # and the generated entries use Claude Code's schema, not OpenCode's
+    for entry in data["mcpServers"].values():
+        assert "enabled" not in entry
+        assert "type" not in entry
 
 def test_generate_config_zed(tmp_path):
     root = _setup_mcp(tmp_path)

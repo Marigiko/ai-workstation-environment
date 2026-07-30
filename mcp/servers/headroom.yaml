@@ -8,10 +8,10 @@ config:
   command: npx
   args:
     - -y
-    - "@headroom/mcp-server"
+    - "headroom-ai"
 
 install: |
-  echo "headroom MCP: uses npx -y @headroom/mcp-server (downloaded on demand)"
+  echo "headroom MCP: uses npx -y headroom-ai (downloaded on demand)"
 
 update: |
   echo "headroom MCP: no update needed (npx handles versions)"
