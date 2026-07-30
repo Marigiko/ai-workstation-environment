@@ -22,6 +22,7 @@ def resolve(components: list[dict[str, Any]]) -> list[str]:
         graph[name] = deps
         all_names.add(name)
 
+    missing: list[tuple[str, str]] = []
     visited: set[str] = set()
     in_stack: set[str] = set()
     order: list[str] = []
@@ -35,11 +36,24 @@ def resolve(components: list[dict[str, Any]]) -> list[str]:
         for dep in graph.get(name, []):
             if dep in all_names:
                 visit(dep)
+            else:
+                # Previously silent. This is how `terax` got installed in the notebook
+                # profile without `ai-workstation`, leaving it with no gateway.
+                missing.append((name, dep))
         in_stack.remove(name)
         visited.add(name)
         order.append(name)
 
     for name in graph:
         visit(name)
+
+    if missing:
+        import warnings
+        for comp, dep in missing:
+            warnings.warn(
+                f"component {comp!r} depends on {dep!r}, which is not in the selected set "
+                "- it will NOT be installed",
+                stacklevel=2,
+            )
 
     return order

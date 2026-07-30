@@ -46,10 +46,32 @@ def cmd_detect(args: argparse.Namespace, root: Path) -> None:
     print(f"Hostname:        {env.hostname}")
 
 
+def _apply_config(config: dict) -> None:
+    """Make the merged configuration observable and available to component scripts."""
+    import json
+    import os
+
+    envcfg = config.get("environment", {}) if config else {}
+    if envcfg:
+        log.info("Config: editor=%s shell=%s",
+                 envcfg.get("editor", "<unset>"), envcfg.get("shell", "<unset>"))
+    if envcfg.get("editor"):
+        os.environ.setdefault("AWE_EDITOR", str(envcfg["editor"]))
+    if envcfg.get("shell"):
+        os.environ.setdefault("AWE_SHELL", str(envcfg["shell"]))
+    if config:
+        os.environ["AWE_CONFIG_JSON"] = json.dumps(config)
+
+
 def cmd_bootstrap(args: argparse.Namespace, root: Path) -> None:
     env = detect_all()
-    load_config(root, profile=args.profile)
+    # The merged config used to be computed and thrown away, so configs/default.yaml
+    # (environment.editor/shell, git.*, terax.*, mcp.default_enabled) never had any
+    # effect. Keep it and expose it: log what resolved, and pass it to components via
+    # the environment so install scripts can honour it.
+    config = load_config(root, profile=args.profile)
     state = State(root / ".state")
+    _apply_config(config)
 
     log.info("Profile: %s", args.profile or "default")
     log.info("OS: %s | WSL: %s | GPU: %s | Pkg: %s",
@@ -332,8 +354,12 @@ def _load_profile(root: Path, profile: str) -> dict:
         return {}
     profile_path = root / "profiles" / f"{profile}.yaml"
     if not profile_path.exists():
-        log.warning("Profile not found: %s", profile)
-        return {}
+        available = sorted(p.stem for p in (root / "profiles").glob("*.yaml"))
+        log.error("Profile not found: %s (available: %s)", profile, ", ".join(available))
+        # Previously this returned {}, which made cmd_bootstrap fall back to
+        # `wanted = set(all_components)` and attempt ALL components -- including
+        # security-tools (metasploit, burpsuite, ...). Fail loudly instead.
+        sys.exit(1)
     import yaml
     with open(profile_path) as f:
         return yaml.safe_load(f) or {}

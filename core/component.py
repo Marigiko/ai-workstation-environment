@@ -31,6 +31,10 @@ class Component:
         )
 
     @property
+    def description(self) -> str:
+        return self.metadata.get("description", "")
+
+    @property
     def platforms(self) -> list[str]:
         return self.metadata.get("platforms", [])
 
@@ -112,6 +116,10 @@ def install_component(comp: Component, state: State, current_os: str) -> bool:
 
     if comp.check():
         log.info("Already installed: %s", comp.name)
+        # Record it anyway: previously this returned early without touching state, so
+        # pre-existing tools (git, ssh, node, python) never appeared in .state and
+        # `status` under-reported reality.
+        state.record(comp.name, version=comp.metadata.get("version", "unknown"), method="detected")
         return True
 
     if not comp.install():
