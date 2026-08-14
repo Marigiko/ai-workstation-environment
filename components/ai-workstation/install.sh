@@ -15,22 +15,57 @@ GATEWAY_PORT="${GATEWAY_PORT:-8000}"
 
 # --- Dynamic repo path detection -------------------------------------------
 # Resolve the ai-workstation repo location without hardcoding a path.
-# Priority: env var → common project dirs → parent/sibling of AWE itself.
+# Priority: env var → common project dirs (derived from detect.py) →
+# parent/sibling of AWE itself.
+#
+# Uses core/detect.py to discover the real $HOME and WSL status, so the
+# search paths match the actual environment instead of guessing /mnt/d etc.
 _find_gateway_dir() {
     if [ -n "${AI_WORKSTATION_DIR:-}" ] && [ -d "$AI_WORKSTATION_DIR" ]; then
         echo "$AI_WORKSTATION_DIR"; return
     fi
+
+    # Derive the environment with core/detect.py (home, os, wsl).
+    local env_json
+    env_json="$(python3 -c "
+import json, sys
+sys.path.insert(0, '$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)/core')
+from detect import detect_all
+print(json.dumps({'home': detect_all().home, 'os': detect_all().os, 'is_wsl': detect_all().is_wsl}))
+" 2>/dev/null)" || env_json=""
+
+    local det_home="$HOME"
+    local det_os="linux"
+    local det_wsl="false"
+    if [ -n "$env_json" ]; then
+        det_home="$(echo "$env_json" | python3 -c "import json,sys; print(json.load(sys.stdin)['home'])" 2>/dev/null)" || det_home="$HOME"
+        det_os="$(echo "$env_json" | python3 -c "import json,sys; print(json.load(sys.stdin)['os'])" 2>/dev/null)" || det_os="linux"
+        det_wsl="$(echo "$env_json" | python3 -c "import json,sys; print(json.load(sys.stdin)['is_wsl'])" 2>/dev/null)" || det_wsl="false"
+    fi
+
     local -a candidates=(
-        "$HOME/ai-workstation"
-        "$HOME/Projects/ai-workstation"
-        "$HOME/git/ai-workstation"
-        "/mnt/d/Projects/ai-workstation"
-        "/mnt/c/Projects/ai-workstation"
+        "$det_home/ai-workstation"
+        "$det_home/Projects/ai-workstation"
+        "$det_home/git/ai-workstation"
     )
+
+    # On WSL, the Windows host projects live under /mnt/<drive>/Projects.
+    # Derive the mount root from /etc/mtab rather than hardcoding /mnt/d.
+    if [ "$det_wsl" = "true" ]; then
+        local mnt_root
+        mnt_root="$(awk '/^[a-z]:\\|\\/mnt\\//{print $2; exit}' /etc/mtab 2>/dev/null | sed 's/\\///g' 2>/dev/null)"
+        # /etc/mtab typically mounts at /mnt/c, /mnt/d, etc.
+        mnt_root="${mnt_root:-/mnt}"
+        for drive in "$mnt_root"/*/; do
+            candidates+=("${drive}Projects/ai-workstation")
+        done
+    fi
+
     # Also check sibling directories of this AWE repo.
     local awe_parent
     awe_parent="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)/.."
     candidates+=("$awe_parent/ai-workstation")
+
     for c in "${candidates[@]}"; do
         if [ -f "$c/pyproject.toml" ] && [ -d "$c/apps" ]; then
             echo "$c"; return
@@ -59,8 +94,8 @@ fi
 echo "[2/5] Repository..."
 if [ -z "$GATEWAY_DIR" ] || [ ! -d "$GATEWAY_DIR" ]; then
     echo "ERROR: ai-workstation repo not found." >&2
-    echo "Searched: ~/ai-workstation, ~/Projects/ai-workstation, /mnt/d/Projects/ai-workstation, etc." >&2
-    echo "Set AI_WORKSTATION_DIR to specify the path, e.g.:" >&2
+    echo "Searched common locations under the detected home directory." >&2
+    echo "Set AI_WORKSTATION_DIR to specify the path explicitly:" >&2
     echo "  export AI_WORKSTATION_DIR=~/Projects/ai-workstation" >&2
     exit 1
 fi
