@@ -1,14 +1,11 @@
 name: ai-proxy
-version: "1.0.0"
-description: "AI Proxy Server — OpenAI-compatible API with Headroom compression (port 8090)"
+version: "0.1.0"
+description: "AI Proxy — Lightweight HTTP proxy for AI model routing and headroom compression"
 platforms: [linux, darwin]
-profiles: [desktop, host]
-depends_on: []
+profiles: [host, desktop]
+depends_on: [python]
 optional: true
-packages:
-  apt: [curl, lsof]
-  pacman: [curl, lsof]
+install: install.sh
 scripts:
-  install: null
   start: start.sh
-  check: null
+  client: client.sh

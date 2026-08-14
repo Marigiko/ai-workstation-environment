@@ -5,3 +5,9 @@ platforms: [linux, darwin]
 profiles: [host, desktop]
 depends_on: [node]
 optional: false
+install: install.sh
+scripts:
+  check: check.sh
+  run: run.sh
+  setup: setup.sh
+  uninstall: uninstall.sh

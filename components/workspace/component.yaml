@@ -5,3 +5,7 @@ platforms: [linux, darwin]
 profiles: [host, desktop]
 depends_on: [docker, postgresql]
 optional: false
+install: install.sh
+scripts:
+  check: check.sh
+  uninstall: uninstall.sh

@@ -1,11 +1,8 @@
 name: hermes
-version: "1.0.0"
-description: "Hermes Agent — workspace and gateway synchronization agent (port 8081)"
+version: "0.1.0"
+description: "Hermes — State synchronization service for distributed AI workspace"
 platforms: [linux, darwin]
-profiles: [host]
-depends_on: [ai-workstation, workspace]
+profiles: [host, desktop]
+depends_on: [python]
 optional: true
-packages: {}
-scripts:
-  install: null
-  check: null
+install: install.sh

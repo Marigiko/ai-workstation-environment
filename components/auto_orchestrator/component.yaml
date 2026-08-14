@@ -1,11 +1,8 @@
 name: auto-orchestrator
-version: "1.0.0"
-description: "Auto Orchestrator — multi-agent task decomposition, model assignment, and execution"
+version: "0.1.0"
+description: "Auto Orchestrator — Multi-agent task planning, decomposition, and model assignment"
 platforms: [linux, darwin]
-profiles: [desktop, host]
-depends_on: [ai-proxy, ollama]
+profiles: [host, desktop]
+depends_on: [python]
 optional: true
-packages: {}
-scripts:
-  install: null
-  check: null
+install: install.sh

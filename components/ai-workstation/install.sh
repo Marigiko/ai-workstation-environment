@@ -11,74 +11,49 @@ set -euo pipefail
 # Known issue: litellm import takes ~25s on first start, so the gateway
 # can take up to 40s to become healthy.
 
-GATEWAY_PORT="${GATEWAY_PORT:-8000}"
-
-# --- Dynamic repo path detection -------------------------------------------
-# Resolve the ai-workstation repo location without hardcoding a path.
-# Priority: env var → common project dirs (derived from detect.py) →
-# parent/sibling of AWE itself.
-#
-# Uses core/detect.py to discover the real $HOME and WSL status, so the
-# search paths match the actual environment instead of guessing /mnt/d etc.
+# Dynamic path detection: use AI_WORKSTATION_DIR env var, or search common locations
 _find_gateway_dir() {
     if [ -n "${AI_WORKSTATION_DIR:-}" ] && [ -d "$AI_WORKSTATION_DIR" ]; then
-        echo "$AI_WORKSTATION_DIR"; return
+        echo "$AI_WORKSTATION_DIR"
+        return
     fi
-
-    # Derive the environment with core/detect.py (home, os, wsl).
-    local env_json
-    env_json="$(python3 -c "
-import json, sys
-sys.path.insert(0, '$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)/core')
-from detect import detect_all
-print(json.dumps({'home': detect_all().home, 'os': detect_all().os, 'is_wsl': detect_all().is_wsl}))
-" 2>/dev/null)" || env_json=""
-
-    local det_home="$HOME"
-    local det_os="linux"
-    local det_wsl="false"
-    if [ -n "$env_json" ]; then
-        det_home="$(echo "$env_json" | python3 -c "import json,sys; print(json.load(sys.stdin)['home'])" 2>/dev/null)" || det_home="$HOME"
-        det_os="$(echo "$env_json" | python3 -c "import json,sys; print(json.load(sys.stdin)['os'])" 2>/dev/null)" || det_os="linux"
-        det_wsl="$(echo "$env_json" | python3 -c "import json,sys; print(json.load(sys.stdin)['is_wsl'])" 2>/dev/null)" || det_wsl="false"
-    fi
-
-    local -a candidates=(
-        "$det_home/ai-workstation"
-        "$det_home/Projects/ai-workstation"
-        "$det_home/git/ai-workstation"
-    )
-
-    # On WSL, the Windows host projects live under /mnt/<drive>/Projects.
-    # Derive the mount root from /etc/mtab rather than hardcoding /mnt/d.
-    if [ "$det_wsl" = "true" ]; then
-        local mnt_root
-        mnt_root="$(awk '/^[a-z]:\\|\\/mnt\\//{print $2; exit}' /etc/mtab 2>/dev/null | sed 's/\\///g' 2>/dev/null)"
-        # /etc/mtab typically mounts at /mnt/c, /mnt/d, etc.
-        mnt_root="${mnt_root:-/mnt}"
-        for drive in "$mnt_root"/*/; do
-            candidates+=("${drive}Projects/ai-workstation")
-        done
-    fi
-
-    # Also check sibling directories of this AWE repo.
-    local awe_parent
-    awe_parent="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)/.."
-    candidates+=("$awe_parent/ai-workstation")
-
-    for c in "${candidates[@]}"; do
-        if [ -f "$c/pyproject.toml" ] && [ -d "$c/apps" ]; then
-            echo "$c"; return
+    # Search common project locations (same logic as core/detect.py)
+    for candidate in \
+        "$HOME/Projects/ai-workstation" \
+        "$HOME/ai-workstation" \
+        "/mnt/d/Projects/ai-workstation" \
+        "/mnt/c/Projects/ai-workstation" \
+        "$HOME/workspace/ai-workstation"; do
+        if [ -d "$candidate" ] && [ -f "$candidate/pyproject.toml" ]; then
+            echo "$candidate"
+            return
         fi
     done
     return 1
 }
 
-GATEWAY_DIR="$(_find_gateway_dir)" || true
+GATEWAY_DIR=$(_find_gateway_dir) || {
+    echo "ERROR: Could not find ai-workstation directory." >&2
+    echo "Set AI_WORKSTATION_DIR env var or clone into a standard location." >&2
+    exit 1
+}
+GATEWAY_PORT="${GATEWAY_PORT:-8000}"
 
-# --- Dynamic PATH: discover nvm node without hardcoding version -----------
-_nvm_node_dir="$(ls -d "$HOME"/.nvm/versions/node/*/bin 2>/dev/null | sort -V | tail -1)"
-export PATH="$HOME/.micromamba/bin:$HOME/.local/bin:${_nvm_node_dir:-$HOME/.nvm/versions/node/bin}:$PATH"
+# Build PATH dynamically: include common tool locations without hardcoding versions
+_detect_path() {
+    local p="$1"
+    [ -d "$p" ] && echo "$p"
+}
+PATH_EXTRA=""
+for d in \
+    "$HOME/.micromamba/bin" \
+    "$HOME/.local/bin" \
+    "$HOME/.cargo/bin" \
+    "$(ls -d "$HOME"/.nvm/versions/node/*/bin 2>/dev/null | sort -V | tail -1)"; do
+    detected="$(_detect_path "$d")"
+    [ -n "$detected" ] && PATH_EXTRA="${PATH_EXTRA:+${PATH_EXTRA}:}${detected}"
+done
+export PATH="$PATH_EXTRA${PATH_EXTRA:+:$PATH}"
 
 echo "=== AI Workstation Gateway Installer ==="
 
@@ -92,11 +67,9 @@ fi
 
 # 2. Clone/pull repo
 echo "[2/5] Repository..."
-if [ -z "$GATEWAY_DIR" ] || [ ! -d "$GATEWAY_DIR" ]; then
-    echo "ERROR: ai-workstation repo not found." >&2
-    echo "Searched common locations under the detected home directory." >&2
-    echo "Set AI_WORKSTATION_DIR to specify the path explicitly:" >&2
-    echo "  export AI_WORKSTATION_DIR=~/Projects/ai-workstation" >&2
+if [ ! -d "$GATEWAY_DIR" ]; then
+    echo "ERROR: ai-workstation directory not found at $GATEWAY_DIR" >&2
+    echo "Clone it first: git clone <url> $GATEWAY_DIR" >&2
     exit 1
 fi
 
@@ -114,7 +87,7 @@ if [ ! -f .env ]; then
         echo "  Created .env from infrastructure/compose/.env"
     else
         cat > .env <<'ENVEOF'
-DATABASE_URL=postgresql+asyncpg://awe:${AWE_PG_PASSWORD:?set AWE_PG_PASSWORD in ~/.config/awe/env/mcp.env}@localhost:5433/ai_workstation_gateway
+DATABASE_URL=postgresql+asyncpg://awe:awe123@localhost:5433/ai_workstation_gateway
 REDIS_URL=redis://localhost:6380/0
 QDRANT_URL=http://localhost:6335
 GATEWAY_PORT=8000
