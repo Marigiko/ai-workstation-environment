@@ -79,7 +79,7 @@ def test_generate_config_opencode(tmp_path):
     server = data["mcp"]["test-server"]
     assert server["enabled"] is True
     assert server["type"] == "local"
-    assert server["command"] == "npx"
+    assert server["command"] == ["npx", "-y", "test"]
 
     compact_cmd = tmp_path / ".config" / "opencode" / "commands" / "compact.md"
     assert compact_cmd.exists()
