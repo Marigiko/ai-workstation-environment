@@ -11,9 +11,39 @@ set -euo pipefail
 # Known issue: litellm import takes ~25s on first start, so the gateway
 # can take up to 40s to become healthy.
 
-GATEWAY_DIR="${AI_WORKSTATION_DIR:-/mnt/d/Projects/ai-workstation}"
 GATEWAY_PORT="${GATEWAY_PORT:-8000}"
-export PATH="$HOME/.micromamba/bin:$HOME/.local/bin:$HOME/.nvm/versions/node/v24.18.0/bin:$PATH"
+
+# --- Dynamic repo path detection -------------------------------------------
+# Resolve the ai-workstation repo location without hardcoding a path.
+# Priority: env var → common project dirs → parent/sibling of AWE itself.
+_find_gateway_dir() {
+    if [ -n "${AI_WORKSTATION_DIR:-}" ] && [ -d "$AI_WORKSTATION_DIR" ]; then
+        echo "$AI_WORKSTATION_DIR"; return
+    fi
+    local -a candidates=(
+        "$HOME/ai-workstation"
+        "$HOME/Projects/ai-workstation"
+        "$HOME/git/ai-workstation"
+        "/mnt/d/Projects/ai-workstation"
+        "/mnt/c/Projects/ai-workstation"
+    )
+    # Also check sibling directories of this AWE repo.
+    local awe_parent
+    awe_parent="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)/.."
+    candidates+=("$awe_parent/ai-workstation")
+    for c in "${candidates[@]}"; do
+        if [ -f "$c/pyproject.toml" ] && [ -d "$c/apps" ]; then
+            echo "$c"; return
+        fi
+    done
+    return 1
+}
+
+GATEWAY_DIR="$(_find_gateway_dir)" || true
+
+# --- Dynamic PATH: discover nvm node without hardcoding version -----------
+_nvm_node_dir="$(ls -d "$HOME"/.nvm/versions/node/*/bin 2>/dev/null | sort -V | tail -1)"
+export PATH="$HOME/.micromamba/bin:$HOME/.local/bin:${_nvm_node_dir:-$HOME/.nvm/versions/node/bin}:$PATH"
 
 echo "=== AI Workstation Gateway Installer ==="
 
@@ -27,9 +57,11 @@ fi
 
 # 2. Clone/pull repo
 echo "[2/5] Repository..."
-if [ ! -d "$GATEWAY_DIR" ]; then
-    echo "ERROR: ai-workstation directory not found at $GATEWAY_DIR" >&2
-    echo "Clone it first: git clone <url> $GATEWAY_DIR" >&2
+if [ -z "$GATEWAY_DIR" ] || [ ! -d "$GATEWAY_DIR" ]; then
+    echo "ERROR: ai-workstation repo not found." >&2
+    echo "Searched: ~/ai-workstation, ~/Projects/ai-workstation, /mnt/d/Projects/ai-workstation, etc." >&2
+    echo "Set AI_WORKSTATION_DIR to specify the path, e.g.:" >&2
+    echo "  export AI_WORKSTATION_DIR=~/Projects/ai-workstation" >&2
     exit 1
 fi
 

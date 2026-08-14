@@ -1,0 +1,11 @@
+name: hermes
+version: "1.0.0"
+description: "Hermes Agent — workspace and gateway synchronization agent (port 8081)"
+platforms: [linux, darwin]
+profiles: [host]
+depends_on: [ai-workstation, workspace]
+optional: true
+packages: {}
+scripts:
+  install: null
+  check: null

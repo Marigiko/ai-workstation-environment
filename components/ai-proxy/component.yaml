@@ -1,0 +1,14 @@
+name: ai-proxy
+version: "1.0.0"
+description: "AI Proxy Server — OpenAI-compatible API with Headroom compression (port 8090)"
+platforms: [linux, darwin]
+profiles: [desktop, host]
+depends_on: []
+optional: true
+packages:
+  apt: [curl, lsof]
+  pacman: [curl, lsof]
+scripts:
+  install: null
+  start: start.sh
+  check: null

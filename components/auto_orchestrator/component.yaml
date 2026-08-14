@@ -1,0 +1,11 @@
+name: auto-orchestrator
+version: "1.0.0"
+description: "Auto Orchestrator — multi-agent task decomposition, model assignment, and execution"
+platforms: [linux, darwin]
+profiles: [desktop, host]
+depends_on: [ai-proxy, ollama]
+optional: true
+packages: {}
+scripts:
+  install: null
+  check: null
