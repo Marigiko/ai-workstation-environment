@@ -1,20 +1,11 @@
-services:
-  ollama:
-    container_name: awe-ollama
-    image: ollama/ollama:latest
-    restart: unless-stopped
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama_data:/root/.ollama
-    # GPU support is optional - remove deploy section if nvidia-docker is not available
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: all
-    #           capabilities: [gpu]
-
-volumes:
-  ollama_data:
+# DEPRECATED: Ollama now runs natively for direct GPU access.
+# This file is kept for reference only.
+# See install.sh for the current setup method.
+#
+# Native Ollama provides:
+# - Direct CUDA access without Docker overhead
+# - Automatic VRAM + RAM shared memory
+# - Better performance on WSL2
+#
+# To use Ollama: ollama serve (managed by systemd)
+# To run a model: ollama run <model-name>

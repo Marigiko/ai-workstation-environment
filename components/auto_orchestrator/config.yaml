@@ -66,6 +66,17 @@ proxy:
       enabled: true
       models: ["claude", "claude-code"]
 
+# Local Ollama model settings
+local_model:
+  enabled: true
+  ollama_url: "http://localhost:11434"
+  default_model: "gemma4:12b"
+  capability_profile: null  # populated by evaluator
+  routing_rules:
+    max_difficulty: "medium"
+    fallback_model: "cloud"
+    timeout_multiplier: 2.0
+
 # Execution settings
 execution:
   max_concurrent: 3

@@ -53,9 +53,9 @@ cd "$PROJECT_ROOT"
 echo "Starting LiteLLM..."
 docker compose -f components/litellm/docker-compose.yaml up -d 2>/dev/null || echo "LiteLLM compose not found, skipping"
 
-# Ollama
-echo "Starting Ollama..."
-docker compose -f components/ollama/docker-compose.yaml up -d 2>/dev/null || echo "Ollama compose not found, skipping"
+# Ollama (native - direct GPU access)
+echo "Setting up Ollama (native)..."
+bash components/ollama/install.sh 2>/dev/null || echo "Ollama install skipped"
 
 # Qdrant
 echo "Starting Qdrant..."

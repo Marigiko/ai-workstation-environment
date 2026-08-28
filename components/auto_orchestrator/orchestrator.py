@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """Auto Orchestrator - Plans, decomposes, distributes, and aggregates tasks."""
 
-import json
-import logging
 import asyncio
-import httpx
-from typing import List, Dict, Optional
+import logging
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Dict, List, Optional
+
+import httpx
+
+from .assigner import ModelAssigner
+from .task_classifier import classify_task
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +39,9 @@ class SubTask:
     description: str
     agent_type: AgentType
     model: str
+    difficulty: str = "medium"
+    estimated_tokens: int = 0
+    estimated_duration: int = 0
     status: TaskStatus = TaskStatus.PENDING
     result: str = ""
     error: str = ""
@@ -57,27 +63,25 @@ class AutoOrchestrator:
     Headroom compression before forwarding to MiMo/Claude backends.
     """
 
-    def __init__(self, gateway_client=None, headroom_client=None, proxy_url: str = "http://localhost:8090"):
+    def __init__(
+        self,
+        gateway_client=None,
+        headroom_client=None,
+        proxy_url: str = "http://localhost:8090",
+    ):
         self.gateway = gateway_client
         self.headroom = headroom_client
         self.proxy_url = proxy_url
         self.plans: Dict[str, OrchestrationPlan] = {}
+        self.assigner = ModelAssigner()
 
-    def get_model_for_agent(self, agent_type: AgentType) -> str:
-        """Select model based on agent type and availability.
-
-        Priority: proxy (MiMo/Claude) → local (Ollama) → cloud (Gemini)
-        All models go through Headroom compression before execution.
-        """
-        model_map = {
-            AgentType.ARCHITECT: "mimo-auto",        # Free MiMo via proxy
-            AgentType.CODER: "mimo-auto",             # Free MiMo via proxy
-            AgentType.REVIEWER: "claude",             # Claude via proxy (Claude Max)
-            AgentType.DOCUMENTER: "mimo-fast",        # Fast MiMo via proxy
-            AgentType.TESTER: "mimo-fast",            # Fast MiMo via proxy
-            AgentType.DEBUGGER: "claude",             # Claude via proxy (best reasoning)
-        }
-        return model_map.get(agent_type, "mimo-auto")
+    def get_model_for_task(self, task_description: str, agent_type: AgentType) -> str:
+        """Select model based on task difficulty and agent type."""
+        assignment = self.assigner.assign(
+            task_description=task_description,
+            agent_type=agent_type.value,
+        )
+        return assignment.model
 
     async def plan_task(self, task_id: str, prompt: str) -> OrchestrationPlan:
         """Create an orchestration plan from a prompt."""
@@ -90,16 +94,19 @@ class AutoOrchestrator:
             status=TaskStatus.PLANNING,
         )
 
-        # Use architect agent to decompose
+        classification = classify_task(prompt)
+
         architecture_subtask = SubTask(
             id=f"{task_id}-arch",
             title="Architecture Planning",
             description=f"Plan the implementation for: {prompt}",
             agent_type=AgentType.ARCHITECT,
-            model=self.get_model_for_agent(AgentType.ARCHITECT),
+            model=self.get_model_for_task(prompt, AgentType.ARCHITECT),
+            difficulty=classification.difficulty.value,
+            estimated_tokens=classification.estimated_tokens,
+            estimated_duration=classification.estimated_duration_seconds,
         )
 
-        # Create subtasks based on common patterns
         subtask_configs = [
             (AgentType.CODER, "Implementation", f"Implement the solution for: {prompt}"),
             (AgentType.REVIEWER, "Code Review", "Review the implementation for quality"),
@@ -113,7 +120,10 @@ class AutoOrchestrator:
                 title=title,
                 description=description,
                 agent_type=agent_type,
-                model=self.get_model_for_agent(agent_type),
+                model=self.get_model_for_task(description, agent_type),
+                difficulty=classification.difficulty.value,
+                estimated_tokens=classification.estimated_tokens,
+                estimated_duration=classification.estimated_duration_seconds,
             )
             plan.subtasks.append(subtask)
 

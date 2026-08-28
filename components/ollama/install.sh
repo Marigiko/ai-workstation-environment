@@ -1,30 +1,42 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-CONTAINER_NAME="awe-ollama"
+OLLAMA_BIN="/usr/local/bin/ollama"
+OLLAMA_SERVICE="ollama"
 
-if ! docker info &>/dev/null; then
-    echo "WARNING: Docker is not running. Skip Ollama." >&2
-    exit 1
-fi
-
-if docker ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
-    echo "Ollama is already running"
+if [ -f "$OLLAMA_BIN" ]; then
+    if systemctl is-active --quiet "$OLLAMA_SERVICE" 2>/dev/null; then
+        echo "Ollama is already running"
+        exit 0
+    fi
+    echo "Ollama installed but not running, starting service..."
+    sudo systemctl start "$OLLAMA_SERVICE"
     exit 0
 fi
 
-# Container exists but may have old GPU config - recreate it
-if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
-    echo "Recreating Ollama container (CPU mode)..."
-    docker rm -f awe-ollama >/dev/null 2>&1 || true
+echo "Installing Ollama (native, with GPU support)..."
+
+if command -v apt-get &>/dev/null; then
+    curl -fsSL https://ollama.com/install.sh | sudo sh
+elif command -v dnf &>/dev/null; then
+    curl -fsSL https://ollama.com/install.sh | sudo sh
+elif command -v pacman &>/dev/null; then
+    curl -fsSL https://ollama.com/install.sh | sudo sh
+else
+    echo "ERROR: Unsupported package manager. Install Ollama manually:" >&2
+    echo "  curl -fsSL https://ollama.com/install.sh | sh" >&2
+    exit 1
 fi
 
-echo "Starting Ollama (CPU mode)..."
-docker run -d \
-    --name awe-ollama \
-    --restart unless-stopped \
-    -p 11434:11434 \
-    -v ollama_data:/root/.ollama \
-    ollama/ollama:latest
+if ! command -v "$OLLAMA_BIN" &>/dev/null; then
+    echo "ERROR: Ollama installation failed" >&2
+    exit 1
+fi
 
-echo "Ollama started on port 11434 (CPU mode - GPU not available)"
+echo "Ollama installed successfully"
+
+if nvidia-smi &>/dev/null 2>&1; then
+    echo "NVIDIA GPU detected - Ollama will use CUDA for inference"
+else
+    echo "WARNING: No NVIDIA GPU detected - Ollama will use CPU mode" >&2
+fi

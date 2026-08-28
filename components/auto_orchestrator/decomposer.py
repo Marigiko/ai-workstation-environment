@@ -3,8 +3,10 @@
 
 import json
 import logging
-from typing import List, Dict, Optional
 from dataclasses import dataclass
+from typing import Dict, List
+
+from .task_classifier import classify_task
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +17,9 @@ class DecomposedTask:
     title: str
     description: str
     agent_type: str
+    difficulty: str
+    estimated_tokens: int
+    estimated_duration: int
     dependencies: List[str]
     priority: int
 
@@ -55,24 +60,29 @@ Context: {context}
                 )
                 content = result.get("choices", [{}])[0].get("message", {}).get("content", "[]")
 
-                # Parse JSON from response
                 if "```json" in content:
                     content = content.split("```json")[1].split("```")[0]
                 elif "```" in content:
                     content = content.split("```")[1].split("```")[0]
 
                 subtasks_data = json.loads(content)
-                subtasks = [
-                    DecomposedTask(
-                        id=s.get("id", f"task-{i}"),
-                        title=s.get("title", f"Subtask {i}"),
-                        description=s.get("description", ""),
-                        agent_type=s.get("agent_type", "coder"),
-                        dependencies=s.get("dependencies", []),
-                        priority=s.get("priority", 3),
+                subtasks = []
+                for i, s in enumerate(subtasks_data[:max_subtasks]):
+                    desc = s.get("description", "")
+                    classification = classify_task(desc)
+                    subtasks.append(
+                        DecomposedTask(
+                            id=s.get("id", f"task-{i}"),
+                            title=s.get("title", f"Subtask {i}"),
+                            description=desc,
+                            agent_type=s.get("agent_type", "coder"),
+                            difficulty=classification.difficulty.value,
+                            estimated_tokens=classification.estimated_tokens,
+                            estimated_duration=classification.estimated_duration_seconds,
+                            dependencies=s.get("dependencies", []),
+                            priority=s.get("priority", 3),
+                        )
                     )
-                    for i, s in enumerate(subtasks_data[:max_subtasks])
-                ]
                 return subtasks
             else:
                 return self._default_decomposition(task)
@@ -82,12 +92,20 @@ Context: {context}
 
     def _default_decomposition(self, task: str) -> List[DecomposedTask]:
         """Default decomposition when LLM is unavailable."""
+        classification = classify_task(task)
+        difficulty = classification.difficulty.value
+        tokens = classification.estimated_tokens
+        duration = classification.estimated_duration_seconds
+
         return [
             DecomposedTask(
                 id="plan-1",
                 title="Architecture Planning",
                 description=f"Plan architecture for: {task}",
                 agent_type="architect",
+                difficulty=difficulty,
+                estimated_tokens=tokens,
+                estimated_duration=duration,
                 dependencies=[],
                 priority=1,
             ),
@@ -96,6 +114,9 @@ Context: {context}
                 title="Implementation",
                 description=f"Implement: {task}",
                 agent_type="coder",
+                difficulty=difficulty,
+                estimated_tokens=tokens,
+                estimated_duration=duration,
                 dependencies=["plan-1"],
                 priority=2,
             ),
@@ -104,6 +125,9 @@ Context: {context}
                 title="Code Review",
                 description="Review implementation",
                 agent_type="reviewer",
+                difficulty=difficulty,
+                estimated_tokens=tokens,
+                estimated_duration=duration,
                 dependencies=["impl-1"],
                 priority=3,
             ),
@@ -112,6 +136,9 @@ Context: {context}
                 title="Documentation",
                 description="Document implementation",
                 agent_type="documenter",
+                difficulty=difficulty,
+                estimated_tokens=tokens,
+                estimated_duration=duration,
                 dependencies=["impl-1"],
                 priority=4,
             ),

@@ -8,24 +8,18 @@ Claude Max (login).
 """
 
 import asyncio
-import json
-import subprocess
-import uuid
-import time
-import re
 import os
-from typing import List, Dict, Optional
-from dataclasses import dataclass
-from pathlib import Path
-
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-
-from headroom import HeadroomContextCompressor, CompressionConfig
+import re
+import subprocess
+import time
+import uuid
+from typing import List, Optional
 
 import httpx
-
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from headroom import CompressionConfig, HeadroomContextCompressor
+from pydantic import BaseModel
 
 app = FastAPI(title="AI Proxy Server", version="2.0.0")
 
@@ -335,6 +329,52 @@ class GeminiHandler:
             raise RuntimeError(f"Gemini error: {str(e)[:200]}")
 
 
+class OllamaHandler:
+    """Handle requests via Ollama local API."""
+
+    def __init__(self, base_url: str = "http://localhost:11434"):
+        self.base_url = base_url
+
+    async def complete(self, messages: List[Message], max_tokens: int = 1024) -> str:
+        """Send messages to Ollama and get response."""
+        prompt = self._build_prompt(messages)
+
+        try:
+            async with httpx.AsyncClient() as client:
+                resp = await client.post(
+                    f"{self.base_url}/api/generate",
+                    json={
+                        "model": "gemma4:12b",
+                        "prompt": prompt,
+                        "stream": False,
+                        "options": {
+                            "num_predict": max_tokens,
+                            "temperature": 0.7,
+                        },
+                    },
+                    timeout=120,
+                )
+                resp.raise_for_status()
+                data = resp.json()
+                return data.get("response", "")
+        except httpx.TimeoutException:
+            raise RuntimeError("Ollama timeout after 120s")
+        except Exception as e:
+            raise RuntimeError(f"Ollama error: {str(e)[:200]}")
+
+    def _build_prompt(self, messages: List[Message]) -> str:
+        """Build a single prompt from message list."""
+        parts = []
+        for msg in messages:
+            if msg.role == "system":
+                parts.append(f"[System]: {msg.content}")
+            elif msg.role == "user":
+                parts.append(msg.content)
+            elif msg.role == "assistant":
+                parts.append(f"[Assistant]: {msg.content}")
+        return "\n\n".join(parts)
+
+
 # ============================================
 # Model Registry
 # ============================================
@@ -347,8 +387,11 @@ MODEL_REGISTRY = {
     "claude-code": ClaudeHandler(),
     "gemini": GeminiHandler(),
     "gemini-flash": GeminiHandler(),
-    "local": MiMoHandler(),
+    "local": OllamaHandler(),
     "smart": GeminiHandler(),
+    "gemma4:12b": OllamaHandler(),
+    "gemma4": OllamaHandler(),
+    "ollama": OllamaHandler(),
 }
 
 
@@ -368,6 +411,17 @@ def get_handler(model: str):
 
 @app.get("/health")
 async def health():
+    ollama_status = "unknown"
+    try:
+        async with httpx.AsyncClient() as client:
+            resp = await client.get("http://localhost:11434/api/tags", timeout=5)
+            if resp.status_code == 200:
+                ollama_status = "connected"
+            else:
+                ollama_status = "error"
+    except Exception:
+        ollama_status = "disconnected"
+
     return {
         "status": "ok",
         "version": "2.0.0",
@@ -375,6 +429,7 @@ async def health():
         "backends": {
             "mimo": MiMoHandler().binary,
             "claude": ClaudeHandler().binary,
+            "ollama": ollama_status,
         },
     }
 
@@ -384,14 +439,41 @@ async def list_models():
     return {
         "object": "list",
         "data": [
-            {"id": "gemini", "object": "model", "owned_by": "google", "description": "Gemini 2.5 Flash (fast, free)"},
-            {"id": "gemini-flash", "object": "model", "owned_by": "google", "description": "Gemini 2.5 Flash"},
+            {
+                "id": "gemini",
+                "object": "model",
+                "owned_by": "google",
+                "description": "Gemini 2.5 Flash (fast, free)",
+            },
+            {
+                "id": "gemini-flash",
+                "object": "model",
+                "owned_by": "google",
+                "description": "Gemini 2.5 Flash",
+            },
             {"id": "mimo", "object": "model", "owned_by": "xiaomi"},
             {"id": "mimo-auto", "object": "model", "owned_by": "xiaomi"},
             {"id": "mimo-fast", "object": "model", "owned_by": "xiaomi"},
             {"id": "claude", "object": "model", "owned_by": "anthropic"},
             {"id": "claude-code", "object": "model", "owned_by": "anthropic"},
-            {"id": "local", "object": "model", "owned_by": "local"},
+            {
+                "id": "local",
+                "object": "model",
+                "owned_by": "ollama",
+                "description": "Local Ollama (gemma4:12b)",
+            },
+            {
+                "id": "gemma4:12b",
+                "object": "model",
+                "owned_by": "ollama",
+                "description": "Gemma 4 12B (local, GPU)",
+            },
+            {
+                "id": "ollama",
+                "object": "model",
+                "owned_by": "ollama",
+                "description": "Ollama local models",
+            },
             {"id": "smart", "object": "model", "owned_by": "local"},
         ],
     }
@@ -437,7 +519,6 @@ async def chat_completions(request: ChatCompletionRequest):
 
         # Calculate compression stats
         ratio = compressed_tokens / original_tokens if original_tokens > 0 else 1.0
-        savings_pct = (1 - ratio) * 100
 
         return ChatCompletionResponse(
             id=f"chatcmpl-{uuid.uuid4().hex[:12]}",
