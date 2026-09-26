@@ -54,7 +54,7 @@ echo "Checking OmniRoute..."
 if curl -sf http://localhost:20128/v1/models >/dev/null 2>&1; then
     echo "OmniRoute already running on port 20128"
 else
-    echo "OmniRoute not running — run scripts/install_omniroute.sh"
+    echo "OmniRoute not running — run components/omniroute/install.sh"
 fi
 
 # Ollama (native - direct GPU access)

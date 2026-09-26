@@ -147,5 +147,5 @@ echo "Check logs: tail -f /tmp/gateway.log" >&2
 echo "Common issues:" >&2
 echo "  - DATABASE_URL not loading: check load_dotenv in main.py" >&2
 echo "  - PostgreSQL not running: check port 5433" >&2
-echo "  - OmniRoute gateway not running: run scripts/install_omniroute.sh" >&2
+echo "  - OmniRoute gateway not running: run components/omniroute/install.sh" >&2
 exit 1
