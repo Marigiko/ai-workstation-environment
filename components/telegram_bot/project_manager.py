@@ -9,7 +9,12 @@ from dataclasses import dataclass, field, asdict
 from datetime import datetime
 
 
-PROJECTS_DIR = Path("/mnt/e/Projects")
+PROJECTS_DIR = Path(
+    os.environ.get(
+        "AWE_PROJECTS_DIR",
+        str(Path(__file__).resolve().parent.parent.parent.parent),
+    )
+)
 STATE_FILE = Path.home() / ".config" / "telegram-bot" / "state.json"
 
 

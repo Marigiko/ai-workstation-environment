@@ -28,6 +28,7 @@ class Environment:
     home: str = ""
     user: str = ""
     hostname: str = ""
+    projects_dir: str = ""
     extras: dict = field(default_factory=dict)
 
 
@@ -118,6 +119,15 @@ def detect_shell() -> str:
     return "unknown"
 
 
+def detect_projects_dir() -> str:
+    """AWE_PROJECTS_DIR if set, else the parent of the AWE repo root."""
+    env_dir = os.environ.get("AWE_PROJECTS_DIR", "")
+    if env_dir:
+        return env_dir
+    repo_root = Path(__file__).resolve().parent.parent
+    return str(repo_root.parent)
+
+
 def detect_all() -> Environment:
     has_docker, docker_running = detect_docker()
     has_git, git_version = detect_git()
@@ -142,4 +152,5 @@ def detect_all() -> Environment:
         home=str(Path.home()),
         user=os.environ.get("USER", os.environ.get("USERNAME", "unknown")),
         hostname=platform.node(),
+        projects_dir=detect_projects_dir(),
     )

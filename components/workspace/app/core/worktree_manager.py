@@ -28,8 +28,10 @@ class Worktree:
 class WorktreeManager:
     """Manages multiple isolated worktrees with independent state."""
 
-    def __init__(self, base_path: str = "/mnt/e/Projects"):
-        self.base_path = Path(base_path)
+    # The workspace app runs in Docker, where __file__-relative resolution is wrong;
+    # fall back to the literal path only when the env var is unset.
+    def __init__(self, base_path: str | None = None):
+        self.base_path = Path(base_path or os.environ.get("AWE_PROJECTS_DIR") or "/mnt/e/Projects")
         self.worktrees: Dict[str, Worktree] = {}
         self.config_path = Path.home() / ".config" / "workspace" / "worktrees.json"
         self._load_worktrees()

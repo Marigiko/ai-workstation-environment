@@ -8,17 +8,25 @@ set -euo pipefail
 #   - Uses shared infrastructure: PostgreSQL (5433), Redis (6380), Qdrant (6335)
 #   - Gateway runs on port 8000
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+PROJECTS_DIR="${AWE_PROJECTS_DIR:-$(dirname "$REPO_ROOT")}"
+
 # Dynamic path detection: use AI_WORKSTATION_DIR env var, or search common locations
 _find_gateway_dir() {
     if [ -n "${AI_WORKSTATION_DIR:-}" ] && [ -d "$AI_WORKSTATION_DIR" ]; then
         echo "$AI_WORKSTATION_DIR"
         return
     fi
-    # Search common project locations (same logic as core/detect.py)
+    local default_dir="$PROJECTS_DIR/ai-workstation"
+    if [ -d "$default_dir" ] && [ -f "$default_dir/pyproject.toml" ]; then
+        echo "$default_dir"
+        return
+    fi
+    # Search fallback locations
     for candidate in \
         "$HOME/Projects/ai-workstation" \
         "$HOME/ai-workstation" \
-        "/mnt/e/Projects/ai-workstation" \
         "/mnt/c/Projects/ai-workstation" \
         "$HOME/workspace/ai-workstation"; do
         if [ -d "$candidate" ] && [ -f "$candidate/pyproject.toml" ]; then

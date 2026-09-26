@@ -19,7 +19,7 @@ from telegram.ext import (
     ContextTypes,
 )
 
-from components.telegram_bot.project_manager import ProjectManager
+from components.telegram_bot.project_manager import PROJECTS_DIR, ProjectManager
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -406,7 +406,7 @@ class TelegramBot:
         projects = self.project_manager.list_projects()
 
         if not projects:
-            await update.message.reply_text("No se encontraron proyectos en /mnt/e/Projects/")
+            await update.message.reply_text(f"No se encontraron proyectos en {PROJECTS_DIR}/")
             return
 
         # Group by type

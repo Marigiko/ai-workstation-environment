@@ -9,7 +9,6 @@ TERAX_PATHS=(
     "$HOME/.local/bin/terax"
     "/usr/local/bin/terax"
     "/usr/bin/terax"
-    "/mnt/d/Software/Terax/terax"
 )
 
 for path in "${TERAX_PATHS[@]}"; do

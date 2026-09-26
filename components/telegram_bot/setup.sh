@@ -5,6 +5,7 @@ set -euo pipefail
 # This script guides you through setting up the Telegram bot
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # Colors
 GREEN='\033[0;32m'
@@ -205,8 +206,8 @@ case $choice in
     3)
         echo ""
         echo "Para iniciar manualmente:"
-        echo "  cd /mnt/e/Projects/ai-workstation-environment"
-        echo "  python3 components/telegram-bot/bot.py"
+        echo "  cd $REPO_ROOT"
+        echo "  python3 components/telegram_bot/bot.py"
         ;;
 esac
 

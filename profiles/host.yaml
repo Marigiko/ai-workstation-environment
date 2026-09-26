@@ -5,6 +5,7 @@ components:
   - git
   - ssh
   - docker
+  - omniroute
   - tailscale
   - node
   - python

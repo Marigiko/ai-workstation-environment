@@ -1,16 +1,15 @@
+# Runs from the local OmniRoute checkout via Docker Compose (docker compose --profile base up -d).
 name: omniroute
 version: "3.8.50"
 description: "OmniRoute — Unified AI Gateway with 339 providers, RTK+Caveman compression, 19 routing strategies"
 platforms: [linux, darwin]
 profiles: [notebook, desktop, host]
-depends_on: [node]
+depends_on: [docker]
 optional: true
-packages:
-  npm: [omniroute]
 env:
   - PORT=20128
   - DEFAULT_MODEL=http://localhost:20128/v1
-  - OMNIROUTE_BASE_URL=http://localhost:20128
+  - OMNIROUTE_BASE_URL=http://localhost:20128/v1
   - JWT_SECRET="${OMNIROUTE_JWT_SECRET}"
   - API_KEY_SECRET="${OMNIROUTE_API_KEY_SECRET}"
   - INITIAL_PASSWORD="${OMNIROUTE_INITIAL_PASSWORD}"
