@@ -1,12 +1,6 @@
 #!/usr/bin/env bash
 
-CONTAINER_NAME="awe-n8n"
-
-if ! docker info &>/dev/null; then
-    exit 1
-fi
-
-if docker ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+if curl -fsS -o /dev/null http://127.0.0.1:5678/healthz 2>/dev/null; then
     exit 0
 fi
 exit 1

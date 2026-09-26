@@ -1,22 +1,25 @@
 services:
   n8n:
     container_name: awe-n8n
-    image: n8nio/n8n:latest
+    image: n8nio/n8n:1
     restart: unless-stopped
     ports:
-      - "5678:5678"
+      - "127.0.0.1:5678:5678"
     environment:
       - DB_TYPE=postgresdb
       - DB_POSTGRESDB_HOST=awe-postgresql
       - DB_POSTGRESDB_PORT=5432
       - DB_POSTGRESDB_DATABASE=awe
-      - DB_POSTGRESDB_USER=${POSTGRES_USER:-awe}
-      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD:-}
+      - DB_POSTGRESDB_USER=awe
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
       - N8N_HOST=localhost
       - N8N_PORT=5678
       - WEBHOOK_URL=http://localhost:5678/
+      - OMNIROUTE_BASE_URL=http://host.docker.internal:20128/v1
     volumes:
       - n8n_data:/home/node/.n8n
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - awe-shared
 

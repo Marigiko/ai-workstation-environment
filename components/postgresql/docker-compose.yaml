@@ -4,13 +4,25 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     ports:
-      - "5433:5432"
+      - "127.0.0.1:5433:5432"
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-awe}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
       POSTGRES_DB: ${POSTGRES_DB:-awe}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./initdb/01-databases.sql:/docker-entrypoint-initdb.d/01-databases.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-awe} -d ${POSTGRES_DB:-awe}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - awe-shared
 
 volumes:
   postgres_data:
+
+networks:
+  awe-shared:
+    external: true

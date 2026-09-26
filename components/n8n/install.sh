@@ -1,41 +1,63 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONTAINER_NAME="awe-n8n"
+COMPOSE_PROJECT="awe-n8n"
+PG_COMPONENT_DIR="$(cd "$SCRIPT_DIR/../postgresql" && pwd)"
+
+# Load AWE_PG_PASSWORD from the env file if not already set (values are never printed)
+if [[ -z "${AWE_PG_PASSWORD:-}" ]]; then
+    ENV_FILE="${AWE_ENV_FILE:-$HOME/.config/awe/env/mcp.env}"
+    if [[ -f "$ENV_FILE" ]]; then
+        set -a
+        # shellcheck disable=SC1090
+        . "$ENV_FILE"
+        set +a
+    fi
+fi
+
+if [[ -z "${AWE_PG_PASSWORD:-}" ]]; then
+    echo "ERROR: AWE_PG_PASSWORD is empty. Set it in \${AWE_ENV_FILE:-$HOME/.config/awe/env/mcp.env}." >&2
+    exit 1
+fi
+export POSTGRES_PASSWORD="$AWE_PG_PASSWORD"
 
 if ! docker info &>/dev/null; then
-    echo "WARNING: Docker is not running. Skip n8n." >&2
+    echo "ERROR: Docker is not running." >&2
     exit 1
 fi
 
-if docker ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
-    echo "n8n is already running"
-    exit 0
+if ! bash "$PG_COMPONENT_DIR/check.sh"; then
+    echo "ERROR: PostgreSQL is not healthy. Run components/postgresql/install.sh first." >&2
+    exit 1
 fi
 
-# Container exists but is stopped - start it
+# Foreign container guard
 if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
-    echo "Starting existing n8n container..."
-    docker start awe-n8n
-    echo "n8n started on port 5678"
+    OWNER="$(docker inspect -f '{{index .Config.Labels "com.docker.compose.project"}}' "$CONTAINER_NAME")"
+    if [[ "$OWNER" != "$COMPOSE_PROJECT" ]]; then
+        echo "ERROR: container '$CONTAINER_NAME' exists but is not managed by compose project '$COMPOSE_PROJECT' (owner: '$OWNER')." >&2
+        exit 1
+    fi
+fi
+
+# Idempotency: already answering -> done
+if curl -fsS -o /dev/null http://127.0.0.1:5678/healthz 2>/dev/null; then
+    echo "n8n is already running at http://127.0.0.1:5678"
     exit 0
 fi
 
-echo "Starting n8n..."
-docker run -d \
-    --name awe-n8n \
-    --restart unless-stopped \
-    -p 5678:5678 \
-    -e DB_TYPE=postgresdb \
-    -e DB_POSTGRESDB_HOST=awe-postgresql \
-    -e DB_POSTGRESDB_PORT=5433 \
-    -e DB_POSTGRESDB_DATABASE=awe \
-    -e DB_POSTGRESDB_USER=${POSTGRES_USER:-awe} \
-    -e DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD:-$(openssl rand -hex 16)} \
-    -e N8N_HOST=localhost \
-    -e N8N_PORT=5678 \
-    -e WEBHOOK_URL=http://localhost:5678/ \
-    -v n8n_data:/home/node/.n8n \
-    n8nio/n8n:latest
+docker compose -p "$COMPOSE_PROJECT" -f "$SCRIPT_DIR/docker-compose.yaml" up -d
 
-echo "n8n started on port 5678"
+echo "Waiting for n8n to answer /healthz..."
+for _ in $(seq 1 90); do
+    if curl -fsS -o /dev/null http://127.0.0.1:5678/healthz 2>/dev/null; then
+        echo "n8n is healthy on http://127.0.0.1:5678"
+        exit 0
+    fi
+    sleep 1
+done
+
+echo "ERROR: n8n did not become healthy within 90s." >&2
+exit 1
