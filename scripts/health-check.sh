@@ -57,7 +57,7 @@ echo
 echo "--- Infrastructure ---"
 warn_check "Tailscale" "command -v tailscale"
 warn_check "Ollama" "docker ps --format '{{.Names}}' | grep -q awe-ollama"
-warn_check "LiteLLM" "docker ps --format '{{.Names}}' | grep -q awe-litellm"
+warn_check "OmniRoute" "curl -sf http://localhost:20128/v1/models >/dev/null"
 warn_check "Qdrant" "docker ps --format '{{.Names}}' | grep -q awe-qdrant"
 warn_check "PostgreSQL" "docker ps --format '{{.Names}}' | grep -q awe-postgresql"
 warn_check "n8n" "docker ps --format '{{.Names}}' | grep -q awe-n8n"

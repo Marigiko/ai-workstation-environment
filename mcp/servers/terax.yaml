@@ -13,7 +13,7 @@ config:
 
 install: |
   echo "Terax: config-only MCP entry (no server to run)"
-  echo "Terax connects to LiteLLM via OpenAI-compatible endpoint"
+  echo "Terax connects to OmniRoute via OpenAI-compatible endpoint"
 
 update: |
   echo "Terax: config-only MCP entry (no update needed)"

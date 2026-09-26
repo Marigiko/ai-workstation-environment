@@ -1,26 +1,24 @@
 {
   "$schema": "https://mimo.xiaomi.com/mimocode/config.json",
-  "model": "litellm/claude-sonnet-4-20250514",
-  "small_model": "litellm/local",
+  "model": "omniroute/agente",
+  "small_model": "omniroute/liviano",
   "default_agent": "build",
   "provider": {
-    "litellm": {
+    "omniroute": {
       "npm": "@ai-sdk/openai-compatible",
-      "name": "LiteLLM Gateway",
+      "name": "OmniRoute Gateway",
       "options": {
-        "baseURL": "http://localhost:4000/v1",
-        "apiKey": "${LITELLM_API_KEY}"
+        "baseURL": "http://localhost:20128/v1",
+        "apiKey": "${OMNIROUTE_API_KEY}"
       },
       "models": {
-        "claude-sonnet-4-20250514": { "name": "Claude Sonnet 4" },
-        "claude-opus-4-20250514": { "name": "Claude Opus 4" },
-        "gpt-4": { "name": "GPT-4" },
+        "agente": { "name": "Agente (OmniRoute heavy)" },
+        "liviano": { "name": "Liviano (OmniRoute light)" },
         "local": { "name": "Local (Ollama)" },
         "openrouter/auto": { "name": "OpenRouter Auto" },
-        "gemini-2.5-pro": { "name": "Gemini 2.5 Pro" },
         "fast": { "name": "Fast (Local)" },
-        "smart": { "name": "Smart (Claude)" },
-        "reasoning": { "name": "Reasoning (GPT-4)" }
+        "smart": { "name": "Smart (Agente)" },
+        "reasoning": { "name": "Reasoning (Agente)" }
       }
     }
   },

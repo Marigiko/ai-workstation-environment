@@ -2,7 +2,7 @@
 
 # Default settings
 default:
-  base_path: "/mnt/d/Projects"
+  base_path: "/mnt/e/Projects"
   models:
     default: "qwen2.5-coder:7b"
     fast: "qwen2.5-coder:1.5b"

@@ -26,28 +26,26 @@
 # Provider Type: Ollama
 # Base URL: http://127.0.0.1:11434
 #
-# --- LiteLLM Proxy (All models) ---
+# --- OmniRoute Gateway (All models) ---
 # Provider Type: OpenAI-Compatible
-# Name: LiteLLM Gateway
-# Base URL: http://localhost:4000
-# API Key: <your-litellm-master-key>
+# Name: OmniRoute Gateway
+# Base URL: http://localhost:20128/v1
+# API Key: <your-omniroute-api-key>
 #
 # After adding providers, select a model from the model selector in Terax.
 
 # =============================================
-# LiteLLM Proxy Models (available via localhost:4000)
+# OmniRoute Gateway Models (available via localhost:20128/v1)
 # =============================================
+# Combos:
+#   - liviano - OmniRoute light combo (cheap/free)
+#   - agente - OmniRoute heavy combo (hard/coding work)
+#
 # Local Models (Ollama):
-#   - local (qwen2.5-coder:1.5b) - Fast, 986MB
-#   - local-fast (qwen2.5-coder:1.5b) - Fastest
-#   - phi3 (phi3:mini) - Balanced, 2.2GB
-#   - gemma (gemma2:2b) - Google small, 1.6GB
-#   - code-7b (qwen2.5-coder:7b) - Best code, 4.7GB
+#   - local (qwen2.5-coder:7b) - Best code, fits 6 GB GPU
 #   - embeddings (nomic-embed-text) - For RAG
 #
 # Cloud Models (Free):
-#   - gemini-2.5-flash - Google free tier
-#   - gemini-2.5-pro - Google free tier (rate limited)
 #   - free (OpenRouter auto) - Free credits
 #
 # Cloud Models (Paid):
@@ -55,9 +53,8 @@
 #   - gpt-4o - OpenAI (requires API key)
 #
 # Aliases:
-#   - fast = local (qwen2.5-coder:1.5b)
-#   - balanced = phi3 (phi3:mini)
-#   - smart = gemini-2.5-flash
+#   - fast = local (qwen2.5-coder:7b)
+#   - smart = agente
 #   - reasoning = gemini-2.5-pro
 #   - code = code-7b (qwen2.5-coder:7b)
 #   - free = OpenRouter auto

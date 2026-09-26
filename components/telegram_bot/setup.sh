@@ -205,7 +205,7 @@ case $choice in
     3)
         echo ""
         echo "Para iniciar manualmente:"
-        echo "  cd /mnt/d/Projects/ai-workstation-environment"
+        echo "  cd /mnt/e/Projects/ai-workstation-environment"
         echo "  python3 components/telegram-bot/bot.py"
         ;;
 esac

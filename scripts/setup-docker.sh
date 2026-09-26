@@ -49,9 +49,13 @@ echo "=== Starting AI Infrastructure Services ==="
 
 cd "$PROJECT_ROOT"
 
-# LiteLLM
-echo "Starting LiteLLM..."
-docker compose -f components/litellm/docker-compose.yaml up -d 2>/dev/null || echo "LiteLLM compose not found, skipping"
+# OmniRoute (cloud AI gateway)
+echo "Checking OmniRoute..."
+if curl -sf http://localhost:20128/v1/models >/dev/null 2>&1; then
+    echo "OmniRoute already running on port 20128"
+else
+    echo "OmniRoute not running — run scripts/install_omniroute.sh"
+fi
 
 # Ollama (native - direct GPU access)
 echo "Setting up Ollama (native)..."
@@ -78,7 +82,7 @@ echo "=== Infrastructure services started ==="
 echo "Verify with: docker ps"
 echo ""
 echo "Service endpoints:"
-echo "  LiteLLM:     http://localhost:4000"
+echo "  OmniRoute:   http://localhost:20128"
 echo "  Ollama:      http://localhost:11434"
 echo "  Qdrant:      http://localhost:6335"
 echo "  PostgreSQL:  localhost:5433"

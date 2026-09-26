@@ -7,9 +7,6 @@ set -euo pipefail
 #   - Python monorepo (uv workspace), 11 packages + gateway + CLI
 #   - Uses shared infrastructure: PostgreSQL (5433), Redis (6380), Qdrant (6335)
 #   - Gateway runs on port 8000
-#
-# Known issue: litellm import takes ~25s on first start, so the gateway
-# can take up to 40s to become healthy.
 
 # Dynamic path detection: use AI_WORKSTATION_DIR env var, or search common locations
 _find_gateway_dir() {
@@ -21,7 +18,7 @@ _find_gateway_dir() {
     for candidate in \
         "$HOME/Projects/ai-workstation" \
         "$HOME/ai-workstation" \
-        "/mnt/d/Projects/ai-workstation" \
+        "/mnt/e/Projects/ai-workstation" \
         "/mnt/c/Projects/ai-workstation" \
         "$HOME/workspace/ai-workstation"; do
         if [ -d "$candidate" ] && [ -f "$candidate/pyproject.toml" ]; then
@@ -122,7 +119,7 @@ fi
     --app-dir apps/gateway/src \
     > /tmp/gateway.log 2>&1 < /dev/null &)
 
-echo "  Waiting for startup (litellm import takes ~25s)..."
+echo "  Waiting for startup..."
 for i in $(seq 1 30); do
     sleep 2
     if curl -sf "http://localhost:${GATEWAY_PORT}/health" &>/dev/null; then
@@ -142,5 +139,5 @@ echo "Check logs: tail -f /tmp/gateway.log" >&2
 echo "Common issues:" >&2
 echo "  - DATABASE_URL not loading: check load_dotenv in main.py" >&2
 echo "  - PostgreSQL not running: check port 5433" >&2
-echo "  - litellm import slow: can take up to 40s on first start" >&2
+echo "  - OmniRoute gateway not running: run scripts/install_omniroute.sh" >&2
 exit 1

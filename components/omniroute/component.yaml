@@ -1,0 +1,34 @@
+name: omniroute
+version: "3.8.50"
+description: "OmniRoute — Unified AI Gateway with 339 providers, RTK+Caveman compression, 19 routing strategies"
+platforms: [linux, darwin]
+profiles: [notebook, desktop, host]
+depends_on: [node]
+optional: true
+packages:
+  npm: [omniroute]
+env:
+  - PORT=20128
+  - DEFAULT_MODEL=http://localhost:20128/v1
+  - OMNIROUTE_BASE_URL=http://localhost:20128
+  - JWT_SECRET="${OMNIROUTE_JWT_SECRET}"
+  - API_KEY_SECRET="${OMNIROUTE_API_KEY_SECRET}"
+  - INITIAL_PASSWORD="${OMNIROUTE_INITIAL_PASSWORD}"
+  - ENABLE_SOCKS5_PROXY=true
+  - ALLOW_PRIVATE_PROVIDER_URLS=true
+  - NEXT_PUBLIC_BASE_URL=http://localhost:20128
+providers:
+  free_tier:
+    - groq
+    - openrouter
+    - cerebras
+    - together
+    - cloudflare
+    - deepseek
+  compression:
+    - rtk
+    - caveman
+  strategies: 19
+dashboard: http://localhost:20128/dashboard
+mcp_tools: 105
+a2a_protocol: true

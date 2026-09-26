@@ -3,6 +3,7 @@
 
 import asyncio
 import logging
+import os
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Optional
@@ -68,10 +69,14 @@ class AutoOrchestrator:
         gateway_client=None,
         headroom_client=None,
         proxy_url: str = "http://localhost:8090",
+        omniroute_url: str = "http://localhost:20128/v1",
+        omniroute_key_env: str = "OMNIROUTE_API_KEY",
     ):
         self.gateway = gateway_client
         self.headroom = headroom_client
         self.proxy_url = proxy_url
+        self.omniroute_url = omniroute_url
+        self.omniroute_key_env = omniroute_key_env
         self.plans: Dict[str, OrchestrationPlan] = {}
         self.assigner = ModelAssigner()
 
@@ -214,15 +219,39 @@ class AutoOrchestrator:
             except Exception as e:
                 logger.warning(f"Proxy failed, trying gateway: {e}")
 
-        # Fallback to gateway (LiteLLM)
+        # Fallback to gateway client if provided
         if self.gateway:
             result = await self.gateway.chat_completions(
                 messages=messages,
                 model=subtask.model,
             )
             return result.get("choices", [{}])[0].get("message", {}).get("content", "")
-        else:
-            return f"[Simulated] {subtask.agent_type.value} completed: {subtask.title}"
+
+        # Fallback: call OmniRoute directly
+        api_key = os.environ.get(self.omniroute_key_env, "")
+        if api_key:
+            try:
+                async with httpx.AsyncClient() as client:
+                    resp = await client.post(
+                        f"{self.omniroute_url}/chat/completions",
+                        json={
+                            "model": subtask.model,
+                            "messages": messages,
+                            "max_tokens": 1024,
+                        },
+                        headers={
+                            "Authorization": f"Bearer {api_key}",
+                            "Content-Type": "application/json",
+                        },
+                        timeout=60,
+                    )
+                    resp.raise_for_status()
+                    data = resp.json()
+                    return data["choices"][0]["message"]["content"]
+            except Exception as e:
+                logger.warning(f"OmniRoute direct call failed: {e}")
+
+        return f"[Simulated] {subtask.agent_type.value} completed: {subtask.title}"
 
     async def _execute_via_proxy(self, messages: List[Dict], model: str) -> str:
         """Execute via AI Proxy Server (which handles Headroom compression)."""

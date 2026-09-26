@@ -10,7 +10,7 @@ services:
       DATABASE_URL: "postgresql+asyncpg://${POSTGRES_USER:-awe}:${POSTGRES_PASSWORD:-}@localhost:5433/workspace"
       REDIS_URL: "redis://localhost:6380/0"
       QDRANT_URL: "http://localhost:6335"
-      LITELLM_URL: "http://localhost:4000"
+      OMNIROUTE_URL: "http://localhost:20128/v1"
       SECRET_KEY: "${SECRET_KEY:-change-me-in-production}"
     network_mode: host
     restart: unless-stopped
@@ -25,7 +25,7 @@ services:
       DATABASE_URL: "postgresql+asyncpg://${POSTGRES_USER:-awe}:${POSTGRES_PASSWORD:-}@localhost:5433/workspace"
       REDIS_URL: "redis://localhost:6380/0"
       QDRANT_URL: "http://localhost:6335"
-      LITELLM_URL: "http://localhost:4000"
+      OMNIROUTE_URL: "http://localhost:20128/v1"
       SECRET_KEY: "${SECRET_KEY:-change-me-in-production}"
     network_mode: host
     restart: unless-stopped

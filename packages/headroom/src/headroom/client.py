@@ -118,8 +118,8 @@ class HeadroomConfig:
     proxy_url: str = "http://localhost:8090"
     use_proxy: bool = True
 
-    # Legacy settings (for direct LiteLLM integration)
-    litellm_url: str = "http://localhost:4000"
+    # OmniRoute settings (for direct gateway integration)
+    omniroute_url: str = "http://localhost:20128/v1"
     api_key: str = ""
 
 
@@ -202,7 +202,7 @@ class HeadroomClient:
         if self.config.use_proxy:
             return await self._complete_via_proxy(messages, model, **kwargs)
         else:
-            return await self._complete_via_litellm(messages, model, **kwargs)
+            return await self._complete_via_omniroute(messages, model, **kwargs)
 
     async def _complete_via_proxy(self, messages: List[Dict], model: str, **kwargs) -> Dict:
         """Forward to AI Proxy Server (which handles Headroom compression)."""
@@ -224,14 +224,14 @@ class HeadroomClient:
             logger.error(f"AI Proxy request failed: {e}")
             raise
 
-    async def _complete_via_litellm(self, messages: List[Dict], model: str, **kwargs) -> Dict:
-        """Forward to LiteLLM with Headroom compression."""
+    async def _complete_via_omniroute(self, messages: List[Dict], model: str, **kwargs) -> Dict:
+        """Forward to OmniRoute with Headroom compression."""
         compressed = await self.compress(messages, model)
 
         try:
             async with httpx.AsyncClient() as client:
                 resp = await client.post(
-                    f"{self.config.litellm_url}/v1/chat/completions",
+                    f"{self.config.omniroute_url}/chat/completions",
                     json={
                         "model": model,
                         "messages": compressed,
@@ -246,7 +246,7 @@ class HeadroomClient:
                 resp.raise_for_status()
                 return resp.json()
         except Exception as e:
-            logger.error(f"LiteLLM request failed: {e}")
+            logger.error(f"OmniRoute request failed: {e}")
             raise
 
     async def health(self) -> bool:
@@ -265,7 +265,7 @@ class HeadroomClient:
             try:
                 async with httpx.AsyncClient() as client:
                     resp = await client.get(
-                        f"{self.config.litellm_url}/health",
+                        f"{self.config.omniroute_url}/models",
                         headers={"Authorization": f"Bearer {self.config.api_key}"},
                         timeout=5,
                     )

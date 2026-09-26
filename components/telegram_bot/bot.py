@@ -35,8 +35,8 @@ class TelegramBot:
         self.config = self._load_config(config_path)
         self.sessions: Dict[str, dict] = {}
         self.proxy_url = self.config["proxy"]["api_url"]
-        self.litellm_url = self.config["litellm"]["api_url"]
-        self.litellm_api_key = self.config["litellm"]["api_key"]
+        self.omniroute_url = self.config["omniroute"]["api_url"]
+        self.omniroute_api_key = self.config["omniroute"]["api_key"]
         self.n8n_url = self.config["n8n"]["webhook_url"]
         self.project_manager = ProjectManager()
 
@@ -48,7 +48,7 @@ class TelegramBot:
         return {
             "bot": {"token": os.getenv("TELEGRAM_BOT_TOKEN", ""), "allowed_users": []},
             "proxy": {"api_url": "http://localhost:8090"},
-            "litellm": {"api_url": "http://localhost:4000", "api_key": os.environ.get("LITELLM_API_KEY", "")},
+            "omniroute": {"api_url": "http://localhost:20128/v1", "api_key": os.environ.get("OMNIROUTE_API_KEY", "")},
             "n8n": {"webhook_url": "http://localhost:5678/webhook/telegram"},
         }
 
@@ -153,16 +153,16 @@ class TelegramBot:
                     proxy_ok = False
                     proxy_data = {}
 
-                # Check LiteLLM
+                # Check OmniRoute
                 try:
                     async with session.get(
-                        f"{self.litellm_url}/health",
-                        headers={"Authorization": f"Bearer {self.litellm_api_key}"},
+                        f"{self.omniroute_url}/models",
+                        headers={"Authorization": f"Bearer {self.omniroute_api_key}"},
                         timeout=5
                     ) as resp:
-                        litellm_ok = resp.status == 200
+                        omniroute_ok = resp.status == 200
                 except:
-                    litellm_ok = False
+                    omniroute_ok = False
 
                 # Check Ollama
                 try:
@@ -184,7 +184,7 @@ class TelegramBot:
                 status_text = (
                     f"📊 Estado del Sistema\n\n"
                     f"AI Proxy (8090): {'✅' if proxy_ok else '❌'}\n"
-                    f"LiteLLM (4000): {'✅' if litellm_ok else '❌'}\n"
+                    f"OmniRoute (20128): {'✅' if omniroute_ok else '❌'}\n"
                     f"Ollama (11434): {'✅' if ollama_ok else '❌'} ({ollama_models} modelos)\n"
                     f"n8n (5678): {'✅' if n8n_ok else '❌'}\n"
                     f"\nHeadroom: ✅ Activo"
@@ -245,20 +245,20 @@ class TelegramBot:
                     else:
                         proxy_models = []
 
-                # Get models from LiteLLM
+                # Get models from OmniRoute
                 try:
                     async with session.get(
-                        f"{self.litellm_url}/v1/models",
-                        headers={"Authorization": f"Bearer {self.litellm_api_key}"},
+                        f"{self.omniroute_url}/models",
+                        headers={"Authorization": f"Bearer {self.omniroute_api_key}"},
                         timeout=10
                     ) as resp:
                         if resp.status == 200:
                             data = await resp.json()
-                            litellm_models = [m["id"] for m in data.get("data", [])]
+                            omniroute_models = [m["id"] for m in data.get("data", [])]
                         else:
-                            litellm_models = []
+                            omniroute_models = []
                 except:
-                    litellm_models = []
+                    omniroute_models = []
 
                 models_text = "🤖 Modelos Disponibles\n\n"
 
@@ -268,12 +268,12 @@ class TelegramBot:
                         models_text += f"  • {m}\n"
                     models_text += "\n"
 
-                if litellm_models:
-                    models_text += "🔗 Via LiteLLM:\n"
-                    for m in litellm_models[:10]:  # Limit to 10
+                if omniroute_models:
+                    models_text += "🔗 Via OmniRoute:\n"
+                    for m in omniroute_models[:10]:  # Limit to 10
                         models_text += f"  • {m}\n"
-                    if len(litellm_models) > 10:
-                        models_text += f"  ... y {len(litellm_models) - 10} más\n"
+                    if len(omniroute_models) > 10:
+                        models_text += f"  ... y {len(omniroute_models) - 10} más\n"
 
                 await update.message.reply_text(models_text)
         except Exception as e:
@@ -406,14 +406,14 @@ class TelegramBot:
         projects = self.project_manager.list_projects()
 
         if not projects:
-            await update.message.reply_text("No se encontraron proyectos en /mnt/d/Projects/")
+            await update.message.reply_text("No se encontraron proyectos en /mnt/e/Projects/")
             return
 
         # Group by type
         git_projects = [p for p in projects if p["is_git"]]
         other_projects = [p for p in projects if not p["is_git"]]
 
-        msg = "📁 Proyectos en D:\\Projects\\\n\n"
+        msg = "📁 Proyectos en E:\\Projects\\\n\n"
 
         if git_projects:
             msg += "🔧 Con Git:\n"

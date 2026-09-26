@@ -3,7 +3,10 @@
 
 import logging
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Dict, List, Optional
+
+import yaml
 
 from .evaluator import ModelEvaluator
 from .task_classifier import DifficultyLevel, classify_task
@@ -21,18 +24,44 @@ class ModelAssignment:
     estimated_duration: int
 
 
+DEFAULT_MODEL_TIERS = {
+    "local_fast": ["qwen2.5-coder:7b"],
+    "local_balanced": ["qwen2.5-coder:7b"],
+    "cloud_light": ["liviano"],
+    "cloud_heavy": ["agente"],
+}
+
+
+def load_tiers(config_path: Optional[Path] = None) -> Dict[str, List[str]]:
+    """Load model tiers from the `tiers` section of config.yaml, falling back to defaults."""
+    path = config_path or Path(__file__).parent / "config.yaml"
+    tiers = {k: list(v) for k, v in DEFAULT_MODEL_TIERS.items()}
+    try:
+        with open(path) as f:
+            configured = (yaml.safe_load(f) or {}).get("tiers") or {}
+    except (OSError, yaml.YAMLError) as e:
+        logger.warning(f"Could not read tiers from {path}: {e}")
+        return tiers
+    for name, models in configured.items():
+        if isinstance(models, list) and models:
+            tiers[name] = [str(m) for m in models]
+    return tiers
+
+
 class ModelAssigner:
     """Assigns optimal models based on task difficulty and capabilities."""
 
-    MODEL_TIERS = {
-        "local_fast": ["qwen2.5-coder:1.5b", "phi3:mini", "gemma2:2b"],
-        "local_balanced": ["qwen2.5-coder:7b", "gemma4:12b"],
-        "cloud_free": ["gemini-2.5-flash", "gemini-2.5-pro"],
-        "cloud_paid": ["claude-sonnet-4-20250514", "gpt-4o"],
-    }
+    MODEL_TIERS = dict(DEFAULT_MODEL_TIERS)
 
-    def __init__(self, evaluator: Optional[ModelEvaluator] = None):
+    def __init__(
+        self,
+        evaluator: Optional[ModelEvaluator] = None,
+        tiers: Optional[Dict[str, List[str]]] = None,
+    ):
         self.evaluator = evaluator or ModelEvaluator()
+        self.MODEL_TIERS = load_tiers()
+        if tiers:
+            self.MODEL_TIERS.update(tiers)
         self.custom_assignments: Dict[str, str] = {}
 
     def assign(
@@ -79,15 +108,18 @@ class ModelAssigner:
         )
 
     def _find_best_model(self, difficulty: DifficultyLevel, task_type: str) -> str:
-        """Find the best model for the given difficulty and task type."""
+        """Find the best model for the given difficulty and task type.
+
+        Local models only for EASY/MEDIUM; HARD always goes to cloud heavy.
+        """
         if difficulty == DifficultyLevel.EASY:
             return self.MODEL_TIERS["local_fast"][0]
         elif difficulty == DifficultyLevel.MEDIUM:
             return self.MODEL_TIERS["local_balanced"][0]
         elif difficulty == DifficultyLevel.HARD:
-            return self.MODEL_TIERS["local_balanced"][-1]
+            return self.MODEL_TIERS["cloud_heavy"][0]
         else:
-            return self.MODEL_TIERS["cloud_free"][0]
+            return self.MODEL_TIERS["cloud_light"][0]
 
     def assign_batch(
         self, tasks: List[str], agent_types: Optional[List[str]] = None

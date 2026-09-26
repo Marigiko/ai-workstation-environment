@@ -9,7 +9,7 @@ description: "Full AI dev workstation — notebook + rust/vscode + gateway + Doc
 #   ai-workstation -> docker                 OK
 #   n8n            -> docker, postgresql     OK
 #   workspace      -> docker, postgresql     OK
-#   litellm/ollama/qdrant -> docker          OK
+#   litellm/ollama/qdrant -> docker          OK (litellm retired, omniroute instead)
 #   telegram-bot   -> node                   OK
 #   mimo/claude-code/opencode -> node        OK
 components:
@@ -32,7 +32,7 @@ components:
   - terax
   # --- Docker service stack ---
   - postgresql
-  - litellm
+  - omniroute
   - ollama
   - qdrant
   - n8n

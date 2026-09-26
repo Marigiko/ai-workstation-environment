@@ -294,23 +294,24 @@ class ClaudeHandler:
         return "\n\n".join(parts)
 
 
-class GeminiHandler:
-    """Handle requests via Gemini API (through LiteLLM)."""
+class OmniRouteHandler:
+    """Handle requests via OmniRoute gateway (OpenAI-compatible)."""
 
-    def __init__(self):
-        self.litellm_url = "http://localhost:4000"
-        self.api_key = os.environ.get("LITELLM_API_KEY", "")
+    def __init__(self, model: str):
+        self.model = model
+        self.base_url = os.environ.get("OMNIROUTE_BASE_URL", "http://localhost:20128/v1")
+        self.api_key = os.environ.get("OMNIROUTE_API_KEY", "")
 
     async def complete(self, messages: List[Message], max_tokens: int = 1024) -> str:
-        """Send messages to Gemini via LiteLLM."""
+        """Send messages to OmniRoute chat completions."""
         messages_dict = [{"role": m.role, "content": m.content} for m in messages]
 
         try:
             async with httpx.AsyncClient() as client:
                 resp = await client.post(
-                    f"{self.litellm_url}/v1/chat/completions",
+                    f"{self.base_url}/chat/completions",
                     json={
-                        "model": "gemini-2.5-flash",
+                        "model": self.model,
                         "messages": messages_dict,
                         "max_tokens": max_tokens,
                     },
@@ -324,16 +325,21 @@ class GeminiHandler:
                 data = resp.json()
                 return data["choices"][0]["message"]["content"]
         except httpx.TimeoutException:
-            raise RuntimeError("Gemini timeout after 60s")
+            raise RuntimeError("OmniRoute timeout after 60s")
         except Exception as e:
-            raise RuntimeError(f"Gemini error: {str(e)[:200]}")
+            raise RuntimeError(f"OmniRoute error: {str(e)[:200]}")
 
 
 class OllamaHandler:
     """Handle requests via Ollama local API."""
 
-    def __init__(self, base_url: str = "http://localhost:11434"):
+    def __init__(
+        self,
+        base_url: str = "http://localhost:11434",
+        model: Optional[str] = None,
+    ):
         self.base_url = base_url
+        self.model = model or os.environ.get("OLLAMA_MODEL", "qwen2.5-coder:7b")
 
     async def complete(self, messages: List[Message], max_tokens: int = 1024) -> str:
         """Send messages to Ollama and get response."""
@@ -344,7 +350,7 @@ class OllamaHandler:
                 resp = await client.post(
                     f"{self.base_url}/api/generate",
                     json={
-                        "model": "gemma4:12b",
+                        "model": self.model,
                         "prompt": prompt,
                         "stream": False,
                         "options": {
@@ -385,12 +391,13 @@ MODEL_REGISTRY = {
     "mimo-fast": MiMoHandler(),
     "claude": ClaudeHandler(),
     "claude-code": ClaudeHandler(),
-    "gemini": GeminiHandler(),
-    "gemini-flash": GeminiHandler(),
+    "omniroute": OmniRouteHandler("liviano"),
+    "liviano": OmniRouteHandler("liviano"),
+    "gemini": OmniRouteHandler("liviano"),
+    "gemini-flash": OmniRouteHandler("liviano"),
+    "agente": OmniRouteHandler("agente"),
+    "smart": OmniRouteHandler("agente"),
     "local": OllamaHandler(),
-    "smart": GeminiHandler(),
-    "gemma4:12b": OllamaHandler(),
-    "gemma4": OllamaHandler(),
     "ollama": OllamaHandler(),
 }
 
@@ -440,16 +447,34 @@ async def list_models():
         "object": "list",
         "data": [
             {
+                "id": "omniroute",
+                "object": "model",
+                "owned_by": "omniroute",
+                "description": "OmniRoute gateway (liviano, cheap/free)",
+            },
+            {
+                "id": "liviano",
+                "object": "model",
+                "owned_by": "omniroute",
+                "description": "OmniRoute liviano combo (light work)",
+            },
+            {
+                "id": "agente",
+                "object": "model",
+                "owned_by": "omniroute",
+                "description": "OmniRoute agente combo (hard/coding work)",
+            },
+            {
                 "id": "gemini",
                 "object": "model",
-                "owned_by": "google",
-                "description": "Gemini 2.5 Flash (fast, free)",
+                "owned_by": "omniroute",
+                "description": "OmniRoute liviano combo (legacy alias)",
             },
             {
                 "id": "gemini-flash",
                 "object": "model",
-                "owned_by": "google",
-                "description": "Gemini 2.5 Flash",
+                "owned_by": "omniroute",
+                "description": "OmniRoute liviano combo (legacy alias)",
             },
             {"id": "mimo", "object": "model", "owned_by": "xiaomi"},
             {"id": "mimo-auto", "object": "model", "owned_by": "xiaomi"},
@@ -460,13 +485,7 @@ async def list_models():
                 "id": "local",
                 "object": "model",
                 "owned_by": "ollama",
-                "description": "Local Ollama (gemma4:12b)",
-            },
-            {
-                "id": "gemma4:12b",
-                "object": "model",
-                "owned_by": "ollama",
-                "description": "Gemma 4 12B (local, GPU)",
+                "description": "Local Ollama (qwen2.5-coder:7b)",
             },
             {
                 "id": "ollama",
@@ -474,7 +493,7 @@ async def list_models():
                 "owned_by": "ollama",
                 "description": "Ollama local models",
             },
-            {"id": "smart", "object": "model", "owned_by": "local"},
+            {"id": "smart", "object": "model", "owned_by": "omniroute"},
         ],
     }
 

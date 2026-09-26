@@ -9,7 +9,7 @@ from dataclasses import dataclass, field, asdict
 from datetime import datetime
 
 
-PROJECTS_DIR = Path("/mnt/d/Projects")
+PROJECTS_DIR = Path("/mnt/e/Projects")
 STATE_FILE = Path.home() / ".config" / "telegram-bot" / "state.json"
 
 

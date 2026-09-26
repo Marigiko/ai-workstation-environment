@@ -28,7 +28,7 @@ class Worktree:
 class WorktreeManager:
     """Manages multiple isolated worktrees with independent state."""
 
-    def __init__(self, base_path: str = "/mnt/d/Projects"):
+    def __init__(self, base_path: str = "/mnt/e/Projects"):
         self.base_path = Path(base_path)
         self.worktrees: Dict[str, Worktree] = {}
         self.config_path = Path.home() / ".config" / "workspace" / "worktrees.json"

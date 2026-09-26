@@ -42,7 +42,7 @@ echo ""
 # Check main services
 echo "Servicios Principales:"
 check_service "AI Proxy" 8090
-check_service "LiteLLM" 4000
+check_service "OmniRoute" 20128
 check_service "Ollama" 11434
 check_service "n8n" 5678
 check_service "Redis" 6380

@@ -1,38 +1,43 @@
 # Auto Orchestrator - Configuration
 
 # Model assignments per agent type
-# Priority: proxy (MiMo/Claude) → local (Ollama) → cloud (Gemini)
+# Priority: proxy (MiMo/Claude) → local (Ollama) → omniroute (cloud)
 # All models go through Headroom compression via AI Proxy (port 8090)
+omniroute:
+  url: "http://localhost:20128/v1"
+  api_key_env: OMNIROUTE_API_KEY
+  heavy_model: agente
+  light_model: liviano
 models:
   architect:
     default: "mimo-auto"           # Free MiMo via proxy
     fallback: "qwen2.5-coder:7b"   # Local Ollama
-    cloud: "gemini-2.5-flash"      # Cloud fallback
+    cloud: "agente"                # OmniRoute heavy combo
 
   coder:
     default: "mimo-auto"           # Free MiMo via proxy
     fallback: "qwen2.5-coder:7b"   # Local Ollama
-    cloud: "gemini-2.5-flash"      # Cloud fallback
+    cloud: "agente"                # OmniRoute heavy combo
 
   reviewer:
     default: "claude"              # Claude via proxy (Claude Max)
-    fallback: "gemini-2.5-flash"   # Cloud fallback
+    fallback: "agente"             # OmniRoute heavy combo
     local: "qwen2.5-coder:7b"     # Local fallback
 
   documenter:
     default: "mimo-fast"           # Fast MiMo via proxy
-    fallback: "qwen2.5-coder:1.5b" # Local Ollama
-    cloud: "gemini-2.5-flash"      # Cloud fallback
+    fallback: "qwen2.5-coder:7b"   # Local Ollama
+    cloud: "liviano"               # OmniRoute light combo
 
   tester:
     default: "mimo-fast"           # Fast MiMo via proxy
-    fallback: "phi3:mini"          # Local Ollama
-    cloud: "gemini-2.5-flash"      # Cloud fallback
+    fallback: "qwen2.5-coder:7b"   # Local Ollama
+    cloud: "liviano"               # OmniRoute light combo
 
   debugger:
     default: "claude"              # Claude via proxy (best reasoning)
     fallback: "qwen2.5-coder:7b"   # Local Ollama
-    cloud: "gemini-2.5-pro"        # Cloud fallback
+    cloud: "agente"                # OmniRoute heavy combo
 
 # Task decomposition settings
 decomposition:
@@ -42,6 +47,12 @@ decomposition:
 
 # Headroom compression settings
 # Applied to ALL requests via AI Proxy before reaching any backend
+tiers:
+  local_fast: [qwen2.5-coder:7b]
+  local_balanced: [qwen2.5-coder:7b]
+  cloud_light: [liviano]
+  cloud_heavy: [agente]
+
 headroom:
   enabled: true
   level: "aggressive"  # aggressive, moderate, light
@@ -70,7 +81,7 @@ proxy:
 local_model:
   enabled: true
   ollama_url: "http://localhost:11434"
-  default_model: "gemma4:12b"
+  default_model: "qwen2.5-coder:7b"
   capability_profile: null  # populated by evaluator
   routing_rules:
     max_difficulty: "medium"
@@ -86,7 +97,7 @@ execution:
   backend_priority:
     - "proxy"      # MiMo/Claude via AI Proxy (free)
     - "local"      # Ollama (local GPU)
-    - "cloud"      # Gemini/OpenRouter (cloud)
+    - "omniroute"  # OmniRoute gateway (only cloud path)
 
 # Notification settings
 notifications:

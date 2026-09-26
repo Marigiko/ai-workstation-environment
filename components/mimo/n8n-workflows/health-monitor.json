@@ -20,13 +20,13 @@
     },
     {
       "parameters": {
-        "url": "http://localhost:4000/health",
+        "url": "http://localhost:20128/v1/models",
         "options": {
           "timeout": 5000
         }
       },
-      "id": "check-litellm",
-      "name": "Check LiteLLM",
+      "id": "check-omniroute",
+      "name": "Check OmniRoute",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
       "position": [450, 200],
@@ -69,8 +69,8 @@
               "value": "={{ $now.toISO() }}"
             },
             {
-              "name": "litellm_status",
-              "value": "={{ $('Check LiteLLM').item.json.statusCode === 200 ? 'healthy' : 'down' }}"
+              "name": "omniroute_status",
+              "value": "={{ $('Check OmniRoute').item.json.statusCode === 200 ? 'healthy' : 'down' }}"
             },
             {
               "name": "ollama_status",
@@ -94,7 +94,7 @@
         "conditions": {
           "string": [
             {
-              "value1": "={{ $json.litellm_status }}",
+              "value1": "={{ $json.omniroute_status }}",
               "value2": "down"
             },
             {
@@ -117,7 +117,7 @@
     },
     {
       "parameters": {
-        "command": "echo \"[ALERT] Platform service down at {{ $json.timestamp }}: LiteLLM={{ $json.litellm_status }}, Ollama={{ $json.ollama_status }}, Qdrant={{ $json.qdrant_status }}\" >> /tmp/platform-health.log"
+        "command": "echo \"[ALERT] Platform service down at {{ $json.timestamp }}: OmniRoute={{ $json.omniroute_status }}, Ollama={{ $json.ollama_status }}, Qdrant={{ $json.qdrant_status }}\" >> /tmp/platform-health.log"
       },
       "id": "log-alert",
       "name": "Log Alert",
@@ -131,7 +131,7 @@
       "main": [
         [
           {
-            "node": "Check LiteLLM",
+            "node": "Check OmniRoute",
             "type": "main",
             "index": 0
           },
@@ -148,7 +148,7 @@
         ]
       ]
     },
-    "Check LiteLLM": {
+    "Check OmniRoute": {
       "main": [
         [
           {

@@ -2,7 +2,7 @@ name: notebook
 description: "Lightweight AI dev environment for laptops — no Docker service stack"
 
 # Corrected 2026-07-29. This profile previously carried the entire Docker service
-# stack (postgresql, litellm, ollama, qdrant, n8n, workspace, telegram-bot), which
+# stack (postgresql, ollama, qdrant, n8n, workspace, telegram-bot), which
 # made "notebook" heavier than "desktop" and contradicted the README.
 # It also listed `terax`, whose depends_on is [node, ai-workstation], without
 # ai-workstation — and core/graph.py silently drops dependencies that are not in the

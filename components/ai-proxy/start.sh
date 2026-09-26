@@ -2,7 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PYTHON="${PYTHON:-/mnt/d/Projects/ai-workstation-environment/.venv/bin/python3}"
+PYTHON="${PYTHON:-/mnt/e/Projects/ai-workstation-environment/.venv/bin/python3}"
 LOG="/tmp/ai-proxy.log"
 PIDFILE="/tmp/ai-proxy.pid"
 
