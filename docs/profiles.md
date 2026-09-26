@@ -10,7 +10,7 @@ Profiles define which components to install for different machine types.
 
 Lightweight AI dev environment for laptops.
 
-**Components**: git, ssh, node, python, zed, opencode, claude-code, tailscale, docker
+**Components**: git, ssh, node, python, zed, opencode, claude-code, tailscale, docker, omniroute
 
 **Use case**: Daily AI development on a laptop with limited resources.
 
@@ -26,7 +26,7 @@ Full AI dev environment for workstations.
 
 Infrastructure server for AI services.
 
-**Components**: git, ssh, docker, tailscale, node, python, ollama, litellm, qdrant, postgresql, n8n
+**Components**: git, ssh, docker, tailscale, node, python, ollama, omniroute, qdrant, postgresql, n8n
 
 **Use case**: Server running AI infrastructure (models, vector DBs, automation).
 

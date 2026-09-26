@@ -1,5 +1,7 @@
 # Distributed AI Workspace - Análisis de Hermes
 
+> Historical document (written before 2026-09-25). LiteLLM was later replaced by OmniRoute (http://localhost:20128/v1); see docs/INTEGRATION-ARCHITECTURE.md for the current setup.
+
 ## Resumen Ejecutivo
 
 **Hermes Agent** (Nous Research) es un agente AI autónomo open source (MIT) con capacidades avanzadas de integración que lo hacen **altamente compatible** con nuestra visión de Distributed AI Workspace.

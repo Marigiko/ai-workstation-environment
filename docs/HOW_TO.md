@@ -132,7 +132,7 @@ Esto te muestra qué herramientas ya tienes instaladas y qué falta.
 |--------|----------------|-------------|
 | `notebook` | Laptop de desarrollo | Git, SSH, Node, Python, Zed, Mimo, OpenCode, Claude Code, Terax, Tailscale, Docker |
 | `desktop` | Workstation completa | notebook + Rust, VSCode, Workspace API |
-| `host` | Servidor de infraestructura | Git, SSH, Docker, Tailscale, Node, Python, Ollama, LiteLLM, Qdrant, PostgreSQL, n8n, Workspace |
+| `host` | Servidor de infraestructura | Git, SSH, Docker, Tailscale, Node, Python, Ollama, OmniRoute, Qdrant, PostgreSQL, n8n, Workspace |
 | `minimal` | Bare minimum | Solo Git y SSH |
 
 #### 4. Ejecutar el Bootstrap
@@ -406,7 +406,7 @@ mimo
 ```
 
 Esto genera `~/.config/mimocode/mimocode.json` con:
-- **Provider**: LiteLLM como gateway unificado (http://localhost:4000/v1)
+- **Provider**: OmniRoute como gateway unificado OpenAI-compatible (http://localhost:20128/v1, bearer key en `OMNIROUTE_API_KEY`)
 - **Modelos**: Claude Sonnet, GPT-4, Ollama local, Gemini, OpenRouter
 - **MCP servers**: filesystem, git, github, docker, sequential-thinking
 - **Skills**: 28 skills migrados de la biblioteca de prompts
@@ -459,13 +459,9 @@ mimo session <session-id>
 /models
 
 # Seleccionar modelo específico
-/models litellm/claude-sonnet-4-20250514
-/models litellm/local        # Ollama (CPU)
-/models litellm/gpt-4
-/models litellm/gemini-2.5-pro
-/models litellm/fast         # Alias para Ollama
-/models litellm/smart        # Alias para Claude Sonnet
-/models litellm/reasoning    # Alias para GPT-4
+/models omniroute/agente     # Tareas difíciles / código (GLM → Gemini 2.5 Flash → Groq)
+/models omniroute/liviano    # Trabajo ligero (free first: Gemini 2.5 Flash → Groq → GLM)
+/models qwen2.5-coder:7b     # Ollama (local, GPU 6 GB; solo tareas ligeras)
 ```
 
 **Agentes custom**:
@@ -512,9 +508,9 @@ dream-distill, checkpoint-management
 **Custom tools**:
 | Tool | Función |
 |------|---------|
-| `health-check` | Verificar estado de servicios (LiteLLM, Ollama, Qdrant) |
+| `health-check` | Verificar estado de servicios (OmniRoute, Ollama, Qdrant) |
 | `benchmark` | Comparar modelos (tiempo + tokens) |
-| `model-router` | Verificar modelos disponibles en LiteLLM |
+| `model-router` | Verificar modelos disponibles en OmniRoute |
 | `workflow-runner` | Ejecutar workflows de la plataforma |
 | `context-injector` | Inyectar contexto RAG desde Qdrant |
 | `n8n-trigger` | Disparar automatizaciones n8n |
@@ -567,11 +563,11 @@ n8n-trigger --workflow "health-monitor"
 
 ### 5. **Terax (Terminal AI-Nativo)**
 
-Terax es un terminal AI-nativo que sirve como la **capa de presentación visual** en la plataforma. Se conecta a LiteLLM vía endpoint OpenAI-compatible y detecta agentes externos (MiMoCode, Claude Code) vía marcadores OSC 777.
+Terax es un terminal AI-nativo que sirve como la **capa de presentación visual** en la plataforma. Se conecta a OmniRoute vía endpoint OpenAI-compatible y detecta agentes externos (MiMoCode, Claude Code) vía marcadores OSC 777.
 
 **Arquitectura**:
 ```
-Terax (Terminal/UI) → Orquestador (MiMoCode/ClaudeCode) → LiteLLM (Gateway) → Modelos + MCP
+Terax (Terminal/UI) → Orquestador (MiMoCode/ClaudeCode) → OmniRoute (Gateway) → Modelos + MCP
 ```
 
 **Instalación**:
@@ -581,14 +577,14 @@ Terax (Terminal/UI) → Orquestador (MiMoCode/ClaudeCode) → LiteLLM (Gateway) 
 ./components/terax/install.sh
 ```
 
-**Configuración**: Terax se configura automáticamente para conectarse a LiteLLM:
+**Configuración**: Terax se configura automáticamente para conectarse a OmniRoute:
 ```yaml
 # ~/.config/terax/config.yaml
 ai:
   provider: openai-compatible
-  base_url: "http://localhost:4000"
-  api_key: "<your-litellm-master-key>"
-  model: "claude-sonnet-4-20250514"
+  base_url: "http://localhost:20128/v1"
+  api_key: "$OMNIROUTE_API_KEY"
+  model: "liviano"
 ```
 
 **Agentes Custom**:
@@ -624,7 +620,7 @@ Workspace Layer
 ├── Notification Service (alertas, push, historial)
 └── Presence Service (heartbeat, actividad, idle detection)
     ↓ Event Bus (Redis Pub/Sub)
-AI Engineering Platform (LiteLLM, Ollama, Qdrant, n8n, MCP)
+AI Engineering Platform (OmniRoute, Ollama, Qdrant, n8n, MCP)
     ↓
 Storage (PostgreSQL + Redis)
 ```
@@ -859,7 +855,7 @@ Salida esperada:
 --- Infrastructure ---
 ✓ Tailscale
 ✓ Ollama
-✓ LiteLLM
+✓ OmniRoute
 ✓ Qdrant
 ✓ PostgreSQL
 ✓ n8n
@@ -1025,11 +1021,12 @@ mimo --version
 # Regenerar configuración
 ./bootstrap mcp-generate mimo
 
-# Verificar que LiteLLM está corriendo (necesario para Mimo)
-docker ps | grep litellm
+# Verificar que OmniRoute está corriendo (necesario para Mimo)
+curl http://localhost:20128/v1/models \
+  -H "Authorization: Bearer $OMNIROUTE_API_KEY"
 
-# Si LiteLLM no está corriendo:
-./bootstrap bootstrap --only litellm
+# Si OmniRoute no está corriendo:
+./bootstrap bootstrap --only omniroute
 ```
 
 ### Problema: Dotfiles no se actualizan
@@ -1165,7 +1162,7 @@ Con **Mimo como frontend principal**, tienes un agente AI terminal-native con:
 - **7 custom tools** para interactuar con tu plataforma
 - **6 compose workflows** para desarrollo guiado
 - **Memory persistente** con dream/distill para auto-mejora
-- **Integración completa** con LiteLLM, Ollama, Qdrant, n8n y todos tus MCP servers
+- **Integración completa** con OmniRoute, Ollama, Qdrant, n8n y todos tus MCP servers
 
 Con **Distributed AI Workspace**, tienes un sistema multi-dispositivo con:
 - **57 endpoints REST** para workspaces, sesiones, tareas, workflows, notificaciones

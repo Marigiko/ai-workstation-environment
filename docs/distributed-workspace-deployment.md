@@ -1,5 +1,7 @@
 # Distributed AI Workspace — Deployment Guide
 
+> Historical document (written before 2026-09-25). LiteLLM was later replaced by OmniRoute (http://localhost:20128/v1); see docs/INTEGRATION-ARCHITECTURE.md for the current setup.
+
 ## Prerequisites
 
 - Docker and Docker Compose

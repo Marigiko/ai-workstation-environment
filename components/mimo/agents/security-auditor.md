@@ -1,7 +1,7 @@
 ---
 description: "Performs security audits and identifies vulnerabilities in code"
 mode: subagent
-model: litellm/claude-sonnet-4-20250514
+model: omniroute/agente
 temperature: 0.1
 permission:
   edit: deny

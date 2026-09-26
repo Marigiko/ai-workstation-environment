@@ -1,7 +1,7 @@
 ---
 description: "Strict TDD practitioner - writes tests first, then implementation"
 mode: subagent
-model: litellm/gpt-4
+model: omniroute/agente
 temperature: 0.1
 ---
 

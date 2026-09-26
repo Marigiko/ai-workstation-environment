@@ -1,7 +1,7 @@
 ---
 description: "Safe code refactoring with preserved behavior"
 mode: subagent
-model: litellm/claude-sonnet-4-20250514
+model: omniroute/agente
 temperature: 0.2
 permission:
   bash:

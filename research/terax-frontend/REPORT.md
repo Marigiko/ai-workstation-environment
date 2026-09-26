@@ -1,5 +1,7 @@
 # Terax como Frontend Principal para AI Engineering: Investigación Técnica y Propuesta Arquitectónica
 
+> Historical document (written before 2026-09-25). LiteLLM was later replaced by OmniRoute (http://localhost:20128/v1); see docs/INTEGRATION-ARCHITECTURE.md for the current setup.
+
 **Fecha**: 2026-07-07
 **Investigador**: Deep Research Pipeline (7 sub-agentes paralelos, 78 findings, 42 fuentes primarias)
 

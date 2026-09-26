@@ -23,11 +23,11 @@
 │         ┌──────────────────┼──────────────────┐             │
 │         │                  │                  │             │
 │  ┌──────▼──────┐    ┌──────▼──────┐    ┌──────▼──────┐     │
-│  │   LiteLLM   │    │   Ollama    │    │   Gemini    │     │
-│  │  (Gateway)  │    │  (Local)    │    │  (Cloud)    │     │
-│  │  Puerto 4000│    │  Puerto     │    │  API Key    │     │
-│  └─────────────┘    │  11434      │    └─────────────┘     │
-│                     └─────────────┘                        │
+│  │ OmniRoute │   │   Ollama    │    │   Gemini    │     │
+│  │ (Gateway) │   │  (Local)    │    │  (Cloud)    │     │
+│  │ Puerto    │   │  Puerto     │    │  API Key    │     │
+│  │ 20128     │   │  11434      │    └─────────────┘     │
+│  └─────────────┘    └─────────────┘                        │
 │                                                             │
 │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐     │
 │  │   n8n       │    │  Telegram   │    │  Workspace  │     │
@@ -43,7 +43,7 @@
 | Servicio | Puerto | Estado | Descripción |
 |----------|--------|--------|-------------|
 | AI Proxy | 8090 | ✅ ACTIVO | Proxy con Headroom compression |
-| LiteLLM | 4000 | ✅ ACTIVO | Gateway de modelos (18 modelos) |
+| OmniRoute | 20128 | ✅ ACTIVO | Gateway de modelos OpenAI-compatible (combos agente/liviano) |
 | Ollama | 11434 | ✅ ACTIVO | Modelos locales (GPU) |
 | n8n | 5678 | ✅ ACTIVO | Automatizaciones |
 | Redis | 6380 | ✅ ACTIVO | Cache y pub/sub |
@@ -76,7 +76,7 @@ mimo
 
 # 2. MiMo ya está configurado para usar:
 #    - Modelos locales vía Ollama
-#    - Modelos cloud vía LiteLLM
+#    - Modelos cloud vía OmniRoute
 #    - MCP servers (headroom, codebase-memory, ponytail)
 
 # 3. En MiMo, puedes usar /compact para comprimir contexto
@@ -183,15 +183,15 @@ curl -X POST http://localhost:8090/v1/chat/completions \
 
 *Requiere `claude login` (suscripción Claude Max)
 
-### Vía LiteLLM (Puerto 4000) — Con API Keys
+### Vía OmniRoute (Puerto 20128) — Con API Key
 
-| Modelo | Provider | Costo |
-|--------|----------|-------|
-| qwen2.5-coder:7b | Ollama (local) | Gratis |
-| phi3:mini | Ollama (local) | Gratis |
-| gemini-2.5-flash | Google | Gratis |
-| gemini-2.5-pro | Google | Gratis |
-| claude-sonnet-4-20250514 | Anthropic | Pago |
+Base URL: `http://localhost:20128/v1` (bearer key en `OMNIROUTE_API_KEY`)
+
+| Modelo | Provider | Costo | Uso Recomendado |
+|--------|----------|-------|-----------------|
+| agente | GLM Coding Plan → Gemini 2.5 Flash → Groq gpt-oss-120b | Según plan | Tareas difíciles / código |
+| liviano | Gemini 2.5 Flash → Groq gpt-oss-120b → GLM (free first) | Gratis | Trabajo ligero |
+| qwen2.5-coder:7b | Ollama (local) | Gratis | Tareas locales ligeras |
 
 ## Comandos Útiles
 
@@ -279,13 +279,14 @@ claude login
 claude -p "hola"
 ```
 
-### LiteLLM no responde
+### OmniRoute no responde
 ```bash
-# Verificar contenedor
-docker ps | grep litellm
+# Verificar endpoint
+curl http://localhost:20128/v1/models \
+  -H "Authorization: Bearer $OMNIROUTE_API_KEY"
 
-# Ver logs
-docker logs awe-litellm
+# Verificar componente (Docker Compose)
+./components/omniroute/check.sh
 ```
 
 ## Arquitectura de Compresión

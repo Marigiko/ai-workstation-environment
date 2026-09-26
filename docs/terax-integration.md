@@ -2,7 +2,7 @@
 
 ## Overview
 
-Terax es un terminal AI-nativo de código abierto que se integra como la **capa de presentación visual** en la plataforma de AI Engineering. No reemplaza al orquestador — se conecta a LiteLLM vía endpoint OpenAI-compatible y detecta agentes externos (MiMoCode, Claude Code) vía marcadores OSC 777.
+Terax es un terminal AI-nativo de código abierto que se integra como la **capa de presentación visual** en la plataforma de AI Engineering. No reemplaza al orquestador — se conecta a OmniRoute vía endpoint OpenAI-compatible y detecta agentes externos (MiMoCode, Claude Code) vía marcadores OSC 777.
 
 ## Architecture
 
@@ -30,9 +30,10 @@ Terax es un terminal AI-nativo de código abierto que se integra como la **capa 
                        │ OpenAI-compatible + MCP
                        ▼
 ┌─────────────────────────────────────────────────────────┐
-│              LITELLM (Gateway)                           │
-│  Model routing + Load balancing + Fallbacks             │
-│  Cost tracking + Rate limiting + Budgets                │
+│              OMNIROUTE (Gateway)                         │
+│  Model routing + Fallbacks (combos agente/liviano)      │
+│  OpenAI-compatible: http://localhost:20128/v1           │
+│  Dashboard: http://localhost:20128/dashboard            │
 │  MCP Gateway (herramientas centralizadas)               │
 │  RAG endpoints (/rag/ingest, /rag/query)                │
 │  A2A protocol support                                   │
@@ -74,17 +75,17 @@ curl -sL https://github.com/crynta/terax-ai/releases/latest/download/terax-linux
 
 ## Configuration
 
-### LiteLLM Connection
+### OmniRoute Connection
 
-Terax connects to LiteLLM via the OpenAI-compatible endpoint:
+Terax connects to OmniRoute via the OpenAI-compatible endpoint:
 
 ```yaml
 # ~/.config/terax/config.yaml
 ai:
   provider: openai-compatible
-  base_url: "http://localhost:4000"
-  api_key: "<your-litellm-master-key>"
-  model: "claude-sonnet-4-20250514"
+  base_url: "http://localhost:20128/v1"
+  api_key: "$OMNIROUTE_API_KEY"
+  model: "liviano"
 ```
 
 ### Agent Detection
@@ -119,7 +120,7 @@ snippets:
 ```
 1. Open Terax
 2. Launch MiMoCode in a terminal tab
-3. MiMoCode connects to LiteLLM + MCP
+3. MiMoCode connects to OmniRoute + MCP
 4. Use /orchestrator agent for complex tasks
 5. View diffs and results in Terax editor
 ```
@@ -128,7 +129,7 @@ snippets:
 
 ```
 1. Use /benchmark snippet
-2. Terax calls LiteLLM with different models
+2. Terax calls OmniRoute with different models
 3. Compare latency, quality, cost
 4. Results displayed in terminal
 ```
@@ -147,7 +148,7 @@ snippets:
 Terax itself does NOT support MCP natively. MCP tools are accessed through the orchestrator layer:
 
 ```
-Terax → MiMoCode → MCP Gateway (LiteLLM) → MCP Servers
+Terax → MiMoCode → MCP Servers (via orchestrator)
 ```
 
 The MCP servers available through the orchestrator:
@@ -181,14 +182,12 @@ Persistent memory across sessions via MCP server. Enable with:
 
 ## Troubleshooting
 
-### Terax can't connect to LiteLLM
+### Terax can't connect to OmniRoute
 
 ```bash
-# Check LiteLLM is running
-docker ps | grep litellm
-
-# Test the endpoint
-curl http://localhost:4000/health
+# Check OmniRoute is running
+curl http://localhost:20128/v1/models \
+  -H "Authorization: Bearer $OMNIROUTE_API_KEY"
 
 # Check Terax config
 cat ~/.config/terax/config.yaml
@@ -214,6 +213,6 @@ cat ~/.config/terax/config.yaml
 
 - [Terax GitHub](https://github.com/crynta/terax-ai)
 - [Terax Documentation](https://terax.app/docs)
-- [LiteLLM Documentation](https://docs.litellm.ai)
+- [OmniRoute Dashboard](http://localhost:20128/dashboard)
 - [MCP Specification](https://modelcontextprotocol.io)
 - [Platform Architecture](./architecture.md)

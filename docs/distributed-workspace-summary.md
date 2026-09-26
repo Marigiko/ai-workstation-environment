@@ -1,5 +1,7 @@
 # Distributed AI Workspace - Resumen Ejecutivo
 
+> Historical document (written before 2026-09-25). LiteLLM was later replaced by OmniRoute (http://localhost:20128/v1); see docs/INTEGRATION-ARCHITECTURE.md for the current setup.
+
 ## Visión
 
 Transformar tu AI Engineering Platform en un **Distributed AI Workspace** donde cualquier dispositivo puede iniciar, continuar, supervisar o finalizar cualquier flujo de trabajo sin perder contexto y sin depender de una interfaz específica.

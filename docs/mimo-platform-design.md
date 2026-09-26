@@ -1,5 +1,7 @@
 # Diseno: Mimo + AI Engineering Platform
 
+> Historical document (written before 2026-09-25). LiteLLM was later replaced by OmniRoute (http://localhost:20128/v1); see docs/INTEGRATION-ARCHITECTURE.md for the current setup.
+
 ## Arquitectura
 
 ```

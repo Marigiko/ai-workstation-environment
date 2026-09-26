@@ -1,7 +1,7 @@
 ---
 description: "Infrastructure as Code, Docker, and system administration"
 mode: subagent
-model: litellm/gpt-4
+model: omniroute/agente
 temperature: 0.1
 permission:
   bash:

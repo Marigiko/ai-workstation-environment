@@ -47,7 +47,7 @@ cd ~/ai-workstation-environment
 |---------|----------|------------|
 | `notebook` | Laptop AI dev | git, ssh, node, python, zed, opencode, claude-code, terax, tailscale, docker |
 | `desktop` | Workstation AI dev | notebook + rust, vscode |
-| `host` | Infrastructure server | git, ssh, docker, tailscale, node, python, ollama, litellm, qdrant, postgresql, n8n |
+| `host` | Infrastructure server | git, ssh, docker, tailscale, node, python, ollama, omniroute, qdrant, postgresql, n8n |
 | `minimal` | Bare minimum | git, ssh |
 
 ## Components
@@ -67,7 +67,7 @@ cd ~/ai-workstation-environment
 | `claude-code` | Claude Code AI assistant | linux, darwin |
 | `terax` | Terax AI-native terminal (optional) | linux, darwin |
 | `ollama` | Local LLM runner (Docker) | linux |
-| `litellm` | Unified LLM API proxy (Docker) | linux |
+| `omniroute` | Unified OpenAI-compatible LLM gateway (Docker Compose) | linux |
 | `qdrant` | Vector database (Docker) | linux |
 | `postgresql` | PostgreSQL database (Docker) | linux |
 | `n8n` | Workflow automation (Docker) | linux |

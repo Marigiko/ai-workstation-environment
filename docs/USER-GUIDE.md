@@ -10,7 +10,8 @@ cd components/n8n && docker compose up -d
 
 # Verify
 curl http://localhost:8080/health
-curl http://localhost:4000/health
+curl http://localhost:20128/v1/models \
+  -H "Authorization: Bearer $OMNIROUTE_API_KEY"
 ```
 
 ### 2. Configure Telegram Bot
@@ -92,10 +93,9 @@ Available models (via Ollama on RTX 2060):
 | gemma2:2b | 1.6GB | General |
 | qwen2.5-coder:7b | 4.7GB | Best code |
 
-Cloud models (via LiteLLM):
-- gemini-2.5-flash (free)
-- gemini-2.5-pro (free, rate limited)
-- OpenRouter auto (free credits)
+Cloud models (via OmniRoute, http://localhost:20128/v1, bearer key in `OMNIROUTE_API_KEY`):
+- Combo `agente`: GLM Coding Plan → Gemini 2.5 Flash → Groq gpt-oss-120b (hard/coding work)
+- Combo `liviano` (free first): Gemini 2.5 Flash → Groq gpt-oss-120b → GLM (light work)
 
 ## Agent Types
 
@@ -124,8 +124,9 @@ curl http://localhost:5678/healthz
 # Check workspace API
 curl http://localhost:8080/health
 
-# Check LiteLLM
-curl http://localhost:4000/health
+# Check OmniRoute
+curl http://localhost:20128/v1/models \
+  -H "Authorization: Bearer $OMNIROUTE_API_KEY"
 ```
 
 ### Model not available

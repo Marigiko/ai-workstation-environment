@@ -3,7 +3,7 @@
 ## Estado del Proyecto
 
 ### ✅ Completado
-- **AI Engineering Platform**: LiteLLM, Ollama, Qdrant, n8n, PostgreSQL
+- **AI Engineering Platform**: OmniRoute, Ollama, Qdrant, n8n, PostgreSQL
 - **Mimo Integration**: 10/10 etapas completadas
   - 6 agentes custom
   - 28 skills
@@ -178,13 +178,14 @@ memory-manager --action "clean"
                            │
                            ▼
 ┌──────────────────────────────────────────────────────────┐
-│              LITELLM (Model Router)                       │
-│              http://localhost:4000/v1                     │
+│              OMNIROUTE (Model Gateway)                    │
+│              http://localhost:20128/v1                    │
 │                                                          │
-│  ┌─────────┐ ┌──────────┐ ┌───────────┐ ┌────────────┐ │
-│  │  Ollama  │ │ Claude   │ │   GPT-4   │ │ OpenRouter │ │
-│  │ (Local)  │ │ Sonnet   │ │           │ │  (Auto)    │ │
-│  └─────────┘ └──────────┘ └───────────┘ └────────────┘ │
+│  ┌──────────┐ ┌──────────────┐ ┌──────────────────────┐ │
+│  │  Ollama  │ │ Combo agente │ │    Combo liviano     │ │
+│  │ (Local)  │ │ GLM→Gemini→  │ │ Gemini→Groq→GLM      │ │
+│  │          │ │ Groq         │ │ (free first)         │ │
+│  └──────────┘ └──────────────┘ └──────────────────────┘ │
 └──────────────────────────────────────────────────────────┘
                            │
 ┌──────────────────────────┼──────────────────────────────┐
@@ -233,14 +234,13 @@ memory-manager --action "clean"
 ### Documentación Externa
 - **Mimo**: https://mimo.xiaomi.com/mimocode/start
 - **Hermes**: https://hermes-agent.nousresearch.com/docs/
-- **LiteLLM**: https://docs.litellm.ai/
+- **OmniRoute**: http://localhost:20128/dashboard
 - **Qdrant**: https://qdrant.tech/documentation/
 - **n8n**: https://docs.n8n.io/
 
 ### Repositorios
 - **Mimo**: https://github.com/XiaomiMiMo/MiMo-Code
 - **Hermes**: https://github.com/NousResearch/hermes-agent
-- **LiteLLM**: https://github.com/BerriAI/litellm
 
 ## Soporte
 

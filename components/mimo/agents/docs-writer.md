@@ -1,7 +1,7 @@
 ---
 description: "Writes and maintains project documentation using local models"
 mode: subagent
-model: litellm/local
+model: omniroute/liviano
 temperature: 0.3
 permission:
   bash: deny

@@ -1,7 +1,7 @@
 ---
 description: "Analyzes performance bottlenecks and optimization opportunities"
 mode: subagent
-model: litellm/claude-sonnet-4-20250514
+model: omniroute/agente
 temperature: 0.1
 permission:
   edit: deny

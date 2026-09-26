@@ -1,5 +1,7 @@
 # Research Brief: Terax as AI Engineering Frontend
 
+> Historical document (written before 2026-09-25). LiteLLM was later replaced by OmniRoute (http://localhost:20128/v1); see docs/INTEGRATION-ARCHITECTURE.md for the current setup.
+
 **Date**: 2026-07-07
 **Depth**: deep (5-8 sub-agents, 25+ sources)
 **Language**: Spanish output requested, English research sources

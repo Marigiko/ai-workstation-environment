@@ -41,7 +41,7 @@ Two distinct projects cooperate:
 | Service | Endpoint | Purpose |
 |---------|----------|---------|
 | ai-workstation Gateway | `http://localhost:8000` | PipelineService, context, memory, routing |
-| LiteLLM Proxy | `http://localhost:4000` | OpenAI-compatible LLM gateway |
+| OmniRoute Gateway | `http://localhost:20128/v1` | OpenAI-compatible LLM gateway (dashboard: `http://localhost:20128/dashboard`) |
 | Workspace API | `http://localhost:8080` | Sessions, tasks, notifications, WebSocket |
 | Ollama | `http://localhost:11434` | Local model inference |
 | PostgreSQL | `localhost:5432` | Workspace + ai-workstation storage |
@@ -70,8 +70,8 @@ Two distinct projects cooperate:
 │       │              │              │              │                     │
 │       ▼              ▼              ▼              ▼                     │
 │  ┌─────────────────────────────────────────────────────────────┐       │
-│  │              LiteLLM Proxy (port 4000)                      │       │
-│  │   OpenAI-compatible API · Model routing · Load balancing    │       │
+│  │           OmniRoute Gateway (port 20128)                    │       │
+│  │   OpenAI-compatible API · Model routing · Combos            │       │
 │  └──────────┬──────────────────────────────┬───────────────────┘       │
 │             │                              │                           │
 │             ▼                              ▼                           │
@@ -91,7 +91,7 @@ Two distinct projects cooperate:
 │         ▼                                 ▼                           │
 │  ┌─────────────────────────────────────────────────────────────┐       │
 │  │                     n8n (port 5678)                         │       │
-│  │  Telegram ←→ Webhook ←→ Workspace API ←→ MiMo ←→ LiteLLM  │       │
+│  │  Telegram ←→ Webhook ←→ Workspace API ←→ MiMo ←→ OmniRoute │       │
 │  └──────┬──────────────────────────────┬───────────────────────┘       │
 │         │                              │                               │
 │         │           MODEL LAYER        │                               │
@@ -119,8 +119,8 @@ Two distinct projects cooperate:
 
 ```
 ┌─────────────┬──────────┬──────────┬──────────┬──────────┬──────────┐
-│ From \ To   │ LiteLLM  │ Worksp.  │ ai-ws    │ n8n      │ Ollama   │
-│             │ :4000    │ API:8080 │ GW:8000  │ :5678    │ :11434   │
+│ From \ To   │OmniRoute │ Worksp.  │ ai-ws    │ n8n      │ Ollama   │
+│             │ :20128   │ API:8080 │ GW:8000  │ :5678    │ :11434   │
 ├─────────────┼──────────┼──────────┼──────────┼──────────┼──────────┤
 │ Terax       │ HTTP*    │ WS       │ —        │ —        │ —        │
 │ Hermes      │ —        │ WS/REST  │ —        │ —        │ —        │
@@ -130,7 +130,7 @@ Two distinct projects cooperate:
 │ ai-ws GW    │ HTTP     │ —        │ —        │ —        │ —        │
 │ n8n         │ HTTP     │ HTTP/WS  │ —        │ —        │ —        │
 │ MiMo        │ HTTP     │ HTTP     │ —        │ Webhook  │ —        │
-│ LiteLLM     │ —        │ —        │ —        │ —        │ HTTP     │
+│ OmniRoute   │ —        │ —        │ —        │ —        │ HTTP     │
 └─────────────┴──────────┴──────────┴──────────┴──────────┴──────────┘
 
 * = through OpenAI-compatible endpoint
@@ -181,13 +181,13 @@ User (Phone)                    System
 │     c. Distribute to specialists             │
 │  8. If manual: route to specified agent      │
 └──────┬──────────────────────────────────────┘
-       │ 9. Agent needs LLM → call LiteLLM
+       │ 9. Agent needs LLM → call OmniRoute
        ▼
 ┌─────────────────────────────────────────────┐
-│          LiteLLM Proxy (:4000)               │
+│        OmniRoute Gateway (:20128)            │
 │  POST /v1/chat/completions                  │
-│  model: "ollama/qwen2.5-coder:7b"           │
-│  → Routes to Ollama                          │
+│  model: "agente" (GLM → Gemini → Groq)      │
+│  → Routes to combo / Ollama                  │
 └──────┬──────────────────────────────────────┘
        │
        ▼
@@ -300,7 +300,7 @@ User Prompt: "add auth to /api/users"
 
 ### 4.1 Terax ↔ MiMo Communication
 
-**What exists**: Terax is an independent AI terminal. MiMo is a separate CLI tool. Both connect to LiteLLM independently.
+**What exists**: Terax is an independent AI terminal. MiMo is a separate CLI tool. Both connect to OmniRoute independently.
 
 **What needs to be built**:
 
@@ -568,7 +568,7 @@ serena:
   # Integration
   integration:
     workspace_api: "http://localhost:8080"
-    litellm_url: "http://localhost:4000"
+    omniroute_url: "http://localhost:20128/v1"
     headroom_enabled: true
 ```
 
@@ -725,7 +725,7 @@ All model requests → ai-workstation Gateway (port 8000)
   │   ├─ Context Engine (tree-sitter + embeddings + PixelRAG)
   │   ├─ Memory Service (Qdrant)
   │   ├─ Agent Router (classify → tiered routing)
-  │   ├─ Provider (LiteLLM → Ollama/Cloud)
+  │   ├─ Provider (OmniRoute → Ollama/Cloud)
   │   ├─ Evaluation (quality scoring)
   │   └─ Observability (tracing)
   │
@@ -1147,9 +1147,9 @@ WORKSPACE_API_URL=http://localhost:8080
 WORKSPACE_DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-awe}:${POSTGRES_PASSWORD:-}@localhost:5432/workspace
 WORKSPACE_REDIS_URL=redis://localhost:6380
 
-# === LiteLLM ===
-LITELLM_URL=http://localhost:4000
-LITELLM_API_KEY=<auto-generated-on-install>
+# === OmniRoute ===
+OMNIROUTE_URL=http://localhost:20128/v1
+OMNIROUTE_API_KEY=<bearer-key>
 
 # === Ollama ===
 OLLAMA_URL=http://localhost:11434
@@ -1200,7 +1200,7 @@ mcp:
 
 terax:
   enabled: true
-  proxy_url: "http://localhost:4000"
+  proxy_url: "http://localhost:20128/v1"
   agent_detection: true
   default_model: "claude-sonnet-4-20250514"
   mimo_bridge: true
@@ -1272,35 +1272,15 @@ serena:
     timeout_seconds: 300
 ```
 
-### 8.3 LiteLLM Config Update
+### 8.3 OmniRoute Model Selection
 
-```yaml
-# Add to LiteLLM config for architect agent
-model_list:
-  # Existing models...
-  
-  # Architect-specific routing
-  - model_name: "architect"
-    litellm_params:
-      model: "ollama/qwen2.5-coder:7b"
-      api_base: "http://localhost:11434"
-  
-  # Agent model aliases
-  - model_name: "agent/code"
-    litellm_params:
-      model: "ollama/qwen2.5-coder:7b"
-      api_base: "http://localhost:11434"
-  
-  - model_name: "agent/review"
-    litellm_params:
-      model: "gemini/gemini-2.5-flash"
-      api_key: os.environ/GOOGLE_API_KEY
-  
-  - model_name: "agent/docs"
-    litellm_params:
-      model: "ollama/qwen2.5-coder:1.5b"
-      api_base: "http://localhost:11434"
-```
+OmniRoute exposes OpenAI-compatible models/combos — no per-agent config file needed:
+
+| Model / Combo | Routing | Use |
+|---------------|---------|-----|
+| `agente` | GLM Coding Plan → Gemini 2.5 Flash → Groq gpt-oss-120b | Hard/coding work (architect, coder) |
+| `liviano` | Gemini 2.5 Flash → Groq gpt-oss-120b → GLM (free first) | Light work (review, docs) |
+| `qwen2.5-coder:7b` | Ollama (local, 6 GB GPU) | Local light tasks only |
 
 ---
 
@@ -1313,7 +1293,7 @@ model_list:
 | **Transient** | Network timeout, rate limit, Ollama cold start | Retry with exponential backoff (3 attempts) |
 | **Permanent** | Invalid model, missing API key, bad request | Return error immediately |
 | **Resource** | OOM, VRAM full, disk full | Evict oldest loaded model, reduce concurrency |
-| **Dependency** | Service down (LiteLLM, Ollama, PostgreSQL) | Circuit breaker → fallback model |
+| **Dependency** | Service down (OmniRoute, Ollama, PostgreSQL) | Circuit breaker → fallback model |
 | **Logic** | Bad plan from architect, failed subtask | Retry with simplified plan, or escalate to user |
 
 ### 9.2 Circuit Breaker Pattern
@@ -1438,7 +1418,7 @@ async def handle_subtask_failure(task_id: str, error: str, subtask: dict):
 | Workspace API | API key header (`X-API-Key`) | All endpoints |
 | Telegram Bot | Bot token validation | Webhook source verification |
 | n8n | Webhook secret | Inbound webhook validation |
-| LiteLLM | Master key (from LITELLM_API_KEY env var) | LLM API access |
+| OmniRoute | Bearer key (from OMNIROUTE_API_KEY env var) | LLM API access |
 | WebSocket | Token in first message | Real-time connections |
 | Terax ↔ MiMo | OSC 777 markers (not auth, but identification) | Agent detection |
 
@@ -1450,7 +1430,7 @@ class Settings(BaseSettings):
     # Never hardcode secrets
     secret_key: str = Field(default_factory=lambda: os.environ.get("WORKSPACE_SECRET_KEY", "change-me"))
     telegram_bot_token: str = Field(default_factory=lambda: os.environ["TELEGRAM_BOT_TOKEN"])
-    litellm_master_key: str = Field(default_factory=lambda: os.environ.get("LITELLM_API_KEY", ""))
+    omniroute_api_key: str = Field(default_factory=lambda: os.environ.get("OMNIROUTE_API_KEY", ""))
     
     class Config:
         env_file = ".env"
@@ -1465,8 +1445,8 @@ class Settings(BaseSettings):
 │  Telegram User ──────► n8n ──────► Workspace API   │
 │  (chat_id = identity)  (validates)  (checks perms)  │
 │                                                     │
-│  Terax User ──────────► LiteLLM ──► Models         │
-│  (local session)        (master key)                 │
+│  Terax User ──────────► OmniRoute ─► Models         │
+│  (local session)        (bearer key)                 │
 │                                                     │
 │  Hermes User ─────────► Workspace API ──► Tasks     │
 │  (device_id = identity) (checks workspace access)   │
@@ -1687,7 +1667,7 @@ jobs:
 
 | Port | Service | Protocol |
 |------|---------|----------|
-| 4000 | LiteLLM Proxy | HTTP (OpenAI) |
+| 20128 | OmniRoute Gateway | HTTP (OpenAI) |
 | 5432 | PostgreSQL | TCP |
 | 5678 | n8n | HTTP |
 | 6379 | Redis (main) | TCP |
@@ -1701,8 +1681,9 @@ jobs:
 ### Service Health Check Commands
 
 ```bash
-# LiteLLM
-curl http://localhost:4000/health
+# OmniRoute
+curl http://localhost:20128/v1/models \
+  -H "Authorization: Bearer $OMNIROUTE_API_KEY"
 
 # Workspace API
 curl http://localhost:8080/health

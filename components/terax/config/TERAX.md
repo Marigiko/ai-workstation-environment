@@ -5,13 +5,13 @@
 This workspace is part of a layered AI Engineering platform:
 
 ```
-Terax (Terminal/UI) → Orquestador (MiMoCode/ClaudeCode) → LiteLLM (Gateway) → Modelos + MCP
+Terax (Terminal/UI) → Orquestador (MiMoCode/ClaudeCode) → OmniRoute (Gateway) → Modelos + MCP
 ```
 
-- **Gateway**: LiteLLM at http://localhost:4000
+- **Gateway**: OmniRoute (OpenAI-compatible) at http://localhost:20128/v1 (dashboard: http://localhost:20128/dashboard, bearer key in `OMNIROUTE_API_KEY`)
 - **Orchestrator**: MiMoCode (primary) / Claude Code (alternative)
 - **MCP Tools**: Available via orchestrator (filesystem, git, github, headroom, codebase-memory, ponytail)
-- **Models**: Routed through LiteLLM (Claude, GPT-4, Gemini, Ollama local models)
+- **Models**: Routed through OmniRoute combos (`agente` for hard/coding work, `liviano` for light work) plus Ollama local models
 
 ## Quick Commands
 
@@ -48,16 +48,13 @@ ruff check core/ tests/               # Lint code
 - Use Repomix for codebase compression: `repomix --compress --output context.md .`
 - Headroom handles context compression automatically via MCP
 - Codebase Memory persists across sessions via MCP server
-- LiteLLM tracks token usage and costs per model
+- OmniRoute tracks token usage per model
 
-## Available Models (via LiteLLM)
+## Available Models (via OmniRoute)
 
-- Claude Sonnet/Haiku (Anthropic)
-- GPT-4o/GPT-4-turbo (OpenAI)
-- Gemini Pro (Google)
-- Llama 3.1 (Ollama, local)
-- Mistral/Mixtral (via OpenRouter)
-- DeepSeek V3 (DeepSeek)
+- Combo `agente`: GLM Coding Plan → Gemini 2.5 Flash → Groq gpt-oss-120b (hard/coding work)
+- Combo `liviano` (free first): Gemini 2.5 Flash → Groq gpt-oss-120b → GLM (light work)
+- Local: Ollama with `qwen2.5-coder:7b` (fits the 6 GB GPU); HARD tasks go to `agente`, never to a local model
 
 ## MCP Servers
 
@@ -68,5 +65,6 @@ Enabled by default:
 - headroom — Context compression
 - codebase-memory — Persistent memory
 - ponytail — Code quality
+- terax — Terminal integration
 
 Enable more: `./bootstrap mcp-enable <server-name>`

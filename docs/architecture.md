@@ -54,7 +54,7 @@ The AI Engineering Platform is a distributed system that combines:
 ┌─────────────────────────────────────────────────────────────┐
 │                    INFRASTRUCTURE LAYER                      │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  │
-│  │ LiteLLM  │  │ Ollama   │  │   RAG    │  │   MCP    │  │
+│  │ OmniRoute│  │ Ollama   │  │   RAG    │  │   MCP    │  │
 │  │ Gateway  │  │ Local    │  │  Engine  │  │  Tools   │  │
 │  └──────────┘  └──────────┘  └──────────┘  └──────────┘  │
 └─────────────────────────────────────────────────────────────┘
@@ -104,7 +104,7 @@ Worktree 2: /mnt/d/Projects/project-b
 | `configs/worktrees.yaml` | Worktree defaults |
 | `components/telegram-bot/config/bot.yaml` | Telegram bot config |
 | `components/hermes/config/config.yaml` | Hermes connection |
-| `components/litellm/litellm_config.yaml` | LiteLLM models |
+| `components/omniroute/` | OmniRoute gateway (Docker Compose) |
 | `components/workspace/docker-compose.yaml` | Workspace services |
 
 ## API Endpoints
