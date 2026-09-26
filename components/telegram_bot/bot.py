@@ -41,16 +41,24 @@ class TelegramBot:
         self.project_manager = ProjectManager()
 
     def _load_config(self, config_path: str = None) -> dict:
-        if config_path and Path(config_path).exists():
-            import yaml
-            with open(config_path) as f:
-                return yaml.safe_load(f)
-        return {
+        config = {
             "bot": {"token": os.getenv("TELEGRAM_BOT_TOKEN", ""), "allowed_users": []},
             "proxy": {"api_url": "http://localhost:8090"},
             "omniroute": {"api_url": "http://localhost:20128/v1", "api_key": os.environ.get("OMNIROUTE_API_KEY", "")},
             "n8n": {"webhook_url": "http://localhost:5678/webhook/telegram"},
         }
+        if config_path and Path(config_path).exists():
+            import yaml
+            with open(config_path) as f:
+                loaded = yaml.safe_load(f) or {}
+            # setup.sh writes a bot.yaml without proxy/omniroute sections; keep the
+            # defaults for any section or key the file does not define.
+            for section, values in loaded.items():
+                if isinstance(values, dict) and isinstance(config.get(section), dict):
+                    config[section] = {**config[section], **values}
+                else:
+                    config[section] = values
+        return config
 
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Handle /start command."""
